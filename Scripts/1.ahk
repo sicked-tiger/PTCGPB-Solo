@@ -154,23 +154,27 @@ Loop ;select month and year and click
 	CreateStatusMessage("In failsafe for Year. It's been: " . failSafeTime "s ")
 	LogToFile("In failsafe for Year. It's been: " . failSafeTime "s ")
 } ;select month and year and click
-imagePath := A_ScriptDir . "\Game\CountrySelect.png"
-failSafe := A_TickCount
-failSafeTime := 0
-Loop {
-	ImageSearch, , , 93, 471, 122, 485, *40 %imagePath%
-	if(ErrorLevel = 0) {
-		sleep, 1000
-		adbClick(144, 226)
-		sleep, 2000
-		adbClick(144, 226)
+
+Sleep, %Delay%
+if(CheckInstances(93, 471, 122, 485, , "CountrySelect", 0, failSafeTime)) {
+	failSafe := A_TickCount
+	failSafeTime := 0
+	Loop {
+		if(KeepSync(93, 471, 122, 485, , "CountrySelect", 140, 474, 1000, 1)) {
+			sleep, %Delay%
+			sleep, %Delay%
+			adbClick(138, 27)0
+			sleep, %Delay%
+			sleep, %Delay%
+			adbClick(138, 270)
+		}
+		else
+			break
+		sleep, 10
+		failSafeTime := (A_TickCount - failSafe) // 1000
+		CreateStatusMessage("In failsafe for country select. It's been: " . failSafeTime "s ")
+		LogToFile("In failsafe for country select. It's been: " . failSafeTime "s ")
 	}
-	else
-		break
-	sleep, 10
-	failSafeTime := (A_TickCount - failSafe) // 1000
-	CreateStatusMessage("In failsafe for country select. It's been: " . failSafeTime "s ")
-	LogToFile("In failsafe for country select. It's been: " . failSafeTime "s ")
 }
 
 KeepSync(67, 286, 217, 319, , "Birth", 140, 474, 1000) ;wait date confirmation screen while clicking ok
@@ -949,7 +953,6 @@ Screenshot() {
 	TestScript:
 		if(!GPTest) {
 			GPTest := true
-			CreateStatusMessage("Instance " . %scriptName% . " in GP Test mode.")
 		}
 		else {
 			GPTest := false
