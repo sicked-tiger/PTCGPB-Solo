@@ -1,3 +1,8 @@
+*The bot will always be free and I will update it as long as this method is viable. I've spent many hours creating the PTCGPB, and if it’s helped you complete your collection, consider buying me a coffee to keep me going and adding new features!*
+https://buymeacoffee.com/aarturoo
+
+*Thanks for your support, and let’s keep those god packs coming!* 😄
+
 # **__Arturo's PTCGP Bot v2.5__**
 -# *Special thanks to pandaporo. for bringing adb inputs to my attention for v2.0*
 -# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, and everyone else who helped test and contributed.*
