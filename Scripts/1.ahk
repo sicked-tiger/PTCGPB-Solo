@@ -691,9 +691,9 @@ KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		if (ErrorLevel = 0) {
 			CreateStatusMessage("Error message in " scriptName " Clicking retry..." )
 			LogToFile("Error message in " scriptName " Clicking retry..." )
-			adbClick(160, 677)
+			adbClick(82, 389)
 			Sleep, %Delay%
-			adbClick(271, 671)
+			adbClick(139, 386)
 			Sleep, 1000
 		}
 		ImageSearch, , , % 15 + x, % 155 + y, % 270 + x, % 420 + y, *%searchVariation% %imagePath%App.png
@@ -801,7 +801,7 @@ restartGameInstance(reason){
 	Sleep, %Delay%
 	
 	adbClick(143, 370)
-
+	
 	Reload
 }
 
