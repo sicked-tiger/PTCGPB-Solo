@@ -808,9 +808,9 @@ restartGameInstance(reason){
 
 	KeepSync(30, 254, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
 	
-	%Delay%
+	Sleep, %Delay%
 	
-	abdClick(143, 370)
+	adbClick(143, 370)
 }
 
 LogToFile(message, logFile := "") {
