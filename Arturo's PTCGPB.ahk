@@ -1,5 +1,5 @@
 version = Arturos PTCGP Bot v2.4
-
+#SingleInstance, force
 CoordMode, Mouse, Screen
 SetDefaultMouseSpeed, 0
 
@@ -140,77 +140,9 @@ Loop, %Instances%
 Gui, Destroy ; Close the second page after starting instances
 Return
 
-
-
 GuiClose:
 ExitApp
 
-F5:: ;reload
-blockinput on
-MouseGetPos, originalX, originalY
-Loop %Instances% {
-	rowHeight := 533  ; Adjust the height of each row
-	currentRow := Floor((A_Index - 1) / Columns)
-	y := 41 + currentRow * rowHeight	
-	x := 22 + Mod((A_Index - 1), Columns) * 277
-	MouseClick, left, %x%, %y%
-}
-MouseMove, %originalX%, %originalY%
-blockinput off
-Return
-
-F6:: ;pause/resume
-blockinput on
-MouseGetPos, originalX, originalY
-Loop %Instances% {
-	rowHeight := 533  ; Adjust the height of each row
-	currentRow := Floor((A_Index - 1) / Columns)
-	y := 41 + currentRow * rowHeight	
-	
-	if(!Paused)
-		x := 59 + Mod((A_Index - 1), Columns) * 277
-	else
-		x := 106 + Mod((A_Index - 1), Columns) * 277
-		
-	MouseClick, left, %x%, %y%
-}
-MouseMove, %originalX%, %originalY%
-blockinput off
-if(!Paused)
-	Paused := true
-else
-	Paused := false
-Return
-
-F7:: ;stop
-blockinput on
-MouseGetPos, originalX, originalY
-Loop %Instances% {
-	rowHeight := 533  ; Adjust the height of each row
-	currentRow := Floor((A_Index - 1) / Columns)
-	y := 41 + currentRow * rowHeight	
-	x := 150 + Mod((A_Index - 1), Columns) * 277
-	
-	MouseClick, left, %x%, %y%
-}
-MouseMove, %originalX%, %originalY%
-blockinput off
-Return
-
-F8:: ;gp test
-blockinput on
-MouseGetPos, originalX, originalY
-Loop %Instances% {
-	rowHeight := 533  ; Adjust the height of each row
-	currentRow := Floor((A_Index - 1) / Columns)
-	y := 41 + currentRow * rowHeight	
-	x := 193 + Mod((A_Index - 1), Columns) * 277
-	
-	MouseClick, left, %x%, %y%
-}
-MouseMove, %originalX%, %originalY%
-blockinput off
-Return
 
 findAdbPorts(baseFolder := "C:\Program Files\Netease") {
 global adbPorts
@@ -255,3 +187,5 @@ Loop, Files, %baseFolder%, D  ; D flag to include directories only
 
 ; Example of how to retrieve the adbPort by instanceName
 }
+
+~F7::ExitApp
