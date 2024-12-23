@@ -155,10 +155,12 @@ Loop ;select month and year and click
 	LogToFile("In failsafe for Year. It's been: " . failSafeTime "s ")
 } ;select month and year and click
 imagePath := A_ScriptDir . "\Game\CountrySelect.png"
-
+failSafe := A_TickCount
+failSafeTime := 0
 Loop {
 	ImageSearch, , , 93, 471, 122, 485, *40 %imagePath%
 	if(ErrorLevel = 0) {
+		sleep, 1000
 		adbClick(144, 226)
 		sleep, 2000
 		adbClick(144, 226)
@@ -166,6 +168,9 @@ Loop {
 	else
 		break
 	sleep, 10
+	failSafeTime := (A_TickCount - failSafe) // 1000
+	CreateStatusMessage("In failsafe for country select. It's been: " . failSafeTime "s ")
+	LogToFile("In failsafe for country select. It's been: " . failSafeTime "s ")
 }
 
 KeepSync(67, 286, 217, 319, , "Birth", 140, 474, 1000) ;wait date confirmation screen while clicking ok
