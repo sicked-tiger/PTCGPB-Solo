@@ -777,35 +777,35 @@ restartGameInstance(reason){
 	
 	Sleep, 1000
 	
-	KeepSync(0, 0, 500, 500, 40, "Restart", 140, 300, 5000, 60)
-	
-	Sleep, 1000
-	
-	adbClick(255, 83)
-	
-	Sleep, 1000
-	
-	KeepSync(116, 77, 167, 97, , "Menu")
-	
-	Sleep, 1000
+	if(KeepSync(0, 0, 500, 500, 40, "Restart", 140, 300, 5000, 30)) {
+		Sleep, 1000
+		
+		adbClick(255, 83)
+		
+		Sleep, 1000
+		
+		KeepSync(116, 77, 167, 97, , "Menu")
+		
+		Sleep, 1000
 
-	KeepSync(56, 312, 108, 334, , "Account2", 79, 267, 2000) ;wait for account menu
-	
-	Sleep, 1000
+		KeepSync(56, 312, 108, 334, , "Account2", 79, 267, 2000) ;wait for account menu
+		
+		Sleep, 1000
 
-	KeepSync(74, 111, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
-	
-	Sleep, 1000
+		KeepSync(74, 111, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
+		
+		Sleep, 1000
 
-	KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, 2000) ;wait for second delete save data confirmation
-	
-	Sleep, 1000
+		KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, 2000) ;wait for second delete save data confirmation
+		
+		Sleep, 1000
 
-	KeepSync(30, 254, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
-	
-	Sleep, %Delay%
-	
-	adbClick(143, 370)
+		KeepSync(30, 254, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
+		
+		Sleep, %Delay%
+		
+		adbClick(143, 370)
+	}
 	
 	Reload
 }
