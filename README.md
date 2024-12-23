@@ -3,7 +3,7 @@
 -# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, and everyone else who helped test and contributed.*
 
 **__What does this do?__**
-Rerolls accounts to 26 cards in ~3 mins from account creation to deletion stopping an instance if it gets a god pack.
+- Rerolls accounts to 26 cards in ~3 mins from account creation to deletion stopping an instance if it gets a god pack.
 
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
