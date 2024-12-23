@@ -179,11 +179,10 @@ if(CheckInstances(93, 471, 122, 485, , "CountrySelect", 0, failSafeTime)) {
 		LogToFile("In failsafe for country select. It's been: " . failSafeTime "s ")
 	}
 } else {
-KeepSync(67, 286, 217, 319, , "Birth", 140, 474, 1000)
-	break
+	KeepSync(67, 286, 217, 319, , "Birth", 140, 474, 1000)
 }
 
-KeepSync(67, 286, 217, 319, , "Birth", 140, 474, 1000) ;wait date confirmation screen while clicking ok
+ ;wait date confirmation screen while clicking ok
 
 KeepSync(97, 285, 185, 315, , "TosScreen", 203, 371, 1000) ;wait to be at the tos screen while confirming birth
 
