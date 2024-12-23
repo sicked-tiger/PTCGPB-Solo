@@ -8,7 +8,7 @@
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v2.5.3.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v2.5.5.zip)
 
 **__How can I get it working?__**
 Step 1: Install the necessary programs
@@ -47,7 +47,8 @@ Step 6:
 - Open PTCGP
 - Download initial 600 mb
 - Delete account
-- Restart and get it to where you select your birthdate and country. 
+- Restart and get it to where you select your birthdate and country.
+- To change the bot language, drag and drop the contents of your language folder found in the Scripts folder and overwrite the Game folder and 1.ahk in the Scripts folder.
 
 Step 7: 
 - Run PTCGP Bot.ahk
