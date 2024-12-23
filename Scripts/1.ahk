@@ -8,7 +8,7 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
-global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText
+global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage
 	
 	adbPath := A_ScriptDir . "\adb\platform-tools\adb.exe"  ; Example path, adjust if necessary
 	deleteAccount := false
@@ -22,11 +22,14 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
     IniRead, changeDate, %A_ScriptDir%\..\Settings.ini, UserSettings, ChangeDate, 0100
     IniRead, Columns, %A_ScriptDir%\..\Settings.ini, UserSettings, Columns, 5
     IniRead, openPack, %A_ScriptDir%\..\Settings.ini, UserSettings, openPack, 4
+	IniRead, defaultLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, defaultLanguage, English
 	
 	if(!adbPort) {
 		Msgbox, Invalid port. Stopping...
 		ExitApp
 	}
+	
+	defaultLanguage = Game ; future language support
 	
 	; connect adb
 	instanceSleep := A_ScriptDir * 1000
@@ -628,7 +631,7 @@ CheckInstances(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", EL
 	global winTitle, Variation, failSafe
 	if(searchVariation = "")
 		searchVariation := Variation
-	imagePath := A_ScriptDir . "\Game\" . imageName
+	imagePath := A_ScriptDir . "\" . defaultLanguage . "\" . imageName
 	x := 0
     y := 0
 	confirmed := false
@@ -662,7 +665,7 @@ KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		global Delay
         sleepTime := Delay
 	}
-	imagePath := A_ScriptDir . "\Game\"
+	imagePath := A_ScriptDir . "\" defaultLanguage "\"
 	click := false
 	if(clickx > 0 and clicky > 0)
 		click := true
@@ -843,13 +846,13 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
 checkBorder() {
 	global winTitle, Variation
 	WinGetPos, x, y, Width, Height, %winTitle%
-	ImageSearch, testx, testy, 23 + x, 282 + y, 96 + x, 284 + y, *80 %A_ScriptDir%\Game\Border.png ;first card
+	ImageSearch, testx, testy, 23 + x, 282 + y, 96 + x, 284 + y, *80 %A_ScriptDir%\%defaultLanguage%\Border.png ;first card
 	if (ErrorLevel = 0) {
 		CreateStatusMessage("Not a God Pack ")
 		;msgbox, 1 %testx%, %testy%
 	}
 	else {
-		ImageSearch, testx, testy, 107 + x, 282 + y, 180 + x, 284 + y, *80 %A_ScriptDir%\Game\Border.png ; second card
+		ImageSearch, testx, testy, 107 + x, 282 + y, 180 + x, 284 + y, *80 %A_ScriptDir%\%defaultLanguage%\Border.png ; second card
 		if (ErrorLevel = 0) {
 			CreateStatusMessage("Not a God Pack ")
 			LogToFile("Second card checked. Not a God Pack ")
