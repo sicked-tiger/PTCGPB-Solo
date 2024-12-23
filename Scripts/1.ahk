@@ -96,20 +96,11 @@ if(Variation > 80) {
     if (EndTime >= 2400)
         EndTime -= 2400
 		
-	While((CurrentTime >= StartTime) && (CurrentTime <= EndTime))
+	While(((CurrentTime - StartTime >= 0) && (CurrentTime - StartTime <= 5)) || ((EndTime - CurrentTime >= 0) && (EndTime - CurrentTime <= 5)))
 	{
 		CreateStatusMessage("I need a break... Sleeping until " . changeDate + 5 . " to avoid being kicked out from the date change")
 		FormatTime, CurrentTime,, HHmm ; Update the current time after sleep
 		Sleep, 5000
-	}
-	
-	if(changeDate = 0 || changeDate = 2400) {
-		While((CurrentTime <= StartTime) && (CurrentTime <= EndTime))
-		{
-			CreateStatusMessage("I need a break... Sleeping until " . changeDate + 5 . "to avoid being kicked out from the date change")
-			FormatTime, CurrentTime,, HHmm ; Update the current time after sleep
-			Sleep, 5000
-		}
 	}
 	
 KeepSync(77, 144, 169, 175, , "Country", 143, 370) ;select month and year and click
