@@ -1,4 +1,4 @@
-# **__Arturo's PTCGP Bot v2.2__**
+# **__Arturo's PTCGP Bot v2.5__**
 -# *Special thanks to pandaporo. for bringing adb inputs to my attention for v2.0*
 -# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, and everyone else who helped test and contributed.*
 
