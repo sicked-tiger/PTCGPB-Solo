@@ -700,7 +700,6 @@ KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		if (ErrorLevel = 0) {
 			CreateStatusMessage("Crashed? " scriptName " Restarting..." )
 			restartGameInstance("Crashed at " imageName)
-			Reload
 		}
 		; ImageSearch within the region
 		ImageSearch, , , % x1 + x, % y1 + y, % x2 + x, % y2 + y, *%searchVariation% %imagePath%%imageName%.png
@@ -802,6 +801,8 @@ restartGameInstance(reason){
 	Sleep, %Delay%
 	
 	adbClick(143, 370)
+
+	Reload
 }
 
 LogToFile(message, logFile := "") {
