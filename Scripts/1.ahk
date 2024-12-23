@@ -40,6 +40,7 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 	
 	WinGetPos, x, y, Width, Height, %winTitle%
 	sleep, 2000
+	Winset, Alwaysontop, On, %winTitle%
 	
 	; Now, re-create the GUI with the Pause, Resume, and Stop buttons after initialization
 		x4 := x + 5
