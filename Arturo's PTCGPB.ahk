@@ -1,54 +1,50 @@
-version = Arturos PTCGP Bot v2.4
+version = Arturos PTCGP Bot
 #SingleInstance, force
 CoordMode, Mouse, Screen
 SetDefaultMouseSpeed, 0
 
-global Instances, adbPorts
+global Instances, adbPorts, jsonFileName, PacksText
+
+totalFile := A_ScriptDir . "\json\total.json"
+totalContent := "{""total_sum"": " sum "}"
+FileDelete, %totalFile%
+InitializeJsonFile() ; Create or open the JSON file
 
 ; Create the main GUI for selecting number of instances
-    IniRead, Name, Settings.ini, UserSettings, Name, Arturo
+    IniRead, Name, Settings.ini, UserSettings, Name, player1
     IniRead, Delay, Settings.ini, UserSettings, Delay, 250
     IniRead, folderPath, Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
     IniRead, changeDate, Settings.ini, UserSettings, ChangeDate, 0100
     IniRead, Columns, Settings.ini, UserSettings, Columns, 5
     IniRead, openPack, Settings.ini, UserSettings, openPack, Mew
     IniRead, Instances, Settings.ini, UserSettings, Instances, 10
+	IniRead, setSpeed, Settings.ini, UserSettings, setSpeed, 2x
     ; IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, English
 	
-yPos := 10
-controlHeight := 20  ; Increased control height for better visibility
-controlSpacing := 10  ; Increased spacing between controls
+normalImage := A_ScriptDir . "\Scripts\Game\Button.png"
+hoverImage := A_ScriptDir . "\Scripts\Game\ButtonHover.png"
+clickedImage := A_ScriptDir . "\Scripts\Game\ButtonClick.png"
 
-; Set starting position for the GUI elements
-yInstancesText := yPos
-yInstancesEdit := yInstancesText + controlHeight
+; Main GUI setup
+; Add the link text at the bottom of the GUI
 
-yPackText := yInstancesEdit + controlHeight + controlSpacing
-yPackEdit := yPackText + controlHeight
+Gui, Show, w500 h500, Arturos PTCGPB Bot Setup ; Ensure the GUI size is appropriate
 
-yDelayText := yPackEdit + controlHeight + controlSpacing
-yDelayEdit := yDelayText + controlHeight
+Gui, Color, White  ; Set the background color to white
+Gui, Font, s10 Bold , Segoe UI 
+; Add the button image on top of the GUI
+Gui, Add, Picture, gStart x196 y196 w108 h108 vImageButton  +BackgroundTrans, %normalImage%
 
-yChangeDateText := yDelayEdit + controlHeight + controlSpacing
-yChangeDateEdit := yChangeDateText + controlHeight
+Gui, Add, Text, x0 y464 w500 h30 vLinkText gOpenLink cBlue Center +BackgroundTrans
+Gui, Font, s15 Bold , Segoe UI
+; Add the background image to the GUI
+Gui, Add, Picture, x0 y0 w500 h500, %A_ScriptDir%\Scripts\Game\GUI.png
 
-yNameText := yChangeDateEdit + controlHeight + controlSpacing
-yNameEdit := yNameText + controlHeight
+; Add input controls
+Gui, Add, Edit, vName x80 y95 w145 Center, %Name%
+Gui, Add, Edit, vInstances x275 y95 w145 Center, %Instances%
 
-yColumnsText := yNameEdit + controlHeight + controlSpacing
-yColumnsEdit := yColumnsText + controlHeight
-
-yVariationText := yColumnsEdit + controlHeight + controlSpacing
-yVariationEdit := yVariationText + controlHeight
-
-yLangText := yVariationEdit + controlHeight + controlSpacing
-yLangEdit := yLangText + controlHeight
-
-yNextPage := yLangEdit + controlHeight + controlSpacing 
-
-Gui, Add, Text, x20 y%yInstancesText%, Instances #:
-Gui, Add, Edit, vInstances x60 y%yInstancesEdit% w100, %Instances%
-
+; Pack selection logic
 if (openPack = "Mewtwo") {
     defaultPack := 1
 } else if (openPack = "Pikachu") {
@@ -59,35 +55,49 @@ if (openPack = "Mewtwo") {
     defaultPack := 4
 }
 
-Gui, Add, Text, x20 y%yPackText%, Pack:
-Gui, Add, DropDownList, x60 y%yPackEdit% w100 vopenPack choose%defaultPack%, Mewtwo|Pikachu|Charizard|Mew
+Gui, Add, DropDownList, x80 y166 w145 vopenPack choose%defaultPack% Center, Mewtwo|Pikachu|Charizard|Mew
+Gui, Add, Edit, vColumns x275 y166 w145 Center, %Columns%
 
-Gui, Add, Text, x20 y%yDelayText%, Delay:
-Gui, Add, Edit, vDelay x60 y%yDelayEdit% w100, %Delay%
+Gui, Add, Edit, vDelay x80 y332 w145 Center, %Delay%
+Gui, Add, Edit, vChangeDate x275 y332 w145 Center, %ChangeDate%
 
-Gui, Add, Text, x20 y%yChangeDateText%, Time Zone:
-Gui, Add, Edit, vChangeDate x60 y%yChangeDateEdit% w100, %ChangeDate%
+Gui, Font, s10 Bold, Segoe UI 
+Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
 
-Gui, Add, Text, x20 y%yNameText%, Name:
-Gui, Add, Edit, vName x60 y%yNameEdit% w100, %Name%
+; Speed selection logic
+if (setSpeed = "2x") {
+    defaultSpeed := 1
+} else if (setSpeed = "1x/2x") {
+    defaultSpeed := 2
+} else if (setSpeed = "1x/3x") {
+    defaultSpeed := 3
+}
+Gui, Font, s15 Bold, Segoe UI 
+Gui, Add, DropDownList, x275 y404 w145 vsetSpeed choose%defaultSpeed% Center, 2x|1x/2x|1x/3x
 
-Gui, Add, Text, x20 y%yColumnsText%, Instances per row:
-Gui, Add, Edit, vColumns x60 y%yColumnsEdit% w100, %Columns%
+; Show the GUI
+Gui, Show
+return
 
-Gui, Add, Text, x20 y%yVariationText%, Netease Path:
-Gui, Add, Edit, vfolderPath x60 y%yVariationEdit% w100, %folderPath%
+; Check for mouse hover and update button image accordingly
+ImageButton:
+    MouseGetPos, mouseX, mouseY
+    GuiControlGet, ImageButton, Pos  ; Get the position of the button
 
-; if (defaultLanguage = "English") {
-    ; defaultLang := 1
-; } else if (defaultLanguage = "Korean")
-    ; defaultLang := 2
+    ; Check if the mouse is over the button
+    if (mouseX >= ImageButtonX and mouseX <= ImageButtonX + 108 and mouseY >= ImageButtonY and mouseY <= ImageButtonY + 108) {
+        ; Mouse hover - change image to hover
+        GuiControl,, ImageButton, %hoverImage%
+    } else {
+        ; Mouse out - revert to normal image
+        GuiControl,, ImageButton, %normalImage%
+    }
+return
 
-; Gui, Add, Text, x20 y%yLangText%, Pack:
-; Gui, Add, DropDownList, x60 y%yLangEdit% w100 vdefaultLanguage choose%defaultLang%, English|Korean
-
-Gui, Add, Button, gStart x60 y%yNextPage% w100 h30, Start
-Gui, Show, , Arturos PTCGPB Setup
-Return
+; Handle the link click
+OpenLink:
+    Run, https://buymeacoffee.com/aarturoo
+return
 
 Start:
 Gui, Submit  ; Collect the input values from the first page
@@ -112,6 +122,7 @@ IniWrite, %ChangeDate%, Settings.ini, UserSettings, ChangeDate
 IniWrite, %Columns%, Settings.ini, UserSettings, Columns
 IniWrite, %openPack%, Settings.ini, UserSettings, openPack
 IniWrite, %Instances%, Settings.ini, UserSettings, Instances
+IniWrite, %setSpeed%, Settings.ini, UserSettings, setSpeed
 ; IniWrite, %defaultLanguage%, Settings.ini, UserSettings, defaultLanguage
 
 ; Loop to process each instance
@@ -134,14 +145,39 @@ Loop, %Instances%
     FileName := "Scripts\"A_Index ".ahk"
     Command := FileName
 	
-    Run, % Command
+    Run, %Command%
 }
 
 Gui, Destroy ; Close the second page after starting instances
+
+Loop {
+	; Sum all variable values and write to total.json
+	total := SumVariablesInJsonFile()
+	CreateStatusMessage("Packs: " . total, 200, 533)
+	Sleep, 10000
+}
 Return
 
 GuiClose:
 ExitApp
+
+
+
+CreateStatusMessage(Message, X := 0, Y := 60) {
+	global winTitle, PacksText
+	GuiName := 22
+	PacksText := 22
+	WinGetPos, xpos, ypos, Width, Height, %winTitle%
+	
+	; Create a new GUI with the given name, position, and message
+	Gui, %GuiName%:New, +AlwaysOnTop +ToolWindow -Caption 
+	Gui, %GuiName%:Default
+	Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
+	Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
+	Gui, %GuiName%:Add, Text, vPacksText, %Message%
+	Gui,%GuiName%:Show,NoActivate x%X% y%Y% AutoSize,NoActivate %GuiName%
+	
+}
 
 
 findAdbPorts(baseFolder := "C:\Program Files\Netease") {
@@ -186,6 +222,85 @@ Loop, Files, %baseFolder%, D  ; D flag to include directories only
 }
 
 ; Example of how to retrieve the adbPort by instanceName
+}
+
+; Global variable to track the current JSON file
+global jsonFileName := ""
+
+; Function to create or select the JSON file
+InitializeJsonFile() {
+    global jsonFileName
+	fileName := A_ScriptDir . "\json\Packs.json"
+	if FileExist(fileName)
+		FileDelete, %fileName%
+	if !FileExist(fileName) {
+		; Create a new file with an empty JSON array
+		FileAppend, [], %fileName%  ; Write an empty JSON array
+		jsonFileName := fileName
+		return
+	}
+}
+
+; Function to append a time and variable pair to the JSON file
+AppendToJsonFile(variableValue) {
+    global jsonFileName
+    if (jsonFileName = "") {
+        MsgBox, JSON file not initialized. Call InitializeJsonFile() first.
+        return
+    }
+
+    ; Read the current content of the JSON file
+    FileRead, jsonContent, %jsonFileName%
+    if (jsonContent = "") {
+        jsonContent := "[]"
+    }
+
+    ; Parse and modify the JSON content
+    jsonContent := SubStr(jsonContent, 1, StrLen(jsonContent) - 1) ; Remove trailing bracket
+    if (jsonContent != "[")
+        jsonContent .= ","
+    jsonContent .= "{""time"": """ A_Now """, ""variable"": " variableValue "}]"
+
+    ; Write the updated JSON back to the file
+    FileDelete, %jsonFileName%
+    FileAppend, %jsonContent%, %jsonFileName%
+}
+
+; Function to sum all variable values in the JSON file
+SumVariablesInJsonFile() {
+    global jsonFileName
+    if (jsonFileName = "") {
+        MsgBox, JSON file not initialized. Call InitializeJsonFile() first.
+        return 0
+    }
+
+    ; Read the file content
+    FileRead, jsonContent, %jsonFileName%
+    if (jsonContent = "") {
+        MsgBox, The JSON file is empty.
+        return 0
+    }
+
+    ; Parse the JSON and calculate the sum
+    sum := 0
+    ; Clean and parse JSON content
+    jsonContent := StrReplace(jsonContent, "[", "") ; Remove starting bracket
+    jsonContent := StrReplace(jsonContent, "]", "") ; Remove ending bracket
+    Loop, Parse, jsonContent, {, }
+    {
+        ; Match each variable value
+        if (RegExMatch(A_LoopField, """variable"":\s*(-?\d+)", match)) {
+            sum += match1
+        }
+    }
+
+    ; Write the total sum to a file called "total.json"
+    totalFile := A_ScriptDir . "\json\total.json"
+    totalContent := "{""total_sum"": " sum "}"
+    FileDelete, %totalFile%
+    FileAppend, %totalContent%, %totalFile%
+
+    return sum
 }
 
 ~F7::ExitApp
