@@ -8,7 +8,7 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
-global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage
+global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName
 	
 	adbPath := A_ScriptDir . "\adb\platform-tools\adb.exe"  ; Example path, adjust if necessary
 	deleteAccount := false
@@ -16,13 +16,16 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 	winTitle := scriptName
 	
 	IniRead, adbPort, %A_ScriptDir%\..\Settings.ini, UserSettings, adbPort%scriptName%, 11111
-    IniRead, Name, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, Arturo
+    IniRead, Name, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, player1
     IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
     IniRead, Variation, %A_ScriptDir%\..\Settings.ini, UserSettings, Variation, 40
     IniRead, changeDate, %A_ScriptDir%\..\Settings.ini, UserSettings, ChangeDate, 0100
     IniRead, Columns, %A_ScriptDir%\..\Settings.ini, UserSettings, Columns, 5
     IniRead, openPack, %A_ScriptDir%\..\Settings.ini, UserSettings, openPack, 4
-	IniRead, defaultLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, defaultLanguage, English
+    IniRead, setSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, setSpeed, 2x
+	; IniRead, defaultLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, defaultLanguage, English
+	jsonFileName := A_ScriptDir . "\..\json\Packs.json"
+	
 	
 	if(!adbPort) {
 		Msgbox, Invalid port. Stopping...
@@ -56,7 +59,7 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 		Gui, Add, Button, x60 y0 w40 h25 gResumeScript, Resume (F6)
 		Gui, Add, Button, x100 y0 w30 h25 gStopScript, Stop (F7)
 		Gui, Add, Button, x130 y0 w40 h25 gTestScript, GP Test  (F8)
-        Gui, Show, NoActivate x%x4% y%y4% AutoSize, NoActivate
+        Gui, Show, NoActivate x%x4% y%y4% AutoSize
 		
 	if (!openPack)
 		openPack = 1
@@ -68,6 +71,15 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 		openPack = 3
 	else if (openPack = "Mew")
 		openPack = 4
+		
+	if (!setSpeed)
+		setSpeed = 1
+	if (setSpeed = "2x")
+		setSpeed := 1
+	else if (setSpeed = "1x/2x")
+		setSpeed := 2
+	else if (setSpeed = "1x/3x")
+		setSpeed := 3
 
 	rerollTime := A_TickCount	
 
@@ -106,7 +118,16 @@ if(Variation > 80) {
 		FormatTime, CurrentTime,, HHmm ; Update the current time after sleep
 		Sleep, 5000
 	}
-	
+	if(setSpeed > 1) {
+		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+		if(setSpeed = 3)
+			KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+		else
+			KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+		Sleep, %Delay%
+		adbClick(137, 446)
+		Sleep, %Delay%
+	}	
 KeepSync(77, 144, 169, 175, , "Country", 143, 370) ;select month and year and click
 
 adbClick(80, 400)
@@ -237,9 +258,24 @@ Sleep, %Delay%
 adbClick(143, 369)
 
 Sleep, %Delay%
-
-KeepSync(60, 206, 226, 248, , "Welcome", 253, 506, 110) ;click through cutscene until welcome page
-
+		
+	if(setSpeed = 3) {
+		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+		KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
+		Sleep, %Delay%
+		adbClick(137, 446)
+		Sleep, %Delay%
+	} 
+	
+	KeepSync(60, 206, 226, 248, , "Welcome", 253, 506, 110) ;click through cutscene until welcome page
+	
+	if(setSpeed = 3) {
+		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+	
+		KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+		Sleep, %Delay%
+		adbClick(137, 446)
+	}
 KeepSync(190, 241, 225, 270, , "Name", 189, 438) ;wait for name input screen
 
 KeepSync(75, 498, 230, 537, , "OK", 139, 257) ;wait for name input screen
@@ -270,13 +306,33 @@ adbClick(140, 424)
 
 KeepSync(104, 269, 177, 296, , "Trace", 140, 424) ;wait for pack to be ready  to trace
 
+
 failSafe := A_TickCount
 failSafeTime := 0
 Loop {
+	if(setSpeed > 1) {
+		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+		KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
+		Sleep, %Delay%
+		adbClick(137, 446)
+		Sleep, %Delay%
+	}
 	adbSwipe()
 	Sleep, 10
-	if (CheckInstances(104, 199, 169, 268, , "Bulba", 0, failSafeTime))
-		break
+	if(setSpeed > 1) {
+	KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+	
+		if(setSpeed = 3)
+			KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+		else
+			KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+		Sleep, %Delay%
+		adbClick(137, 446)
+	}
+	Sleep, %Delay%
+	if (CheckInstances(104, 199, 169, 268, , "Bulba", 0, failSafeTime)){
+			break
+		}
 	failSafeTime := (A_TickCount - failSafe) // 1000
 	CreateStatusMessage("In failsafe for Trace. It's been: " . failSafeTime "s ")
 	LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
@@ -287,12 +343,31 @@ KeepSync(34, 99, 74, 131, , "Swipe", 140, 375) ;click through cards until needin
 failSafe := A_TickCount
 failSafeTime := 0
 Loop {
+	if(setSpeed > 1) {
+		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+		KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
+		Sleep, %Delay%
+		adbClick(137, 446)
+		Sleep, %Delay%
+	}
 	adbSwipeUp()
+	if(setSpeed > 1) {
+		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+		if(setSpeed = 3)
+			KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+		else
+			KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+		Sleep, %Delay%
+		adbClick(137, 446)
+		Sleep, %Delay%
+	}
 	Sleep, 10
-	if (CheckInstances(113, 108, 175, 135, , "SwipeUp", 0, failSafeTime))
-		break
+	if (CheckInstances(113, 108, 175, 135, , "SwipeUp", 0, failSafeTime)){
+			break
+		}
 	failSafeTime := (A_TickCount - failSafe) // 1000
 	CreateStatusMessage("In failsafe for swipe up. It's been: " . failSafeTime "s ")
+	Sleep, %Delay%
 }
 
 KeepSync(70, 80, 133, 109, , "Move", 134, 375) ; click through until move
@@ -347,17 +422,34 @@ adbClick(142, 436)
 
 KeepSync(104, 269, 177, 296, , "Trace", 239, 497) ;wait for pack to be ready  to Trace
 
-
 failSafe := A_TickCount
 failSafeTime := 0
 Loop {
+	if(setSpeed > 1) {
+		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+		KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
+		Sleep, %Delay%
+		adbClick(137, 446)
+		Sleep, %Delay%
+	}
 	adbSwipe()
+	if(setSpeed > 1) {
+		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+		if(setSpeed = 3)
+			KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+		else
+			KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+		Sleep, %Delay%
+		adbClick(137, 446)
+	}
 	Sleep, 10
-	if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime))
-		break
+	if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
+			break
+		}
 	failSafeTime := (A_TickCount - failSafe) // 1000
 	CreateStatusMessage("In failsafe for skip. It's been: " . failSafeTime "s ")
 	LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
+		Sleep, %Delay%
 }
 
 KeepSync(76, 66, 149, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
@@ -389,13 +481,18 @@ KeepSync(103, 101, 177, 121, , "Pick", 208, 461, 350) ;stop at pick a card
 
 sleep, %Delay%
 adbClick(187, 345)
-
-KeepSync(39, 102, 68, 130, , "Swipe2", 143, 492, , 7) ;click through cards until needing to swipe up
-
+; Loop {
+; if(KeepSync(39, 102, 68, 130, , "Swipe2", 239, 497, , 7)) ;click through cards until needing to swipe up
+	; break
+; }
 failSafe := A_TickCount
 failSafeTime := 0
 Loop {
-	if(KeepSync(0, 0, 224, 246, , "End", 239, 497, , 2, failSafeTime)) ;click through to end of tut screen
+	if(setSpeed = 3)
+		continueTime := 3
+	else
+		continueTime := 6
+	if(KeepSync(0, 0, 224, 246, , "End", 239, 497, , continueTime, failSafeTime)) ;click through to end of tut screen
 		break
 	sleep, %Delay%
 adbClick(143, 492)
@@ -470,14 +567,33 @@ if(deleteAccount = false) {
 	failSafe := A_TickCount
 	failSafeTime := 0
 	Loop {
+		if(setSpeed > 1) {
+			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+			KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
+			Sleep, %Delay%
+			adbClick(137, 446)
+			Sleep, %Delay%
+		}
 		adbSwipe()	
+		if(setSpeed > 1) {
+			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+			if(setSpeed = 3)
+				KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+			else
+				KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+			Sleep, %Delay%
+			adbClick(137, 446)
+		}
 		Sleep, 10
-		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime))
+		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
 			break
+		}
 		failSafeTime := (A_TickCount - failSafe) // 1000
 		CreateStatusMessage("In failsafe for Trace. It's been: " . failSafeTime "s ")
 		LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
+		Sleep, %Delay%
 	}
+
 		
 	KeepSync(76, 66, 149, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
 
@@ -498,19 +614,36 @@ if(deleteAccount = false) {
 		sleep, %Delay%
 	adbClick(142, 429)
 	}
-
+	
 	failSafe := A_TickCount
 	failSafeTime := 0
 	Loop {
+		if(setSpeed > 1) {
+			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+			KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
+			Sleep, %Delay%
+			adbClick(137, 446)
+			Sleep, %Delay%
+		}
 		adbSwipe()
+		if(setSpeed > 1) {
+			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+			if(setSpeed = 3)
+				KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+			else
+				KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+			Sleep, %Delay%
+			adbClick(137, 446)
+		}
 		Sleep, 10
-		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime))
+		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
 			break
+		}
 		failSafeTime := (A_TickCount - failSafe) // 1000
 		CreateStatusMessage("In failsafe for Trace. It's been: " . failSafeTime "s ")
 		LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
+		Sleep, %Delay%
 	}
-
 	KeepSync(76, 66, 149, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
 
 	checkBorder() ;check card border to find godpacks	
@@ -560,19 +693,37 @@ if(deleteAccount = false) {
 		adbClick(210, 464) ; 210 464
 	}
 
-
 	failSafe := A_TickCount
 	failSafeTime := 0
 	Loop {
+		if(setSpeed > 1) {
+			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+			KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
+			Sleep, %Delay%
+			adbClick(137, 446)
+			Sleep, %Delay%
+		}
 		adbSwipe()
 		Sleep, 10
-		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime))
+		if(setSpeed > 1) {
+			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+			if(setSpeed = 3)
+				KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+			else
+				KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+			Sleep, %Delay%
+			adbClick(137, 446)
+		}
+		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)) {
 			break
+		}
 		failSafeTime := (A_TickCount - failSafe) // 1000
 		CreateStatusMessage("In failsafe for Trace. It's been: " . failSafeTime "s ")
 		LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
+		Sleep, %Delay%
 	}
 
+	
 	KeepSync(76, 66, 149, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
 
 	checkBorder() ;check card border to find godpacks	
@@ -591,7 +742,7 @@ Loop
 	sleep, %Delay%
 	sleep, %Delay%
 	adbClick(245, 518)
-	if(KeepSync(98, 434, 123, 452, , "Settings", , , , 3, failSafeTime)) ;wait for settings menu
+	if(KeepSync(90, 260, 126, 290, , "Settings", , , , 3, failSafeTime)) ;wait for settings menu
 		break
 	sleep, %Delay%
 	sleep, %Delay%
@@ -603,7 +754,7 @@ Loop
 
 KeepSync(24, 158, 57, 189, , "Account", 140, 440, 2000) ;wait for other menu
 
-KeepSync(56, 312, 108, 334, , "Account2", 79, 256, 2000) ;wait for account menu
+KeepSync(56, 312, 108, 334, , "Account2", 79, 256, 1000) ;wait for account menu
 
 KeepSync(74, 111, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
 
@@ -617,6 +768,7 @@ if(deleteAccount := true)
 	deleteAccount := false
 	
 rerolls++
+AppendToJsonFile(4)
 packs += 4
 totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
 avgtotalSeconds := Round(totalSeconds / rerolls) ; Total time in seconds
@@ -624,7 +776,7 @@ minutes := Floor(avgtotalSeconds / 60) ; Total minutes
 seconds := Mod(avgtotalSeconds, 60) ; Remaining seconds within the minute
 mminutes := Floor(totalSeconds / 60) ; Total minutes
 sseconds := Mod(totalSeconds, 60) ; Remaining seconds within the minute
-CreateStatusMessage("Time: " . mminutes . "m Avg: " . minutes . "m " . seconds . "s Cycles: " . rerolls . " Packs: " . packs, 25, 0, 533)
+CreateStatusMessage("Time: " . mminutes . "m Avg: " . minutes . "m " . seconds . "s Cycles: " . rerolls, 25, 0, 533)
 LogToFile("Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Cycles: " . rerolls . " Packs: " . packs)
 
 }
@@ -831,8 +983,9 @@ LogToFile(message, logFile := "") {
 }
 
 CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
-	global scriptName, winTitle
+	global scriptName, winTitle, statusText
 	GuiName := GuiName+scriptName
+	statusText := GuiName+scriptName
 	WinGetPos, xpos, ypos, Width, Height, %winTitle%
 	X := X + xpos + 5
 	Y := Y + ypos
@@ -843,7 +996,8 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
 	Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
 	Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
 	Gui, %GuiName%:Add, Text, vStatusText, %Message%
-	Gui, %GuiName%:Show, NoActivate x%X% y%Y% AutoSize, NoActivate %GuiName%
+	Gui,%GuiName%:Show,NoActivate x%X% y%Y% AutoSize,NoActivate %GuiName%
+
 }
 
 checkBorder() {
@@ -861,9 +1015,9 @@ checkBorder() {
 			LogToFile("Second card checked. Not a God Pack ")
 		}
 		else {
-			CreateStatusMessage("God Pack Found!!! In instance: " . scriptName . " if it's a good hit and live DM aarturoo! :)")
+			CreateStatusMessage("God Pack Found!!! In instance: " . scriptName)
 			godPackLog = GPlog.txt
-			LogToFile("Congrats! I'd appreciate a DM on discord (aarturoo) if it's a 5/5 pack and live :) Found in instance: " . scriptName, godPackLog)
+			LogToFile("Congrats! God pack found in instance: " . scriptName, godPackLog)
 			Screenshot()
 			killGodPackInstance()
 		}
@@ -871,7 +1025,7 @@ checkBorder() {
 }
 
 adbClick(X, Y) {
-	global adbShell
+	global adbShell, setSpeed
 	X := Round(X / 277 * 540)
     Y := Round((Y - 44) / 489 * 960) 
 	adbShell.StdIn.WriteLine("input tap " X " " Y)
@@ -889,13 +1043,13 @@ adbName() {
 
 adbSwipeUp() {
 	global adbShell
-	adbShell.StdIn.WriteLine("input swipe 309 816 309 355 60")	
+	adbShell.StdIn.WriteLine("input swipe 309 816 309 355 60") 
 	;adbShell.StdIn.WriteLine("input swipe 309 816 309 555 30")	
 	Sleep, 150
 }
 
 adbSwipe() {
-	global adbShell
+	global adbShell, setSpeed
 	X1 := 35
 	Y1 := 327
 	X2 := 267
@@ -904,8 +1058,18 @@ adbSwipe() {
     Y1 := Round((Y1 - 44) / 489 * 960) 
 	X2 := Round(X2 / 277 * 540)
     Y2 := Round((Y2 - 44) / 489 * 960)
-	adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 600")
-	Sleep, 750
+	if(setSpeed = 1) {
+		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 600")
+		Sleep, 750
+	}
+	else if(setSpeed = 2) {
+		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 200")
+		Sleep, 500
+	} 
+	else {
+		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 200")
+		Sleep, 300
+	}
 }
 
 Screenshot() {
@@ -959,10 +1123,6 @@ Screenshot() {
 	TestScript:
 	ToggleTestScript()
 	return
-	
-^e::
-	adbSwipe()
-return
 
 ToggleTestScript()
 {
@@ -973,6 +1133,80 @@ ToggleTestScript()
 	else {
 		GPTest := false
 	}
+}
+
+; Function to create or select the JSON file
+InitializeJsonFile() {
+    global jsonFileName
+	fileName := A_ScriptDir . "\..\json\Packs.json"
+	if !FileExist(fileName) {
+		; Create a new file with an empty JSON array
+		FileAppend, [], %fileName%  ; Write an empty JSON array
+		jsonFileName := fileName
+		return
+	}
+}
+
+; Function to append a time and variable pair to the JSON file
+AppendToJsonFile(variableValue) {
+    global jsonFileName
+    if (jsonFileName = "") {
+        MsgBox, JSON file not initialized. Call InitializeJsonFile() first.
+        return
+    }
+
+    ; Read the current content of the JSON file
+    FileRead, jsonContent, %jsonFileName%
+    if (jsonContent = "") {
+        jsonContent := "[]"
+    }
+
+    ; Parse and modify the JSON content
+    jsonContent := SubStr(jsonContent, 1, StrLen(jsonContent) - 1) ; Remove trailing bracket
+    if (jsonContent != "[")
+        jsonContent .= ","
+    jsonContent .= "{""time"": """ A_Now """, ""variable"": " variableValue "}]"
+
+    ; Write the updated JSON back to the file
+    FileDelete, %jsonFileName%
+    FileAppend, %jsonContent%, %jsonFileName%
+}
+
+; Function to sum all variable values in the JSON file
+SumVariablesInJsonFile() {
+    global jsonFileName
+    if (jsonFileName = "") {
+        MsgBox, JSON file not initialized. Call InitializeJsonFile() first.
+        return 0
+    }
+
+    ; Read the file content
+    FileRead, jsonContent, %jsonFileName%
+    if (jsonContent = "") {
+        MsgBox, The JSON file is empty.
+        return 0
+    }
+
+    ; Parse the JSON and calculate the sum
+    sum := 0
+    ; Clean and parse JSON content
+    jsonContent := StrReplace(jsonContent, "[", "") ; Remove starting bracket
+    jsonContent := StrReplace(jsonContent, "]", "") ; Remove ending bracket
+    Loop, Parse, jsonContent, {, }
+    {
+        ; Match each variable value
+        if (RegExMatch(A_LoopField, """variable"":\s*(-?\d+)", match)) {
+            sum += match1
+        }
+    }
+
+    ; Write the total sum to a file called "total.json"
+    totalFile := A_ScriptDir . "\json\total.json"
+    totalContent := "{""total_sum"": " sum "}"
+    FileDelete, %totalFile%
+    FileAppend, %totalContent%, %totalFile%
+
+    return sum
 }
 ~F5::Reload
 ~F6::Pause
