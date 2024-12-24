@@ -957,14 +957,24 @@ Screenshot() {
 	return
 	
 	TestScript:
-		if(!GPTest) {
-			GPTest := true
-		}
-		else {
-			GPTest := false
-		}
+	ToggleTestScript()
 	return
 	
 ^e::
 	adbSwipe()
 return
+
+ToggleTestScript()
+{
+	global GPTest
+	if(!GPTest) {
+		GPTest := true
+	}
+	else {
+		GPTest := false
+	}
+}
+~F5::Reload
+~F6::Pause
+~F7::ExitApp
+~F8::ToggleTestScript()
