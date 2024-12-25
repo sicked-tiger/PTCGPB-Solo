@@ -3,9 +3,9 @@ https://buymeacoffee.com/aarturoo
 
 *Thanks for your support, and let’s keep those god packs coming!* 😄
 
-# **__Arturo's PTCGP Bot v2.5__**
--# *Special thanks to pandaporo. for bringing adb inputs to my attention for v2.0*
--# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, and everyone else who helped test and contributed.*
+# **__Arturo's PTCGP Bot v2.6.0__**
+-# *Special thanks to @pandaporo. for bringing adb inputs to my attention for v2.0*
+-# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, azureWOX and everyone else who helped test and contributed.*
 
 **__What does this do?__**
 - Rerolls accounts to 26 cards in ~3 mins from account creation to deletion stopping an instance if it gets a god pack.
@@ -13,7 +13,7 @@ https://buymeacoffee.com/aarturoo
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v2.5.5.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v2.6.0.zip)
 
 **__How can I get it working?__**
 Step 1: Install the necessary programs
@@ -30,13 +30,16 @@ Step 2: Set-Up MuMu Player
   - **Custom: 540 x 960 400 dpi**
   - **Screen brightness: 50**
   - FPS: 60
+  - **Do not turn on the FPS display**
   - Close system sound
   - Exit directly
 - Name your instances "1", "2", "3", "4", etc. without the quotes.
+- The very first instance in the multi-instance window is incompatible. just name another one 1.
 
 Step 3: Install PTCGP
-- [PTCGP speed mod apk](https://modsfire.com/y6p37S9f7n2fD38)
+ - PTCGP Speed Mod [[Old]](https://modsfire.com/y6p37S9f7n2fD38) [[New]](https://modsfire.com/6OIgGK903XQXy6O) ** - *Thanks to nowhere_222 from the platinmods forum.*
 - Drag and drop into your MuMu instance
+-# **New version has a mod menu to choose from 1x-3x speed. 3x uses more resources especially when running many instances. You can still use the old version on 2x.
 
 Step 4: Download the Bot folder
 - Right click > extract
@@ -46,13 +49,12 @@ Step 5: Change scale to 125% in your windows settings.
 - Type "display settings"
 - Look for the scale setting and change it to 125% for all your monitors.
 
-.
 Step 6: 
 - Start your instances
 - Open PTCGP
 - Download initial 600 mb
 - Delete account
-- Restart and get it to where you select your birthdate and country.
+- Restart and get it to where you select your birthdate and country. 
 - To change the bot language, drag and drop the contents of your language folder found in the Scripts folder and overwrite the Game folder and 1.ahk in the Scripts folder.
 
 Step 7: 
@@ -66,6 +68,7 @@ Step 8: Input your script settings
 - Name: What to name the account
 - Instances per row: How many instances per row
 - Netease Path: If you didn't change your path upon installation leave it. Otherwise input the path.
+- Speed: This is what game speed you want to run at if you have the new speed mod. 2x works with both the old and the new. With the new on be sure to: click the platinmods logo > cog wheel > save preferences
 - Click Next
 
 Step 9: Click Start
