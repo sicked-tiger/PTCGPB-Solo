@@ -3,7 +3,7 @@ https://buymeacoffee.com/aarturoo
 
 *Thanks for your support, and let’s keep those god packs coming!* 😄
 
-# **__Arturo's PTCGP Bot v2.6.0__**
+# **__Arturo's PTCGP Bot v2.7.0__**
 -# *Special thanks to @pandaporo. for bringing adb inputs to my attention for v2.0*
 -# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, azureWOX and everyone else who helped test and contributed.*
 
@@ -13,7 +13,7 @@ https://buymeacoffee.com/aarturoo
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v2.6.0.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v2.7.0.zip)
 
 **__How can I get it working?__**
 Step 1: Install the necessary programs
@@ -69,6 +69,7 @@ Step 8: Input your script settings
 - Instances per row: How many instances per row
 - Netease Path: If you didn't change your path upon installation leave it. Otherwise input the path.
 - Speed: This is what game speed you want to run at if you have the new speed mod. 2x works with both the old and the new. With the new on be sure to: click the platinmods logo > cog wheel > save preferences
+- Language: Currently only officially support English and Japanese. More likely to come in the future.
 - Click Next
 
 Step 9: Click Start
