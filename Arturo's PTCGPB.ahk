@@ -1,7 +1,7 @@
 version = Arturos PTCGP Bot
 #SingleInstance, force
 CoordMode, Mouse, Screen
-SetDefaultMouseSpeed, 0
+SetTitleMatchMode, 3
 
 global Instances, adbPorts, jsonFileName, PacksText
 
@@ -19,11 +19,7 @@ InitializeJsonFile() ; Create or open the JSON file
     IniRead, openPack, Settings.ini, UserSettings, openPack, Mew
     IniRead, Instances, Settings.ini, UserSettings, Instances, 10
 	IniRead, setSpeed, Settings.ini, UserSettings, setSpeed, 2x
-    ; IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, English
-	
-normalImage := A_ScriptDir . "\Scripts\Game\Button.png"
-hoverImage := A_ScriptDir . "\Scripts\Game\ButtonHover.png"
-clickedImage := A_ScriptDir . "\Scripts\Game\ButtonClick.png"
+    IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, English
 
 ; Main GUI setup
 ; Add the link text at the bottom of the GUI
@@ -33,12 +29,14 @@ Gui, Show, w500 h500, Arturos PTCGPB Bot Setup ; Ensure the GUI size is appropri
 Gui, Color, White  ; Set the background color to white
 Gui, Font, s10 Bold , Segoe UI 
 ; Add the button image on top of the GUI
-Gui, Add, Picture, gStart x196 y196 w108 h108 vImageButton  +BackgroundTrans, %normalImage%
+;Gui, Add, Picture, gStart x196 y196 w108 h108 vImageButton  +BackgroundTrans, %normalImage%
+Gui, Add, Button, gArrangeWindows x215 y208 w70 h32, Arrange Windows
+Gui, Add, Button, gStart x227 y258 w46 h32 vArrangeWindows, Start
 
 Gui, Add, Text, x0 y464 w500 h30 vLinkText gOpenLink cBlue Center +BackgroundTrans
 Gui, Font, s15 Bold , Segoe UI
 ; Add the background image to the GUI
-Gui, Add, Picture, x0 y0 w500 h500, %A_ScriptDir%\Scripts\Game\GUI.png
+Gui, Add, Picture, x0 y0 w500 h500, %A_ScriptDir%\Scripts\GUI\GUI.png
 
 ; Add input controls
 Gui, Add, Edit, vName x80 y95 w145 Center, %Name%
@@ -53,10 +51,19 @@ if (openPack = "Mewtwo") {
     defaultPack := 3
 } else if (openPack = "Mew") {
     defaultPack := 4
+} else if (openPack = "Random") {
+    defaultPack := 5
 }
 
-Gui, Add, DropDownList, x80 y166 w145 vopenPack choose%defaultPack% Center, Mewtwo|Pikachu|Charizard|Mew
+Gui, Add, DropDownList, x80 y166 w145 vopenPack choose%defaultPack% Center, Mewtwo|Pikachu|Charizard|Mew|Random
 Gui, Add, Edit, vColumns x275 y166 w145 Center, %Columns%
+
+if (defaultLanguage = "English") {
+    defaultLang := 1
+} else if (defaultLanguage = "Japanese")
+    defaultLang := 2
+
+Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese
 
 Gui, Add, Edit, vDelay x80 y332 w145 Center, %Delay%
 Gui, Add, Edit, vChangeDate x275 y332 w145 Center, %ChangeDate%
@@ -79,19 +86,12 @@ Gui, Add, DropDownList, x275 y404 w145 vsetSpeed choose%defaultSpeed% Center, 2x
 Gui, Show
 return
 
-; Check for mouse hover and update button image accordingly
-ImageButton:
-    MouseGetPos, mouseX, mouseY
-    GuiControlGet, ImageButton, Pos  ; Get the position of the button
-
-    ; Check if the mouse is over the button
-    if (mouseX >= ImageButtonX and mouseX <= ImageButtonX + 108 and mouseY >= ImageButtonY and mouseY <= ImageButtonY + 108) {
-        ; Mouse hover - change image to hover
-        GuiControl,, ImageButton, %hoverImage%
-    } else {
-        ; Mouse out - revert to normal image
-        GuiControl,, ImageButton, %normalImage%
-    }
+ArrangeWindows:
+	GuiControlGet, Instances,, Instances
+	Loop %Instances% {
+		resetWindows(A_Index)
+		sleep, 10
+	}
 return
 
 ; Handle the link click
@@ -123,7 +123,7 @@ IniWrite, %Columns%, Settings.ini, UserSettings, Columns
 IniWrite, %openPack%, Settings.ini, UserSettings, openPack
 IniWrite, %Instances%, Settings.ini, UserSettings, Instances
 IniWrite, %setSpeed%, Settings.ini, UserSettings, setSpeed
-; IniWrite, %defaultLanguage%, Settings.ini, UserSettings, defaultLanguage
+IniWrite, %defaultLanguage%, Settings.ini, UserSettings, defaultLanguage
 
 ; Loop to process each instance
 Loop, %Instances%
@@ -148,8 +148,6 @@ Loop, %Instances%
     Run, %Command%
 }
 
-Gui, Destroy ; Close the second page after starting instances
-
 Loop {
 	; Sum all variable values and write to total.json
 	total := SumVariablesInJsonFile()
@@ -161,13 +159,24 @@ Return
 GuiClose:
 ExitApp
 
-
+resetWindows(Title){
+	global Columns
+	if !WinExist(Title)
+		Msgbox, Window titled: %Title% does not exist
+	CreateStatusMessage("Arranging window positions and sizes")
+	rowHeight := 533  ; Adjust the height of each row
+	currentRow := Floor((Title - 1) / Columns)
+	y := currentRow * rowHeight	
+	x := Mod((Title - 1), Columns) * 277
+	
+	WinMove, %Title%, , 0 + x, 0 + y, 277, 537
+	return true
+}
 
 CreateStatusMessage(Message, X := 0, Y := 60) {
-	global winTitle, PacksText
+	global PacksText
 	GuiName := 22
 	PacksText := 22
-	WinGetPos, xpos, ypos, Width, Height, %winTitle%
 	
 	; Create a new GUI with the given name, position, and message
 	Gui, %GuiName%:New, +AlwaysOnTop +ToolWindow -Caption 

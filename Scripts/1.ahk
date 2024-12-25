@@ -8,13 +8,14 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
-global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName
+global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle
+
 	
 	adbPath := A_ScriptDir . "\adb\platform-tools\adb.exe"  ; Example path, adjust if necessary
 	deleteAccount := false
 	scriptName := StrReplace(A_ScriptName, ".ahk")
 	winTitle := scriptName
-	
+	pauseToggle := false
 	IniRead, adbPort, %A_ScriptDir%\..\Settings.ini, UserSettings, adbPort%scriptName%, 11111
     IniRead, Name, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, player1
     IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
@@ -23,7 +24,7 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
     IniRead, Columns, %A_ScriptDir%\..\Settings.ini, UserSettings, Columns, 5
     IniRead, openPack, %A_ScriptDir%\..\Settings.ini, UserSettings, openPack, 4
     IniRead, setSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, setSpeed, 2x
-	; IniRead, defaultLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, defaultLanguage, English
+	IniRead, defaultLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, defaultLanguage, English
 	jsonFileName := A_ScriptDir . "\..\json\Packs.json"
 	
 	
@@ -32,8 +33,6 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 		ExitApp
 	}
 	
-	defaultLanguage = Game ; future language support
-	
 	; connect adb
 	instanceSleep := A_ScriptDir * 1000
 	Sleep, %instanceSleep%
@@ -41,25 +40,31 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 	
 	resetWindows()
 	
-	WinGetPos, x, y, Width, Height, %winTitle%
-	sleep, 2000
-	Winset, Alwaysontop, On, %winTitle%
-	
-	; Now, re-create the GUI with the Pause, Resume, and Stop buttons after initialization
-		x4 := x + 5
-		y4 := y + 25
+	Loop {
+		if WinExist(winTitle) {
+			WinGetPos, x, y, Width, Height, %winTitle%
+			sleep, 2000
+			Winset, Alwaysontop, On, %winTitle%
+			OwnerWND := WinExist(winTitle)
+			x4 := x + 5
+			y4 := y + 25
+			
 		
-	
-	    Gui, New, +AlwaysOnTop +ToolWindow -Caption 
-        Gui, Default
-        Gui, Margin, 4, 4  ; Set margin for the GUI
-		Gui, Font, s5 cGray Norm Bold, Segoe UI  ; Normal font for input labels
-		Gui, Add, Button, x0 y0 w30 h25 gReloadScript, Reload  (F5)
-		Gui, Add, Button, x30 y0 w30 h25 gPauseScript, Pause (F6)
-		Gui, Add, Button, x60 y0 w40 h25 gResumeScript, Resume (F6)
-		Gui, Add, Button, x100 y0 w30 h25 gStopScript, Stop (F7)
-		Gui, Add, Button, x130 y0 w40 h25 gTestScript, GP Test  (F8)
-        Gui, Show, NoActivate x%x4% y%y4% AutoSize
+			Gui, New, +Owner%OwnerWND% +AlwaysOnTop +ToolWindow -Caption 
+			Gui, Default
+			Gui, Margin, 4, 4  ; Set margin for the GUI
+			Gui, Font, s5 cGray Norm Bold, Segoe UI  ; Normal font for input labels
+			Gui, Add, Button, x0 y0 w30 h25 gReloadScript, Reload  (F5)
+			Gui, Add, Button, x30 y0 w30 h25 gPauseScript, Pause (F6)
+			Gui, Add, Button, x60 y0 w40 h25 gResumeScript, Resume (F6)
+			Gui, Add, Button, x100 y0 w30 h25 gStopScript, Stop (F7)
+			Gui, Add, Button, x130 y0 w40 h25 gTestScript, GP Test  (F8)
+			Gui, Show, NoActivate x%x4% y%y4% AutoSize
+			break
+		}
+		Sleep, %Delay%
+		CreateStatusMessage("Can't find window")
+	}
 		
 	if (!openPack)
 		openPack = 1
@@ -71,6 +76,10 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 		openPack = 3
 	else if (openPack = "Mew")
 		openPack = 4
+	else if (openPack = "Random") {
+		Random, rand, 1, 4
+		openPack = %rand%
+	}
 		
 	if (!setSpeed)
 		setSpeed = 1
@@ -118,6 +127,41 @@ if(Variation > 80) {
 		FormatTime, CurrentTime,, HHmm ; Update the current time after sleep
 		Sleep, 5000
 	}
+	failSafe := A_TickCount
+	failSafeTime := 0
+	Loop {
+		adbClick(255, 83)
+		if(CheckInstances(77, 144, 169, 175, , "Country", 0, failSafeTime)) { ;if at country continue
+			break
+		}
+		if(CheckInstances(116, 77, 167, 97, , "Menu", 0, failSafeTime)) { ; if the clicks in the top right open up the game settings menu then continue to delete account
+
+			KeepSync(56, 312, 108, 334, , "Account2", 79, 267, 2000) ;wait for account menu
+			
+			Sleep, %Delay%
+
+			KeepSync(74, 111, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
+			
+			Sleep, %Delay%
+
+			KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, 2000) ;wait for second delete save data confirmation
+			
+			Sleep, %Delay%
+
+			KeepSync(30, 254, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
+			
+			Sleep, %Delay%
+			
+			adbClick(143, 370)
+		}
+		if(CheckInstances(30, 254, 121, 275, , "Delete4", 0)) { ;incase missed click on prior cycle after deleting account
+			adbClick(143, 370)
+		}
+		CreateStatusMessage("Looking for Country/Menu/Delete3")
+		Sleep, %Delay%
+		failSafeTime := (A_TickCount - failSafe) // 1000
+	}
+	
 	if(setSpeed > 1) {
 		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
 		if(setSpeed = 3)
@@ -181,7 +225,7 @@ Loop ;select month and year and click
 } ;select month and year and click
 
 Sleep, %Delay%
-if(CheckInstances(93, 471, 122, 485, , "CountrySelect", 0, failSafeTime)) {
+if(CheckInstances(93, 471, 122, 485, , "CountrySelect", 0)) {
 	failSafe := A_TickCount
 	failSafeTime := 0
 	Loop {
@@ -517,6 +561,7 @@ Loop {
 	if(!GPTest) {
 		break
 	}
+	Winset, Alwaysontop, Off, %winTitle%
 	deleteAccount := true
 	CreateStatusMessage("GP Test mode. Press button again to delete.")
 	sleep, 1000
@@ -764,8 +809,10 @@ KeepSync(30, 254, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second
 
 adbClick(143, 370)
 
-if(deleteAccount := true)
+if(deleteAccount := true) {
+	CreateStatusMessage("Exiting GP Test Mode")
 	deleteAccount := false
+}
 	
 rerolls++
 AppendToJsonFile(4)
@@ -807,7 +854,11 @@ CheckInstances(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", EL
 		safeTime := safeTime/2
 		failSafe := A_TickCount
 	}
-
+	ImageSearch, , , % 15 + x, % 155 + y, % 270 + x, % 420 + y, *%searchVariation% %A_ScriptDir%\%defaultLanguage%\App.png
+	if (ErrorLevel = 0) {
+		CreateStatusMessage("At home page. Opening app..." )
+		restartGameInstance("At the home page during: " imageName)
+	}
 	
 	return (confirmed)
 }
@@ -865,8 +916,8 @@ KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		}
 		ImageSearch, , , % 15 + x, % 155 + y, % 270 + x, % 420 + y, *%searchVariation% %imagePath%App.png
 		if (ErrorLevel = 0) {
-			CreateStatusMessage("Crashed? " scriptName " Restarting..." )
-			restartGameInstance("Crashed at " imageName)
+			CreateStatusMessage("At home page. Opening app..." )
+			restartGameInstance("Found myself at the home page during: " imageName)
 		}
 		; ImageSearch within the region
 		ImageSearch, , , % x1 + x, % y1 + y, % x2 + x, % y2 + y, *%searchVariation% %imagePath%%imageName%.png
@@ -909,7 +960,9 @@ KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx :
 
 resetWindows(){
 	global Columns, winTitle
-	CreateStatusMessage("Resetting window positions and sizes")
+	CreateStatusMessage("Arranging window positions and sizes")
+	if !WinExist(Title)
+		Msgbox, Window titled: %Title% does not exist
 	Title := winTitle
 	rowHeight := 533  ; Adjust the height of each row
 	currentRow := Floor((winTitle - 1) / Columns)
@@ -936,39 +989,7 @@ restartGameInstance(reason){
 	adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
 	sleep, 1000
 	adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
-	
 	Sleep, 1000
-	
-	if(KeepSync(0, 0, 500, 500, 40, "Restart", 140, 300, 5000, 30)) {
-		Sleep, 1000
-		
-		adbClick(255, 83)
-		
-		Sleep, 1000
-		
-		KeepSync(116, 77, 167, 97, , "Menu")
-		
-		Sleep, 1000
-
-		KeepSync(56, 312, 108, 334, , "Account2", 79, 267, 2000) ;wait for account menu
-		
-		Sleep, 1000
-
-		KeepSync(74, 111, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
-		
-		Sleep, 1000
-
-		KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, 2000) ;wait for second delete save data confirmation
-		
-		Sleep, 1000
-
-		KeepSync(30, 254, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
-		
-		Sleep, %Delay%
-		
-		adbClick(143, 370)
-	}
-	
 	Reload
 }
 
@@ -984,20 +1005,21 @@ LogToFile(message, logFile := "") {
 
 CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
 	global scriptName, winTitle, statusText
-	GuiName := GuiName+scriptName
-	statusText := GuiName+scriptName
-	WinGetPos, xpos, ypos, Width, Height, %winTitle%
-	X := X + xpos + 5
-	Y := Y + ypos
-	
-	; Create a new GUI with the given name, position, and message
-	Gui, %GuiName%:New, +AlwaysOnTop +ToolWindow -Caption 
-	Gui, %GuiName%:Default
-	Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
-	Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
-	Gui, %GuiName%:Add, Text, vStatusText, %Message%
-	Gui,%GuiName%:Show,NoActivate x%X% y%Y% AutoSize,NoActivate %GuiName%
-
+	if WinExist(winTitle) {
+		GuiName := GuiName+scriptName
+		statusText := GuiName+scriptName
+		WinGetPos, xpos, ypos, Width, Height, %winTitle%
+		X := X + xpos + 5
+		Y := Y + ypos
+		
+		; Create a new GUI with the given name, position, and message
+		Gui, %GuiName%:New, +AlwaysOnTop +ToolWindow -Caption 
+		Gui, %GuiName%:Default
+		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
+		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
+		Gui, %GuiName%:Add, Text, vStatusText, %Message%
+		Gui,%GuiName%:Show,NoActivate x%X% y%Y% AutoSize,NoActivate %GuiName%
+	}
 }
 
 checkBorder() {
@@ -1101,11 +1123,13 @@ Screenshot() {
 
 	; Pause Script
 	PauseScript:
+		CreateStatusMessage("Pausing...")
 		Pause, On
 	return
 
 	; Resume Script
 	ResumeScript:
+		CreateStatusMessage("Resuming...")
 		Pause, Off
 		StartSkipTime := A_TickCount ;reset stuck timers
 		failSafe := A_TickCount
@@ -1113,6 +1137,7 @@ Screenshot() {
 
 	; Stop Script
 	StopScript:
+		CreateStatusMessage("Stopping script...")
 		ExitApp
 	return
 	
@@ -1128,9 +1153,12 @@ ToggleTestScript()
 {
 	global GPTest
 	if(!GPTest) {
+		CreateStatusMessage("In GP Test Mode")
 		GPTest := true
 	}
 	else {
+		CreateStatusMessage("Exiting GP Test Mode")
+		Winset, Alwaysontop, On, %winTitle%
 		GPTest := false
 	}
 }
@@ -1208,6 +1236,8 @@ SumVariablesInJsonFile() {
 
     return sum
 }
+
+
 ~F5::Reload
 ~F6::Pause
 ~F7::ExitApp
