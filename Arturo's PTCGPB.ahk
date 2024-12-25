@@ -20,10 +20,6 @@ InitializeJsonFile() ; Create or open the JSON file
     IniRead, Instances, Settings.ini, UserSettings, Instances, 10
 	IniRead, setSpeed, Settings.ini, UserSettings, setSpeed, 2x
     IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, English
-	
-normalImage := A_ScriptDir . "\Scripts\Game\Button.png"
-hoverImage := A_ScriptDir . "\Scripts\Game\ButtonHover.png"
-clickedImage := A_ScriptDir . "\Scripts\Game\ButtonClick.png"
 
 ; Main GUI setup
 ; Add the link text at the bottom of the GUI
@@ -40,7 +36,7 @@ Gui, Add, Button, gStart x227 y258 w46 h32 vArrangeWindows, Start
 Gui, Add, Text, x0 y464 w500 h30 vLinkText gOpenLink cBlue Center +BackgroundTrans
 Gui, Font, s15 Bold , Segoe UI
 ; Add the background image to the GUI
-Gui, Add, Picture, x0 y0 w500 h500, %A_ScriptDir%\Scripts\Game\GUI.png
+Gui, Add, Picture, x0 y0 w500 h500, %A_ScriptDir%\Scripts\GUI\GUI.png
 
 ; Add input controls
 Gui, Add, Edit, vName x80 y95 w145 Center, %Name%
