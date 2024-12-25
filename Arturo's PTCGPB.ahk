@@ -60,10 +60,13 @@ Gui, Add, Edit, vColumns x275 y166 w145 Center, %Columns%
 
 if (defaultLanguage = "English") {
     defaultLang := 1
-} else if (defaultLanguage = "Japanese")
+} else if (defaultLanguage = "Japanese") {
     defaultLang := 2
+} else if (defaultLanguage = "French") {
+    defaultLang := 3
+}
 
-Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese
+Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French
 
 Gui, Add, Edit, vDelay x80 y332 w145 Center, %Delay%
 Gui, Add, Edit, vChangeDate x275 y332 w145 Center, %ChangeDate%

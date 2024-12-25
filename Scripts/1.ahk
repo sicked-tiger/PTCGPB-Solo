@@ -140,7 +140,7 @@ if(Variation > 80) {
 			
 			Sleep, %Delay%
 
-			KeepSync(74, 111, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
+			KeepSync(74, 98, 155, 135, , "Delete", 135, 446, 2000) ;wait for delete save data confirmation
 			
 			Sleep, %Delay%
 
@@ -148,7 +148,7 @@ if(Variation > 80) {
 			
 			Sleep, %Delay%
 
-			KeepSync(30, 254, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
+			KeepSync(30, 240, 170, 275, , "Delete3", 201, 369, 2000) ;wait for second 
 			
 			Sleep, %Delay%
 			
@@ -252,7 +252,7 @@ if(CheckInstances(93, 471, 122, 485, , "CountrySelect", 0)) {
 
 KeepSync(97, 285, 185, 315, , "TosScreen", 203, 371, 1000) ;wait to be at the tos screen while confirming birth
 
-KeepSync(81, 68, 204, 94, , "Tos", 139, 299, 1000) ;wait for tos whle clicking it
+KeepSync(81, 68, 204, 94, , "Tos", 139, 299, 1000) ;wait for tos while clicking it
 
 KeepSync(97, 285, 185, 315, , "TosScreen", 142, 486, 1000) ;wait to be at the tos screen and click x
 
@@ -536,7 +536,7 @@ Loop {
 		continueTime := 3
 	else
 		continueTime := 6
-	if(KeepSync(0, 0, 224, 246, , "End", 239, 497, , continueTime, failSafeTime)) ;click through to end of tut screen
+	if(KeepSync(0, 0, 245, 250, , "End", 239, 497, , continueTime, failSafeTime)) ;click through to end of tut screen
 		break
 	sleep, %Delay%
 adbClick(143, 492)
@@ -801,11 +801,11 @@ KeepSync(24, 158, 57, 189, , "Account", 140, 440, 2000) ;wait for other menu
 
 KeepSync(56, 312, 108, 334, , "Account2", 79, 256, 1000) ;wait for account menu
 
-KeepSync(74, 111, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
+KeepSync(74, 98, 155, 135, , "Delete", 135, 446, 2000) ;wait for delete save data confirmation
 
 KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, 2000) ;wait for second delete save data confirmation
 
-KeepSync(30, 254, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
+KeepSync(30, 240, 170, 275, , "Delete3", 201, 369, 2000) ;wait for second 
 
 adbClick(143, 370)
 

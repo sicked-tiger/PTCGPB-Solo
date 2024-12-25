@@ -1,22 +1,24 @@
 Images needed to be retaken for other languages:
 Country
 Birth
-Tos Screen
+TosScreen
 Tos
 Privacy
 Save
 Confirm
 Complete
-Swipeup
+Welcome
+SwipeUp
 Move
 Proceed
 Opening
 Shop
 Wonder3
 Pick
+End
 Main
 Hourglass2
 Menu
-Delete1 
-Delete2 
+Delete
+Delete2
 Delete3
