@@ -17,14 +17,15 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 	winTitle := scriptName
 	pauseToggle := false
 	IniRead, adbPort, %A_ScriptDir%\..\Settings.ini, UserSettings, adbPort%scriptName%, 11111
-    IniRead, Name, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, player1
-    IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
-    IniRead, Variation, %A_ScriptDir%\..\Settings.ini, UserSettings, Variation, 40
-    IniRead, changeDate, %A_ScriptDir%\..\Settings.ini, UserSettings, ChangeDate, 0100
-    IniRead, Columns, %A_ScriptDir%\..\Settings.ini, UserSettings, Columns, 5
-    IniRead, openPack, %A_ScriptDir%\..\Settings.ini, UserSettings, openPack, 4
-    IniRead, setSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, setSpeed, 2x
+	IniRead, Name, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, player1
+	IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
+	IniRead, Variation, %A_ScriptDir%\..\Settings.ini, UserSettings, Variation, 40
+	IniRead, changeDate, %A_ScriptDir%\..\Settings.ini, UserSettings, ChangeDate, 0100
+	IniRead, Columns, %A_ScriptDir%\..\Settings.ini, UserSettings, Columns, 5
+	IniRead, openPack, %A_ScriptDir%\..\Settings.ini, UserSettings, openPack, 4
+	IniRead, setSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, setSpeed, 2x
 	IniRead, defaultLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, defaultLanguage, English
+	IniRead, SelectedMonitorIndex, %A_ScriptDir%\..\Settings.ini, UserSettings, SelectedMonitorIndex, 1:
 	jsonFileName := A_ScriptDir . "\..\json\Packs.json"
 	
 	
@@ -959,17 +960,22 @@ KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx :
 
 
 resetWindows(){
-	global Columns, winTitle
+	global Columns, winTitle, SelectedMonitorIndex
 	CreateStatusMessage("Arranging window positions and sizes")
 	if !WinExist(Title)
 		Msgbox, Window titled: %Title% does not exist
+
+	; Get monitor origin from index
+	SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
+	SysGet, Monitor, Monitor, %SelectedMonitorIndex%
+
 	Title := winTitle
 	rowHeight := 533  ; Adjust the height of each row
 	currentRow := Floor((winTitle - 1) / Columns)
 	y := currentRow * rowHeight	
 	x := Mod((winTitle - 1), Columns) * 277
 	
-	WinMove, %Title%, , 0 + x, 0 + y, 277, 537
+	WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), 277, 537
 	return true
 }
 
@@ -1004,8 +1010,12 @@ LogToFile(message, logFile := "") {
 }
 
 CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
-	global scriptName, winTitle, statusText
+	global scriptName, winTitle, statusText, SelectedMonitorIndex
 	if WinExist(winTitle) {
+		; Get monitor origin from index
+		SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
+		SysGet, Monitor, Monitor, %SelectedMonitorIndex%
+
 		GuiName := GuiName+scriptName
 		statusText := GuiName+scriptName
 		WinGetPos, xpos, ypos, Width, Height, %winTitle%

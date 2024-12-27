@@ -20,6 +20,7 @@ InitializeJsonFile() ; Create or open the JSON file
     IniRead, Instances, Settings.ini, UserSettings, Instances, 10
 	IniRead, setSpeed, Settings.ini, UserSettings, setSpeed, 2x
     IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, English
+    IniRead, SelectedMonitorIndex, Settings.ini, UserSettings, SelectedMonitorIndex, 1
 
 ; Main GUI setup
 ; Add the link text at the bottom of the GUI
@@ -68,6 +69,18 @@ if (defaultLanguage = "English") {
 
 Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French
 
+; Initialize monitor dropdown options
+SysGet, MonitorCount, MonitorCount
+MonitorOptions := ""
+Loop, %MonitorCount%
+{
+    SysGet, MonitorName, MonitorName, %A_Index%
+    SysGet, Monitor, Monitor, %A_Index%
+    MonitorOptions .= (A_Index > 1 ? "|" : "") "" A_Index ": (" MonitorRight - MonitorLeft "x" MonitorBottom - MonitorTop ")"
+}
+
+Gui, Add, DropDownList, x275 y245 w145 vSelectedMonitorIndex Choose1, %MonitorOptions%
+
 Gui, Add, Edit, vDelay x80 y332 w145 Center, %Delay%
 Gui, Add, Edit, vChangeDate x275 y332 w145 Center, %ChangeDate%
 
@@ -91,8 +104,9 @@ return
 
 ArrangeWindows:
 	GuiControlGet, Instances,, Instances
+    GuiControlGet, SelectedMonitorIndex,, SelectedMonitorIndex
 	Loop %Instances% {
-		resetWindows(A_Index)
+		resetWindows(A_Index, SelectedMonitorIndex)
 		sleep, 10
 	}
 return
@@ -127,6 +141,7 @@ IniWrite, %openPack%, Settings.ini, UserSettings, openPack
 IniWrite, %Instances%, Settings.ini, UserSettings, Instances
 IniWrite, %setSpeed%, Settings.ini, UserSettings, setSpeed
 IniWrite, %defaultLanguage%, Settings.ini, UserSettings, defaultLanguage
+IniWrite, %SelectedMonitorIndex%, Settings.ini, UserSettings, SelectedMonitorIndex
 
 ; Loop to process each instance
 Loop, %Instances%
@@ -162,17 +177,22 @@ Return
 GuiClose:
 ExitApp
 
-resetWindows(Title){
+resetWindows(Title, SelectedMonitorIndex){
 	global Columns
 	if !WinExist(Title)
 		Msgbox, Window titled: %Title% does not exist
-	CreateStatusMessage("Arranging window positions and sizes")
+
+    ; Get monitor origin from index
+    SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
+    SysGet, Monitor, Monitor, %SelectedMonitorIndex%
+    
+	CreateStatusMessage("Arranging window positions and sizes", MonitorLeft, (MonitorTop + 60))
 	rowHeight := 533  ; Adjust the height of each row
 	currentRow := Floor((Title - 1) / Columns)
 	y := currentRow * rowHeight	
 	x := Mod((Title - 1), Columns) * 277
 	
-	WinMove, %Title%, , 0 + x, 0 + y, 277, 537
+	WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), 277, 537
 	return true
 }
 
