@@ -177,7 +177,7 @@ KeepSync(67, 286, 217, 319, , "Birth", 140, 474, 1000) ;wait date confirmation s
 
 KeepSync(97, 285, 185, 315, , "TosScreen", 203, 371, 1000) ;wait to be at the tos screen while confirming birth
 
-KeepSync(81, 68, 204, 94, , "Tos", 139, 299, 1000) ;wait for tos whle clicking it
+KeepSync(81, 68, 204, 94, , "Tos", 139, 299, 1000) ;wait for tos while clicking it
 
 KeepSync(97, 285, 185, 315, , "TosScreen", 142, 486, 1000) ;wait to be at the tos screen and click x
 
