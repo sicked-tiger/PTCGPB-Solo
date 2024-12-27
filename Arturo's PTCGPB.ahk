@@ -58,12 +58,20 @@ if (openPack = "Mewtwo") {
 Gui, Add, DropDownList, x80 y166 w145 vopenPack choose%defaultPack% Center, Mewtwo|Pikachu|Charizard|Mew|Random
 Gui, Add, Edit, vColumns x275 y166 w145 Center, %Columns%
 
+global scaleParam
 if (defaultLanguage = "English") {
     defaultLang := 1
-} else if (defaultLanguage = "Japanese")
+    scaleParam := 277
+} else if (defaultLanguage = "Japanese") {
     defaultLang := 2
+    scaleParam := 277
+} else if (defaultLanguage = "English100") {
+    defaultLang := 3
+    scaleParam := 287
+}
 
-Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese
+
+Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|English100
 
 Gui, Add, Edit, vDelay x80 y332 w145 Center, %Delay%
 Gui, Add, Edit, vChangeDate x275 y332 w145 Center, %ChangeDate%
@@ -167,9 +175,9 @@ resetWindows(Title){
 	rowHeight := 533  ; Adjust the height of each row
 	currentRow := Floor((Title - 1) / Columns)
 	y := currentRow * rowHeight	
-	x := Mod((Title - 1), Columns) * 277
+	x := Mod((Title - 1), Columns) * scaleParam
 	
-	WinMove, %Title%, , 0 + x, 0 + y, 277, 537
+	WinMove, %Title%, , 0 + x, 0 + y, scaleParam, 537
 	return true
 }
 

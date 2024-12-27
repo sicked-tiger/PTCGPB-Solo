@@ -8,7 +8,7 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
-global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle
+global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, scaleParam
 
 	
 	adbPath := A_ScriptDir . "\adb\platform-tools\adb.exe"  ; Example path, adjust if necessary
@@ -89,6 +89,14 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 		setSpeed := 2
 	else if (setSpeed = "1x/3x")
 		setSpeed := 3
+
+	if (defaultLanguage = "English") {
+		scaleParam := 277
+	} else if (defaultLanguage = "Japanese") {
+		scaleParam := 277
+	} else if (defaultLanguage = "English100") {
+		scaleParam := 287
+	}
 
 	rerollTime := A_TickCount	
 
@@ -967,9 +975,9 @@ resetWindows(){
 	rowHeight := 533  ; Adjust the height of each row
 	currentRow := Floor((winTitle - 1) / Columns)
 	y := currentRow * rowHeight	
-	x := Mod((winTitle - 1), Columns) * 277
+	x := Mod((winTitle - 1), Columns) * scaleParam
 	
-	WinMove, %Title%, , 0 + x, 0 + y, 277, 537
+	WinMove, %Title%, , 0 + x, 0 + y, scaleParam, 537
 	return true
 }
 
@@ -1011,6 +1019,9 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
 		WinGetPos, xpos, ypos, Width, Height, %winTitle%
 		X := X + xpos + 5
 		Y := Y + ypos
+		if (scaleParam = 287) {
+			Y := Y - 8 ;Gui blocks Privacy.png area in 100% scale otherwise
+		}
 		
 		; Create a new GUI with the given name, position, and message
 		Gui, %GuiName%:New, +AlwaysOnTop +ToolWindow -Caption 
@@ -1048,7 +1059,7 @@ checkBorder() {
 
 adbClick(X, Y) {
 	global adbShell, setSpeed
-	X := Round(X / 277 * 540)
+	X := Round(X / scaleParam * 540)
     Y := Round((Y - 44) / 489 * 960) 
 	adbShell.StdIn.WriteLine("input tap " X " " Y)
 }
@@ -1076,9 +1087,9 @@ adbSwipe() {
 	Y1 := 327
 	X2 := 267
 	Y2 := 327
-	X1 := Round(X1 / 277 * 540)
+	X1 := Round(X1 / scaleParam * 540)
     Y1 := Round((Y1 - 44) / 489 * 960) 
-	X2 := Round(X2 / 277 * 540)
+	X2 := Round(X2 / scaleParam * 540)
     Y2 := Round((Y2 - 44) / 489 * 960)
 	if(setSpeed = 1) {
 		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 600")
@@ -1242,3 +1253,4 @@ SumVariablesInJsonFile() {
 ~F6::Pause
 ~F7::ExitApp
 ~F8::ToggleTestScript()
+~F9::restartGameInstance(F9)
