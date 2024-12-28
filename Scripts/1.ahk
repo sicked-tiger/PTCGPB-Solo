@@ -184,7 +184,7 @@ if(Variation > 80) {
 		Sleep, %Delay%
 		failSafeTime := (A_TickCount - failSafe) // 1000
 	}
-	if(setSpeed > 1) {
+	if(setSpeed > 1 && Packs > 0) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		if(setSpeed = 3)
 			KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
