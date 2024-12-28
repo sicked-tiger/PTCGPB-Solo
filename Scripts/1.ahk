@@ -316,7 +316,7 @@ adbClick(143, 348)
 Sleep, %Delay%
 
 KeepSync(51, 335, 107, 359, , "Link") ;wait for link account screen%
-
+Sleep, %Delay%
 KeepSync(19, 233, 105, 252, , "Confirm", 140, 460, 1000) ;wait for confirm download screen
 
 KeepSync(69, 248, 207, 270, , "Complete", 203, 364, 1000) ;wait for complete download screen
