@@ -43,8 +43,9 @@ Step 3: Install PTCGP
 - Drag and drop into your MuMu instance
 -# **New version has a mod menu to choose from 1x-3x speed. 3x uses more resources especially when running many instances. You can still use the old version on 2x.
 
-Step 4: Download the Bot folder
-- Right click > extract
+Step 4: 
+- Download the Bot zip
+- Extract it by Right click the zip > extract
 
 Step 5: Change scale to 125% in your windows settings.
 - Press windows key
