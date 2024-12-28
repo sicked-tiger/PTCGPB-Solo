@@ -65,9 +65,12 @@ if (defaultLanguage = "English") {
     defaultLang := 2
 } else if (defaultLanguage = "French") {
     defaultLang := 3
+} else if (defaultLanguage = "Korean") {
+    defaultLang := 4
+} else if (defaultLanguage = "Simplified Chinese") {
+    defaultLang := 5
 }
-
-Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French
+Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French|Korean|Simplified Chinese
 
 ; Initialize monitor dropdown options
 SysGet, MonitorCount, MonitorCount
@@ -77,9 +80,10 @@ Loop, %MonitorCount%
     SysGet, MonitorName, MonitorName, %A_Index%
     SysGet, Monitor, Monitor, %A_Index%
     MonitorOptions .= (A_Index > 1 ? "|" : "") "" A_Index ": (" MonitorRight - MonitorLeft "x" MonitorBottom - MonitorTop ")"
+	
 }
-
-Gui, Add, DropDownList, x275 y245 w145 vSelectedMonitorIndex Choose1, %MonitorOptions%
+SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
+Gui, Add, DropDownList, x275 y245 w145 vSelectedMonitorIndex Choose%SelectedMonitorIndex%, %MonitorOptions%
 
 Gui, Add, Edit, vDelay x80 y332 w145 Center, %Delay%
 Gui, Add, Edit, vChangeDate x275 y332 w145 Center, %ChangeDate%
@@ -104,7 +108,8 @@ return
 
 ArrangeWindows:
 	GuiControlGet, Instances,, Instances
-    GuiControlGet, SelectedMonitorIndex,, SelectedMonitorIndex
+	GuiControlGet, Columns,, Columns
+	GuiControlGet, SelectedMonitorIndex,, SelectedMonitorIndex
 	Loop %Instances% {
 		resetWindows(A_Index, SelectedMonitorIndex)
 		sleep, 10
@@ -164,12 +169,14 @@ Loop, %Instances%
     Command := FileName
 	
     Run, %Command%
+	Sleep, 1000
 }
-
+SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
+SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 Loop {
 	; Sum all variable values and write to total.json
 	total := SumVariablesInJsonFile()
-	CreateStatusMessage("Packs: " . total, 200, 533)
+	CreateStatusMessage("Packs: " . total, 205, 533)
 	Sleep, 10000
 }
 Return
@@ -179,36 +186,53 @@ ExitApp
 
 resetWindows(Title, SelectedMonitorIndex){
 	global Columns
-	if !WinExist(Title)
-		Msgbox, Window titled: %Title% does not exist
+	RetryCount := 0
+	MaxRetries := 10
+	Loop
+	{
+		try {
+			; Get monitor origin from index
+			SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
+			SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 
-    ; Get monitor origin from index
-    SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
-    SysGet, Monitor, Monitor, %SelectedMonitorIndex%
-    
-	CreateStatusMessage("Arranging window positions and sizes", MonitorLeft, (MonitorTop + 60))
-	rowHeight := 533  ; Adjust the height of each row
-	currentRow := Floor((Title - 1) / Columns)
-	y := currentRow * rowHeight	
-	x := Mod((Title - 1), Columns) * 277
-	
-	WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), 277, 537
+			CreateStatusMessage("Arranging window positions and sizes", 0, 60)
+			rowHeight := 533  ; Adjust the height of each row
+			currentRow := Floor((Title - 1) / Columns)
+			y := currentRow * rowHeight	
+			x := Mod((Title - 1), Columns) * 277
+			
+			WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), 277, 537
+			break
+		}
+		catch {
+			if (RetryCount > MaxRetries)
+				CreateStatusMessage("Pausing. Can't find window " . winTitle)
+				Pause
+		}
+		Sleep, 1000
+	}
 	return true
 }
 
 CreateStatusMessage(Message, X := 0, Y := 60) {
-	global PacksText
-	GuiName := 22
-	PacksText := 22
-	
-	; Create a new GUI with the given name, position, and message
-	Gui, %GuiName%:New, +AlwaysOnTop +ToolWindow -Caption 
-	Gui, %GuiName%:Default
-	Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
-	Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
-	Gui, %GuiName%:Add, Text, vPacksText, %Message%
-	Gui,%GuiName%:Show,NoActivate x%X% y%Y% AutoSize,NoActivate %GuiName%
-	
+	global PacksText, SelectedMonitorIndex
+	MaxRetries := 10
+	RetryCount := 0
+	try {
+		GuiName := 22
+		PacksText := 22
+		SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
+		SysGet, Monitor, Monitor, %SelectedMonitorIndex%
+		X := MonitorLeft + X
+		Y := MonitorTop + Y
+		; Create a new GUI with the given name, position, and message
+		Gui, %GuiName%:New, +AlwaysOnTop +ToolWindow -Caption 
+		Gui, %GuiName%:Default
+		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
+		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
+		Gui, %GuiName%:Add, Text, vPacksText, %Message%
+		Gui, %GuiName%:Show,NoActivate x%X% y%Y% AutoSize,NoActivate %GuiName%
+	}
 }
 
 
