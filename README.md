@@ -3,6 +3,8 @@ https://buymeacoffee.com/aarturoo
 
 *Thanks for your support, and let’s keep those god packs coming!* 😄
 
+Gif of a bot run: https://i.imgur.com/DfqAp7c.gif
+
 # **__Arturo's PTCGP Bot v2.8.0__**
 -# *Special thanks to @pandaporo. for bringing adb inputs to my attention for v2.0*
 -# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, azureWOX, Havvak and everyone else who helped test and contributed.*
