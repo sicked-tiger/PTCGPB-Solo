@@ -8,7 +8,7 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
-global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex
 
 	
 	adbPath := A_ScriptDir . "\adb\platform-tools\adb.exe"  ; Example path, adjust if necessary
@@ -17,16 +17,16 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 	winTitle := scriptName
 	pauseToggle := false
 	IniRead, adbPort, %A_ScriptDir%\..\Settings.ini, UserSettings, adbPort%scriptName%, 11111
-	IniRead, Name, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, player1
-	IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
-	IniRead, Variation, %A_ScriptDir%\..\Settings.ini, UserSettings, Variation, 40
-	IniRead, changeDate, %A_ScriptDir%\..\Settings.ini, UserSettings, ChangeDate, 0100
-	IniRead, Columns, %A_ScriptDir%\..\Settings.ini, UserSettings, Columns, 5
-	IniRead, openPack, %A_ScriptDir%\..\Settings.ini, UserSettings, openPack, 4
-	IniRead, setSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, setSpeed, 2x
+    IniRead, Name, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, player1
+    IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
+    IniRead, Variation, %A_ScriptDir%\..\Settings.ini, UserSettings, Variation, 40
+    IniRead, changeDate, %A_ScriptDir%\..\Settings.ini, UserSettings, ChangeDate, 0100
+    IniRead, Columns, %A_ScriptDir%\..\Settings.ini, UserSettings, Columns, 5
+    IniRead, openPack, %A_ScriptDir%\..\Settings.ini, UserSettings, openPack, 4
+    IniRead, setSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, setSpeed, 2x
 	IniRead, defaultLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, defaultLanguage, English
-	IniRead, SelectedMonitorIndex, %A_ScriptDir%\..\Settings.ini, UserSettings, SelectedMonitorIndex, 1:
 	jsonFileName := A_ScriptDir . "\..\json\Packs.json"
+	IniRead, SelectedMonitorIndex, %A_ScriptDir%\..\Settings.ini, UserSettings, SelectedMonitorIndex, 1:
 	
 	
 	if(!adbPort) {
@@ -40,9 +40,10 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 	RunWait, %adbPath% connect 127.0.0.1:%adbPort%,, Hide
 	
 	resetWindows()
-	
+	MaxRetries := 10
+	RetryCount := 0
 	Loop {
-		if WinExist(winTitle) {
+		try {
 			WinGetPos, x, y, Width, Height, %winTitle%
 			sleep, 2000
 			Winset, Alwaysontop, On, %winTitle%
@@ -63,8 +64,16 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 			Gui, Show, NoActivate x%x4% y%y4% AutoSize
 			break
 		}
+		catch {
+			RetryCount++
+			if (RetryCount >= MaxRetries) {
+				CreateStatusMessage("Failed to create button gui. Pausing.")
+				Pause ; Or handle failure gracefully
+			}
+			Sleep, 1000
+		}
 		Sleep, %Delay%
-		CreateStatusMessage("Can't find window")
+		CreateStatusMessage("Trying to create button gui...")
 	}
 		
 	if (!openPack)
@@ -92,17 +101,40 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 		setSpeed := 3
 
 	rerollTime := A_TickCount	
+	
+	MaxRetries := 10
+	RetryCount := 0
+	Loop {
+		try {
+			if (!adbShell) {
+				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
+				; Extract the Process ID
+				processID := adbShell.ProcessID
 
-	adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
+				; Wait for the console window to open using the process ID
+				WinWait, ahk_pid %processID%
 
-	; Extract the Process ID
-	processID := adbShell.ProcessID
-
-	; Wait for the console window to open using the process ID
-	WinWait, ahk_pid %processID%
-
-	; Minimize the window using the process ID
-	WinMinimize, ahk_pid %processID%
+				; Minimize the window using the process ID
+				WinMinimize, ahk_pid %processID%
+			}
+			else if (adbShell.Status != 0) {
+				Sleep, 1000
+			}
+			else {
+				break
+			}
+		}
+		catch {
+			RetryCount++
+			if(RetryCount > MaxRetries) {
+				CreateStatusMessage("Failed to connect to shell")
+				Pause
+			}
+		}
+		Sleep, 1000
+	}
+	
+	instanceSleep := A_ScriptDir * 1000
 
 Loop {
 
@@ -135,42 +167,31 @@ if(Variation > 80) {
 		if(CheckInstances(77, 144, 169, 175, , "Country", 0, failSafeTime)) { ;if at country continue
 			break
 		}
-		if(CheckInstances(116, 77, 167, 97, , "Menu", 0, failSafeTime)) { ; if the clicks in the top right open up the game settings menu then continue to delete account
-
+		else if(CheckInstances(116, 77, 167, 97, , "Menu", 0, failSafeTime)) { ; if the clicks in the top right open up the game settings menu then continue to delete account
 			KeepSync(56, 312, 108, 334, , "Account2", 79, 267, 2000) ;wait for account menu
 			
-			Sleep, %Delay%
-
-			KeepSync(74, 98, 155, 135, , "Delete", 135, 446, 2000) ;wait for delete save data confirmation
+			KeepSync(74, 104, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
 			
-			Sleep, %Delay%
-
-			KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, 2000) ;wait for second delete save data confirmation
+			KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, %Delay%) ;wait for second delete save data confirmation
 			
-			Sleep, %Delay%
-
-			KeepSync(30, 240, 170, 275, , "Delete3", 201, 369, 2000) ;wait for second 
+			KeepSync(30, 240, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
 			
-			Sleep, %Delay%
 			
 			adbClick(143, 370)
-		}
-		if(CheckInstances(30, 254, 121, 275, , "Delete4", 0)) { ;incase missed click on prior cycle after deleting account
-			adbClick(143, 370)
+			break
 		}
 		CreateStatusMessage("Looking for Country/Menu/Delete3")
 		Sleep, %Delay%
 		failSafeTime := (A_TickCount - failSafe) // 1000
 	}
-	
 	if(setSpeed > 1) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		if(setSpeed = 3)
-			KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+			KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
 		else
-			KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+			KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
 		Sleep, %Delay%
-		adbClick(137, 446)
+		adbClick(166, 296)
 		Sleep, %Delay%
 	}	
 KeepSync(77, 144, 169, 175, , "Country", 143, 370) ;select month and year and click
@@ -193,6 +214,8 @@ adbClick(142, 159)
 adbClick(80, 400)
 	Sleep, %Delay%
 adbClick(80, 400)
+    Sleep, %Delay%
+adbClick(82, 422)
 	failSafeTime := (A_TickCount - failSafe) // 1000
 	CreateStatusMessage("In failsafe for Month. It's been: " . failSafeTime "s ")
 	LogToFile("In failsafe for Month. It's been: " . failSafeTime "s ")
@@ -305,21 +328,21 @@ adbClick(143, 369)
 Sleep, %Delay%
 		
 	if(setSpeed = 3) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-		KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
-		adbClick(137, 446)
+		adbClick(166, 296)
 		Sleep, %Delay%
 	} 
 	
 	KeepSync(60, 206, 226, 248, , "Welcome", 253, 506, 110) ;click through cutscene until welcome page
 	
 	if(setSpeed = 3) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 	
-		KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+		KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
 		Sleep, %Delay%
-		adbClick(137, 446)
+		adbClick(166, 296)
 	}
 KeepSync(190, 241, 225, 270, , "Name", 189, 438) ;wait for name input screen
 
@@ -339,7 +362,6 @@ Loop {
 	Sleep, %Delay%
 	length := StrLen(Name) ; in case it lags and misses inputting name
 	Loop %length% {
-		;Run, %adbPath% -s 127.0.0.1:%adbPort% shell input keyevent 67, , Hide
 		adbShell.StdIn.WriteLine("input keyevent 67")	
 		Sleep, 10
 	}
@@ -350,73 +372,63 @@ Sleep, %Delay%
 adbClick(140, 424)
 
 KeepSync(104, 269, 177, 296, , "Trace", 140, 424) ;wait for pack to be ready  to trace
-
-
 failSafe := A_TickCount
 failSafeTime := 0
+if(setSpeed > 1) 
+	KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 Loop {
 	if(setSpeed > 1) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-		KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
-		Sleep, %Delay%
-		adbClick(137, 446)
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
 	}
 	adbSwipe()
-	Sleep, 10
 	if(setSpeed > 1) {
-	KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-	
 		if(setSpeed = 3)
-			KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+			KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click 3x
 		else
-			KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+			KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click 2x
 		Sleep, %Delay%
-		adbClick(137, 446)
 	}
-	Sleep, %Delay%
-	if (CheckInstances(104, 199, 169, 268, , "Bulba", 0, failSafeTime)){
-			break
-		}
+	Sleep, 10
+	if (CheckInstances(207, 234, 222, 260, , "Bulba", 0, failSafeTime)){
+		adbClick(166, 296)
+		break
+	}
 	failSafeTime := (A_TickCount - failSafe) // 1000
 	CreateStatusMessage("In failsafe for Trace. It's been: " . failSafeTime "s ")
 	LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
 }
 
 KeepSync(34, 99, 74, 131, , "Swipe", 140, 375) ;click through cards until needing to swipe up
-
 failSafe := A_TickCount
 failSafeTime := 0
+if(setSpeed > 1)
+	KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 Loop {
 	if(setSpeed > 1) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-		KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
-		Sleep, %Delay%
-		adbClick(137, 446)
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
 	}
 	adbSwipeUp()
 	if(setSpeed > 1) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
 		if(setSpeed = 3)
-			KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+			KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
 		else
-			KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
-		Sleep, %Delay%
-		adbClick(137, 446)
+			KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
 		Sleep, %Delay%
 	}
 	Sleep, 10
-	if (CheckInstances(113, 108, 175, 135, , "SwipeUp", 0, failSafeTime)){
-			break
-		}
+	if (CheckInstances(131, 74, 152, 95, , "SwipeUp", 0, failSafeTime)){
+		adbClick(166, 296)
+		break
+	}
 	failSafeTime := (A_TickCount - failSafe) // 1000
 	CreateStatusMessage("In failsafe for swipe up. It's been: " . failSafeTime "s ")
 	Sleep, %Delay%
 }
 
 KeepSync(70, 80, 133, 109, , "Move", 134, 375) ; click through until move
-
+Sleep, %Delay%
 KeepSync(105, 242, 173, 277, , "Proceed", 141, 483) ;wait for menu to proceed then click ok
 Sleep, %Delay%
 adbClick(204, 371)
@@ -469,26 +481,24 @@ KeepSync(104, 269, 177, 296, , "Trace", 239, 497) ;wait for pack to be ready  to
 
 failSafe := A_TickCount
 failSafeTime := 0
+if(setSpeed > 1)
+	KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 Loop {
 	if(setSpeed > 1) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-		KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
-		Sleep, %Delay%
-		adbClick(137, 446)
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
 	}
 	adbSwipe()
 	if(setSpeed > 1) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
 		if(setSpeed = 3)
-			KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+			KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
 		else
-			KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+			KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
 		Sleep, %Delay%
-		adbClick(137, 446)
 	}
 	Sleep, 10
-	if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
+	if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){	
+			adbClick(166, 296)
 			break
 		}
 	failSafeTime := (A_TickCount - failSafe) // 1000
@@ -503,7 +513,12 @@ checkBorder() ;check card border to find godpacks
 
 KeepSync(233, 486, 272, 519, , "Skip", 146, 496) ;click on next until skip button appears
 
-KeepSync(53, 281, 86, 310, , "Wonder", 239, 497) ;stop at start of wonder tutorial
+Loop {
+		if(KeepSync(53, 281, 86, 310, , "Wonder", 239, 497, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
+			break
+		adbClick(146, 494) ;146 494
+		Sleep, %Delay%
+	}
 
 Sleep, %Delay%
 Sleep, %Delay%
@@ -534,10 +549,10 @@ failSafe := A_TickCount
 failSafeTime := 0
 Loop {
 	if(setSpeed = 3)
-		continueTime := 3
+		continueTime := 1
 	else
 		continueTime := 6
-	if(KeepSync(0, 0, 245, 250, , "End", 239, 497, , continueTime, failSafeTime)) ;click through to end of tut screen
+	if(KeepSync(0, 0, 224, 246, , "End", 239, 497, , continueTime, failSafeTime)) ;click through to end of tut screen
 		break
 	sleep, %Delay%
 adbClick(143, 492)
@@ -612,26 +627,24 @@ if(deleteAccount = false) {
 
 	failSafe := A_TickCount
 	failSafeTime := 0
+	if(setSpeed > 1) 
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 	Loop {
 		if(setSpeed > 1) {
-			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-			KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
-			Sleep, %Delay%
-			adbClick(137, 446)
+			KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 			Sleep, %Delay%
 		}
 		adbSwipe()	
 		if(setSpeed > 1) {
-			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
 			if(setSpeed = 3)
-				KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
 			else
-				KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
 			Sleep, %Delay%
-			adbClick(137, 446)
 		}
 		Sleep, 10
 		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
+			adbClick(166, 296)
 			break
 		}
 		failSafeTime := (A_TickCount - failSafe) // 1000
@@ -646,8 +659,13 @@ if(deleteAccount = false) {
 	checkBorder() ;check card border to find godpacks	
 
 	KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
-
-	KeepSync(20, 500, 55, 530, , "Home", 244, 496) ;click skip until pack is ready to open
+	
+	Loop {
+		if(KeepSync(20, 500, 55, 530, , "Home", 244, 496, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
+			break
+		adbClick(146, 494) ;146 494
+		Sleep, %Delay%
+	}
 
 	Sleep, %Delay%
 	Sleep, %Delay%
@@ -663,26 +681,24 @@ if(deleteAccount = false) {
 	
 	failSafe := A_TickCount
 	failSafeTime := 0
+	if(setSpeed > 1)
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 	Loop {
 		if(setSpeed > 1) {
-			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-			KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
-			Sleep, %Delay%
-			adbClick(137, 446)
+			KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 			Sleep, %Delay%
 		}
 		adbSwipe()
 		if(setSpeed > 1) {
-			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
 			if(setSpeed = 3)
-				KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
 			else
-				KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
 			Sleep, %Delay%
-			adbClick(137, 446)
 		}
 		Sleep, 10
 		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
+			adbClick(166, 296)
 			break
 		}
 		failSafeTime := (A_TickCount - failSafe) // 1000
@@ -698,7 +714,7 @@ if(deleteAccount = false) {
 
 
 	Loop {
-		if(KeepSync(178, 193, 251, 282, , "Hourglass", 239, 497, , 2)) ;click on next until skip button appearsstop at hourglasses tutorial
+		if(KeepSync(178, 193, 251, 282, , "Hourglass", 239, 497, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
 			break
 		adbClick(146, 494) ;146 494
 		Sleep, %Delay%
@@ -738,29 +754,26 @@ if(deleteAccount = false) {
 		Sleep, %Delay%
 		adbClick(210, 464) ; 210 464
 	}
-
+	if(setSpeed > 1)
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 	failSafe := A_TickCount
 	failSafeTime := 0
 	Loop {
 		if(setSpeed > 1) {
-			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-			KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
-			Sleep, %Delay%
-			adbClick(137, 446)
+			KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 			Sleep, %Delay%
 		}
 		adbSwipe()
 		Sleep, 10
 		if(setSpeed > 1) {
-			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
 			if(setSpeed = 3)
-				KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
 			else
-				KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
 			Sleep, %Delay%
-			adbClick(137, 446)
 		}
 		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)) {
+			adbClick(166, 296)
 			break
 		}
 		failSafeTime := (A_TickCount - failSafe) // 1000
@@ -777,7 +790,13 @@ if(deleteAccount = false) {
 	KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
 	sleep, %Delay%
 	
-	KeepSync(20, 500, 55, 530, , "Home", 244, 496) ;click skip until pack is ready to open
+	Loop {
+		if(KeepSync(20, 500, 55, 530, , "Home", 244, 496, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
+			break
+		adbClick(146, 494) ;146 494
+		Sleep, %Delay%
+	}
+	
 }
 
 sleep, %Delay%
@@ -792,7 +811,7 @@ Loop
 		break
 	sleep, %Delay%
 	sleep, %Delay%
-	adbClick(50, 75)
+	adbClick(50, 100)
 	failSafeTime := (A_TickCount - failSafe) // 1000
 	CreateStatusMessage("In failsafe for Settings. It's been: " . failSafeTime "s ")
 	LogToFile("In failsafe for Settings. It's been: " . failSafeTime "s ")
@@ -802,13 +821,15 @@ KeepSync(24, 158, 57, 189, , "Account", 140, 440, 2000) ;wait for other menu
 
 KeepSync(56, 312, 108, 334, , "Account2", 79, 256, 1000) ;wait for account menu
 
-KeepSync(74, 98, 155, 135, , "Delete", 135, 446, 2000) ;wait for delete save data confirmation
+KeepSync(74, 104, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
 
-KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, 2000) ;wait for second delete save data confirmation
+KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, %Delay%) ;wait for second delete save data 
 
-KeepSync(30, 240, 170, 275, , "Delete3", 201, 369, 2000) ;wait for second 
+KeepSync(30, 240, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
 
 adbClick(143, 370)
+
+Sleep, 2500
 
 if(deleteAccount := true) {
 	CreateStatusMessage("Exiting GP Test Mode")
@@ -825,7 +846,7 @@ seconds := Mod(avgtotalSeconds, 60) ; Remaining seconds within the minute
 mminutes := Floor(totalSeconds / 60) ; Total minutes
 sseconds := Mod(totalSeconds, 60) ; Remaining seconds within the minute
 CreateStatusMessage("Time: " . mminutes . "m Avg: " . minutes . "m " . seconds . "s Cycles: " . rerolls, 25, 0, 533)
-LogToFile("Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Cycles: " . rerolls . " Packs: " . packs)
+LogToFile("Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Cycles: " . rerolls)
 
 }
 return
@@ -834,18 +855,17 @@ CheckInstances(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", EL
 	global winTitle, Variation, failSafe
 	if(searchVariation = "")
 		searchVariation := Variation
-	imagePath := A_ScriptDir . "\" . defaultLanguage . "\" . imageName
+	imagePath := A_ScriptDir . "\" . defaultLanguage . "\"
 	x := 0
     y := 0
 	confirmed := false
 	
-	CreateStatusMessage(imageName ".png")
+	CreateStatusMessage(imageName)
 	x := 0
 	y := 0
-	
 	WinGetPos, x, y, Width, Height, %winTitle%
 	; ImageSearch within the region
-	ImageSearch, , , % x1 + x, % y1 + y, % x2 + x, % y2 + y, *%searchVariation% %imagePath%.png
+	ImageSearch, , , % x1 + x, % y1 + y, % x2 + x, % y2 + y, *%searchVariation% %imagePath%%imageName%.png
 	if (!confirmed && ErrorLevel = EL) {
 		confirmed := true
 	}
@@ -886,7 +906,7 @@ KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		adbClick(clickx, clicky)
 		clickTime := A_TickCount
 	}
-	CreateStatusMessage(imageName ".png (" (click ? clickx ", " clicky ")": "no click)"))
+	CreateStatusMessage(imageName)
 
 	
     Loop { ; Main loop
@@ -962,20 +982,30 @@ KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx :
 resetWindows(){
 	global Columns, winTitle, SelectedMonitorIndex
 	CreateStatusMessage("Arranging window positions and sizes")
-	if !WinExist(Title)
-		Msgbox, Window titled: %Title% does not exist
-
-	; Get monitor origin from index
-	SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
-	SysGet, Monitor, Monitor, %SelectedMonitorIndex%
-
-	Title := winTitle
-	rowHeight := 533  ; Adjust the height of each row
-	currentRow := Floor((winTitle - 1) / Columns)
-	y := currentRow * rowHeight	
-	x := Mod((winTitle - 1), Columns) * 277
-	
-	WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), 277, 537
+	RetryCount := 0
+	MaxRetries := 10
+	Loop
+	{
+		try {
+			; Get monitor origin from index
+			SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
+			SysGet, Monitor, Monitor, %SelectedMonitorIndex%
+			Title := winTitle
+			rowHeight := 533  ; Adjust the height of each row
+			currentRow := Floor((winTitle - 1) / Columns)
+			y := currentRow * rowHeight	
+			x := Mod((winTitle - 1), Columns) * 277
+			
+			WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), 277, 537
+			break
+		}
+		catch {
+			if (RetryCount > MaxRetries)
+				CreateStatusMessage("Pausing. Can't find window " . winTitle)
+				Pause
+		}
+		Sleep, 1000
+	}
 	return true
 }
 
@@ -983,7 +1013,10 @@ killGodPackInstance(){
 	global winTitle
 	CreateStatusMessage("Pausing script. Found GP.")
 	LogToFile("Paused God Pack instance.")
-	Sleep, 10
+	; Loop {
+		; Sleep, 60000
+		; adbShell.StdIn.WriteLine("input text GP" )
+	; }
 	Pause, On 
 	WinClose, %winTitle% ;in case you resume and miss that you got a god pack.
 }
@@ -991,7 +1024,7 @@ killGodPackInstance(){
 restartGameInstance(reason){
 	global Delay, scriptName
 	CreateStatusMessage("Restarting game. " reason)
-	LogToFile("Restarted game for instance " scriptName " Reason: " reason, Restarted)
+	LogToFile("Restarted game for instance " scriptName " Reason: " reason, Restarted.txt)
 	adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
 	sleep, 1000
 	adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
@@ -1011,11 +1044,9 @@ LogToFile(message, logFile := "") {
 
 CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
 	global scriptName, winTitle, statusText, SelectedMonitorIndex
-	if WinExist(winTitle) {
-		; Get monitor origin from index
-		SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
-		SysGet, Monitor, Monitor, %SelectedMonitorIndex%
-
+	MaxRetries := 10
+	RetryCount := 0
+	try {
 		GuiName := GuiName+scriptName
 		statusText := GuiName+scriptName
 		WinGetPos, xpos, ypos, Width, Height, %winTitle%
@@ -1029,7 +1060,7 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
 		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
 		Gui, %GuiName%:Add, Text, vStatusText, %Message%
 		Gui,%GuiName%:Show,NoActivate x%X% y%Y% AutoSize,NoActivate %GuiName%
-	}
+	}	
 }
 
 checkBorder() {
@@ -1086,21 +1117,21 @@ adbSwipe() {
 	Y1 := 327
 	X2 := 267
 	Y2 := 327
-	X1 := Round(X1 / 277 * 540)
+	X1 := Round(X1 / 277 * 535)
     Y1 := Round((Y1 - 44) / 489 * 960) 
-	X2 := Round(X2 / 277 * 540)
+	X2 := Round(X2 / 44 * 535)
     Y2 := Round((Y2 - 44) / 489 * 960)
 	if(setSpeed = 1) {
 		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 600")
 		Sleep, 750
 	}
 	else if(setSpeed = 2) {
-		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 200")
-		Sleep, 500
+		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 750")
+		Sleep, 850
 	} 
 	else {
-		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 200")
-		Sleep, 300
+		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 750")
+		Sleep, 850
 	}
 }
 
