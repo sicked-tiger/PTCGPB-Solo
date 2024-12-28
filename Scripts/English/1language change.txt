@@ -7,7 +7,6 @@ Privacy
 Save
 Confirm
 Complete
-Swipeup
 Move
 Proceed
 Opening
