@@ -3,9 +3,11 @@ https://buymeacoffee.com/aarturoo
 
 *Thanks for your support, and let’s keep those god packs coming!* 😄
 
-# **__Arturo's PTCGP Bot v2.7.0__**
+Gif of a bot run: https://i.imgur.com/DfqAp7c.gif
+
+# **__Arturo's PTCGP Bot v2.8.0__**
 -# *Special thanks to @pandaporo. for bringing adb inputs to my attention for v2.0*
--# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, azureWOX and everyone else who helped test and contributed.*
+-# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, azureWOX, Havvak and everyone else who helped test and contributed.*
 
 **__What does this do?__**
 - Rerolls accounts to 26 cards in ~3 mins from account creation to deletion stopping an instance if it gets a god pack.
@@ -13,7 +15,7 @@ https://buymeacoffee.com/aarturoo
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v2.7.0.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v2.8.0.zip)
 
 **__How can I get it working?__**
 Step 1: Install the necessary programs
@@ -23,11 +25,11 @@ Step 1: Install the necessary programs
 Step 2: Set-Up MuMu Player
 - Install
 - Recommended Settings **(Bold = Must have)**
-  - CPU: 4
-  - RAM: 3
+  - CPU: 2
+  - RAM: 2
   - Less resource usage
   - Forced use of discrete graphics
-  - **Custom: 540 x 960 400 dpi**
+  - **Custom: 540 x 960 220 dpi**
   - **Screen brightness: 50**
   - FPS: 60
   - **Do not turn on the FPS display**
@@ -55,7 +57,6 @@ Step 6:
 - Download initial 600 mb
 - Delete account
 - Restart and get it to where you select your birthdate and country. 
-- To change the bot language, drag and drop the contents of your language folder found in the Scripts folder and overwrite the Game folder and 1.ahk in the Scripts folder.
 
 Step 7: 
 - Run PTCGP Bot.ahk
@@ -69,7 +70,8 @@ Step 8: Input your script settings
 - Instances per row: How many instances per row
 - Netease Path: If you didn't change your path upon installation leave it. Otherwise input the path.
 - Speed: This is what game speed you want to run at if you have the new speed mod. 2x works with both the old and the new. With the new on be sure to: click the platinmods logo > cog wheel > save preferences
-- Language: Currently only officially support English and Japanese. More likely to come in the future.
+- Language: Select your game language
+  Monitor: Select which monitor you'd like it to run on. Try to start the mumu instances in the correct monitor to prevent issues
 - Click Next
 
 Step 9: Click Start
