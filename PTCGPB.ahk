@@ -71,8 +71,10 @@ if (defaultLanguage = "English") {
     defaultLang := 4
 } else if (defaultLanguage = "Chinese") {
     defaultLang := 5
+} else if (defaultLanguage = "Italian") {
+    defaultLang := 6
 }
-Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French|Korean|Chinese
+Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French|Korean|Chinese|Italian
 
 ; Initialize monitor dropdown options
 SysGet, MonitorCount, MonitorCount
