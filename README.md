@@ -5,7 +5,7 @@ https://buymeacoffee.com/aarturoo
 
 Gif of a bot run: https://i.imgur.com/DfqAp7c.gif
 
-# **__Arturo's PTCGP Bot v2.8.0__**
+# **__Arturo's PTCGP Bot v2.9.0__**
 -# *Special thanks to @pandaporo. for bringing adb inputs to my attention for v2.0*
 -# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, azureWOX, Havvak and everyone else who helped test and contributed.*
 
@@ -15,7 +15,7 @@ Gif of a bot run: https://i.imgur.com/DfqAp7c.gif
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v2.8.0.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v2.9.0.zip)
 
 **__How can I get it working?__**
 Step 1: Install the necessary programs
@@ -34,6 +34,7 @@ Step 2: Set-Up MuMu Player
   - FPS: 60
   - **Do not turn on the FPS display**
   - Close system sound
+  - **Uncheck: Keep running in the background**
   - Exit directly
 - Name your instances "1", "2", "3", "4", etc. without the quotes.
 - The very first instance in the multi-instance window is incompatible. just name another one 1.
@@ -47,7 +48,7 @@ Step 4:
 - Download the Bot zip
 - Extract it by Right click the zip > extract
 
-Step 5: Change scale to 125% in your windows settings.
+Step 5: **Change scale to 125% in your windows settings.**
 - Press windows key
 - Type "display settings"
 - Look for the scale setting and change it to 125% for all your monitors.
@@ -60,7 +61,7 @@ Step 6:
 - Restart and get it to where you select your birthdate and country. 
 
 Step 7: 
-- Run PTCGP Bot.ahk
+- Run PTCGPB.ahk
 
 Step 8: Input your script settings
 - Number of instances you are running
@@ -70,9 +71,13 @@ Step 8: Input your script settings
 - Name: What to name the account
 - Instances per row: How many instances per row
 - Netease Path: If you didn't change your path upon installation leave it. Otherwise input the path.
-- Speed: This is what game speed you want to run at if you have the new speed mod. 2x works with both the old and the new. With the new on be sure to: click the platinmods logo > cog wheel > save preferences
+- Speed: This is what game speed you want to run at if you have the new speed mod.
+  - 2x works with both the old and the new.
+  - With the new on be sure to: click the platinmods logo > cog wheel > save preferences
 - Language: Select your game language
-  Monitor: Select which monitor you'd like it to run on. Try to start the mumu instances in the correct monitor to prevent issues
+- Monitor: Select which monitor you'd like it to run on. Try to start the mumu instances in the correct monitor to prevent issues
+- Swipe Speed: The duration of the swipe. Increase/decrease it if it's not swiping well on your system.
+- God Pack: Whether you want it to pause on a god pack or to close the emulator to save resources.
 - Click Next
 
 Step 9: Click Start
