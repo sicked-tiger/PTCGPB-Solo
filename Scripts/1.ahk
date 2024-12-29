@@ -1034,10 +1034,6 @@ killGodPackInstance(){
 		WinClose, %winTitle% ;in case you resume and miss that you got a god pack.
 		ExitApp
 	}
-	;I'm just paranoid
-	WinClose, %winTitle% ;in case you resume and miss that you got a god pack.
-	ExitApp
-	Pause, On 
 }
 
 restartGameInstance(reason){
