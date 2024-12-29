@@ -17,15 +17,17 @@ InitializeJsonFile() ; Create or open the JSON file
     IniRead, changeDate, Settings.ini, UserSettings, ChangeDate, 0100
     IniRead, Columns, Settings.ini, UserSettings, Columns, 5
     IniRead, openPack, Settings.ini, UserSettings, openPack, Mew
+    IniRead, godPack, Settings.ini, UserSettings, godPack, Close when found
     IniRead, Instances, Settings.ini, UserSettings, Instances, 10
 	IniRead, setSpeed, Settings.ini, UserSettings, setSpeed, 2x
     IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, English
     IniRead, SelectedMonitorIndex, Settings.ini, UserSettings, SelectedMonitorIndex, 1
+    IniRead, swipeSpeed, Settings.ini, UserSettings, swipeSpeed, 600
 
 ; Main GUI setup
 ; Add the link text at the bottom of the GUI
 
-Gui, Show, w500 h500, Arturos PTCGPB Bot Setup ; Ensure the GUI size is appropriate
+Gui, Show, w500 h500, Arturo's PTCGPB Bot Setup ;' Ensure the GUI size is appropriate
 
 Gui, Color, White  ; Set the background color to white
 Gui, Font, s10 Bold , Segoe UI 
@@ -41,7 +43,8 @@ Gui, Add, Picture, x0 y0 w500 h500, %A_ScriptDir%\Scripts\GUI\GUI.png
 
 ; Add input controls
 Gui, Add, Edit, vName x80 y95 w145 Center, %Name%
-Gui, Add, Edit, vInstances x275 y95 w145 Center, %Instances%
+Gui, Add, Edit, vInstances x275 y95 w72 Center, %Instances%
+Gui, Add, Edit, vColumns x348 y95 w72 Center, %Columns%
 
 ; Pack selection logic
 if (openPack = "Mewtwo") {
@@ -57,7 +60,6 @@ if (openPack = "Mewtwo") {
 }
 
 Gui, Add, DropDownList, x80 y166 w145 vopenPack choose%defaultPack% Center, Mewtwo|Pikachu|Charizard|Mew|Random
-Gui, Add, Edit, vColumns x275 y166 w145 Center, %Columns%
 
 if (defaultLanguage = "English") {
     defaultLang := 1
@@ -67,10 +69,10 @@ if (defaultLanguage = "English") {
     defaultLang := 3
 } else if (defaultLanguage = "Korean") {
     defaultLang := 4
-} else if (defaultLanguage = "Simplified Chinese") {
+} else if (defaultLanguage = "Chinese") {
     defaultLang := 5
 }
-Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French|Korean|Simplified Chinese
+Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French|Korean|Chinese
 
 ; Initialize monitor dropdown options
 SysGet, MonitorCount, MonitorCount
@@ -88,9 +90,6 @@ Gui, Add, DropDownList, x275 y245 w145 vSelectedMonitorIndex Choose%SelectedMoni
 Gui, Add, Edit, vDelay x80 y332 w145 Center, %Delay%
 Gui, Add, Edit, vChangeDate x275 y332 w145 Center, %ChangeDate%
 
-Gui, Font, s10 Bold, Segoe UI 
-Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
-
 ; Speed selection logic
 if (setSpeed = "2x") {
     defaultSpeed := 1
@@ -99,11 +98,90 @@ if (setSpeed = "2x") {
 } else if (setSpeed = "1x/3x") {
     defaultSpeed := 3
 }
-Gui, Font, s15 Bold, Segoe UI 
-Gui, Add, DropDownList, x275 y404 w145 vsetSpeed choose%defaultSpeed% Center, 2x|1x/2x|1x/3x
+Gui, Add, DropDownList, x275 y404 w72 vsetSpeed choose%defaultSpeed% Center, 2x|1x/2x|1x/3x
 
+
+Gui, Add, Edit, vswipeSpeed x348 y404 w72 Center, %swipeSpeed%
+
+Gui, Font, s10 Bold, Segoe UI 
+Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
+
+Gui, Font, s10 cGray Norm Bold, Segoe UI  ; Normal font for input labels
+Gui Add, Button, x190 y72 w17 h19 gShowMsgName, ? ;Questionmark box for Name Field
+Gui Add, Button, x342 y77 w17 h19 gShowMsgInstances, ? ;Questionmark box for Instance Field
+Gui Add, Button, x415 y77 w17 h19 gShowMsgColumns, ? ;Questionmark box for Instance Per Row Field
+
+Gui Add, Button, x190 y145 w17 h19 gShowMsgPacks, ? ;Questionmark box for Pack to Open Field
+Gui Add, Button, x415 y145 w17 h19 gShowMsgGodPacks, ? ;Questionmark box for God Pack to Open Field
+
+Gui Add, Button, x215 y219 w17 h19 gShowMsgLanguage, ? ;Questionmark box for God Pack to Open Field
+Gui Add, Button, x400 y219 w17 h19 gShowMsgMonitor, ? ;Questionmark box for God Pack to Open Field
+
+Gui Add, Button, x192 y307 w17 h19 gShowMsgDelay, ? ;Questionmark box for Delay in ms Field
+Gui Add, Button, x411 y307 w17 h19 gShowMsgTimeZone, ? ;Questionmark box for Timezone Field
+
+Gui Add, Button, x193 y378 w17 h19 gShowMsgFolder, ? ;Questionmark box for SwipeSpeed Field
+Gui Add, Button, x343 y378 w17 h19 gShowMsgSpeed, ? ;Questionmark box for Speed Field
+Gui Add, Button, x408 y378 w17 h19 gShowMsgSwipeSpeed, ? ;Questionmark box for SwipeSpeed Field
+
+; Pack selection logic
+if (godPack = "Close when found") {
+    defaultgodPack := 1
+} else if (godPack = "Pause when found") {
+    defaultgodPack := 2
+}
+
+Gui, Add, DropDownList, x275 y166 w145 h70 vgodPack choose%defaultgodPack% Center, Close when found|Pause when found
 ; Show the GUI
 Gui, Show
+return
+
+ShowMsgName:
+    MsgBox, Input the name you want the accounts to have
+return
+
+ShowMsgInstances:
+    MsgBox, Input how many instances you are running
+return
+
+ShowMsgColumns:
+    MsgBox, Input the number of instances per row
+return
+
+ShowMsgPacks:
+    MsgBox, Select the pack you want to open
+return
+
+ShowMsgGodPacks:
+    MsgBox, Select the behavior you want when finding a god pack.
+return
+
+ShowMsgLanguage:
+    MsgBox, Select your game's language. ;'
+return
+
+ShowMsgMonitor:
+    MsgBox, Select the monitor you want the instances to be on. `nBe sure to start them on that monitor to prevent issues
+return
+
+ShowMsgDelay:
+    MsgBox, Input the delay in between clicks.
+return
+
+ShowMsgTimeZone:
+    MsgBox, What time the date change is for you. `n1 AM EST is default you can look up what that is in your time zone.
+return
+
+ShowMsgFolder:
+    MsgBox, Where the "MuMuPlayerGlobal-12.0" folder is located. Typically it's in the Netease folder: C:\Program Files\Netease ;'
+return
+
+ShowMsgSpeed:
+    MsgBox, Select the speed configuration. `n2x flat speed. (usually better when maxing out your system) `n1x/2x to swipe at 1x speed then do the rest on 2x. (Good option if you are having issues swiping on flat 2x speed) `n1x/3x to swipe at 1x speed then do the reset on 3x. (usually better when running fewer instances)
+return
+
+ShowMsgSwipeSpeed:
+    MsgBox, Input the swipe speed in milliseconds. `nAnything from 100 to 1000 can probably work. `nPlay around with the speed to get the best speed for your system.
 return
 
 ArrangeWindows:
@@ -143,10 +221,12 @@ IniWrite, %folderPath%, Settings.ini, UserSettings, folderPath
 IniWrite, %ChangeDate%, Settings.ini, UserSettings, ChangeDate
 IniWrite, %Columns%, Settings.ini, UserSettings, Columns
 IniWrite, %openPack%, Settings.ini, UserSettings, openPack
+IniWrite, %godPack%, Settings.ini, UserSettings, godPack
 IniWrite, %Instances%, Settings.ini, UserSettings, Instances
 IniWrite, %setSpeed%, Settings.ini, UserSettings, setSpeed
 IniWrite, %defaultLanguage%, Settings.ini, UserSettings, defaultLanguage
 IniWrite, %SelectedMonitorIndex%, Settings.ini, UserSettings, SelectedMonitorIndex
+IniWrite, %swipeSpeed%, Settings.ini, UserSettings, swipeSpeed
 
 ; Loop to process each instance
 Loop, %Instances%
@@ -173,10 +253,14 @@ Loop, %Instances%
 }
 SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 SysGet, Monitor, Monitor, %SelectedMonitorIndex%
+rerollTime := A_TickCount
+
 Loop {
 	; Sum all variable values and write to total.json
 	total := SumVariablesInJsonFile()
-	CreateStatusMessage("Packs: " . total, 205, 533)
+	totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
+	mminutes := Floor(totalSeconds / 60)
+	CreateStatusMessage("Time: " . mminutes . "m Packs: " . total, 135, 533)
 	Sleep, 10000
 }
 Return
@@ -351,10 +435,13 @@ SumVariablesInJsonFile() {
     }
 
     ; Write the total sum to a file called "total.json"
-    totalFile := A_ScriptDir . "\json\total.json"
-    totalContent := "{""total_sum"": " sum "}"
-    FileDelete, %totalFile%
-    FileAppend, %totalContent%, %totalFile%
+	
+	if(sum > 0) {
+		totalFile := A_ScriptDir . "\json\total.json"
+		totalContent := "{""total_sum"": " sum "}"
+		FileDelete, %totalFile%
+		FileAppend, %totalContent%, %totalFile%
+	}
 
     return sum
 }
