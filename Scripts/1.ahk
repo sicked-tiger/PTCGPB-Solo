@@ -56,7 +56,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 			y4 := y + 25
 			
 		
-			Gui, New, +Owner%OwnerWND% +AlwaysOnTop +ToolWindow -Caption 
+			Gui, New, +Owner%OwnerWND% -AlwaysOnTop +ToolWindow -Caption 
 			Gui, Default
 			Gui, Margin, 4, 4  ; Set margin for the GUI
 			Gui, Font, s5 cGray Norm Bold, Segoe UI  ; Normal font for input labels
@@ -79,7 +79,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 				y4 := y + 25
 				
 			
-				Gui, New, +AlwaysOnTop +ToolWindow -Caption 
+				Gui, New, -AlwaysOnTop +ToolWindow -Caption 
 				Gui, Default
 				Gui, Margin, 4, 4  ; Set margin for the GUI
 				Gui, Font, s5 cGray Norm Bold, Segoe UI  ; Normal font for input labels
@@ -596,7 +596,7 @@ Loop {
 	if(!GPTest) {
 		break
 	}
-	Winset, Alwaysontop, Off, %winTitle%
+	;Winset, Alwaysontop, Off, %winTitle%
 	deleteAccount := true
 	CreateStatusMessage("GP Test mode. Press button again to delete.")
 	sleep, 1000
@@ -1095,8 +1095,7 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
 		Y := Y + ypos
 		
 		; Create a new GUI with the given name, position, and message
-		Gui, %GuiName%:New, +AlwaysOnTop +ToolWindow -Caption 
-		Gui, %GuiName%:Default
+		Gui, %GuiName%:New, -AlwaysOnTop +ToolWindow -Caption 
 		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
 		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
 		Gui, %GuiName%:Add, Text, vStatusText, %Message%
@@ -1257,7 +1256,7 @@ ToggleTestScript()
 	}
 	else {
 		CreateStatusMessage("Exiting GP Test Mode")
-		Winset, Alwaysontop, On, %winTitle%
+		;Winset, Alwaysontop, On, %winTitle%
 		GPTest := false
 	}
 }
