@@ -8,7 +8,7 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack
 
 	
 	adbPath := A_ScriptDir . "\adb\platform-tools\adb.exe"  ; Example path, adjust if necessary
@@ -27,6 +27,8 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	IniRead, defaultLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, defaultLanguage, English
 	jsonFileName := A_ScriptDir . "\..\json\Packs.json"
 	IniRead, SelectedMonitorIndex, %A_ScriptDir%\..\Settings.ini, UserSettings, SelectedMonitorIndex, 1:
+	IniRead, swipeSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, swipeSpeed, 600
+	IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, 1
 	
 	
 	if(!adbPort) {
@@ -67,8 +69,25 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 		catch {
 			RetryCount++
 			if (RetryCount >= MaxRetries) {
-				CreateStatusMessage("Failed to create button gui. Pausing.")
-				Pause ; Or handle failure gracefully
+				CreateStatusMessage("Failed to create button gui.")
+				WinGetPos, x, y, Width, Height, %winTitle%
+				sleep, 2000
+				Winset, Alwaysontop, On, %winTitle%
+				x4 := x + 5
+				y4 := y + 25
+				
+			
+				Gui, New, +AlwaysOnTop +ToolWindow -Caption 
+				Gui, Default
+				Gui, Margin, 4, 4  ; Set margin for the GUI
+				Gui, Font, s5 cGray Norm Bold, Segoe UI  ; Normal font for input labels
+				Gui, Add, Button, x0 y0 w30 h25 gReloadScript, Reload  (F5)
+				Gui, Add, Button, x30 y0 w30 h25 gPauseScript, Pause (F6)
+				Gui, Add, Button, x60 y0 w40 h25 gResumeScript, Resume (F6)
+				Gui, Add, Button, x100 y0 w30 h25 gStopScript, Stop (F7)
+				Gui, Add, Button, x130 y0 w40 h25 gTestScript, GP Test  (F8)
+				Gui, Show, NoActivate x%x4% y%y4% AutoSize
+				break
 			}
 			Sleep, 1000
 		}
@@ -90,6 +109,13 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 		Random, rand, 1, 4
 		openPack = %rand%
 	}
+	
+	if (!godPack)
+		godPack = 1
+	else if (godPack = "Close when found")
+		godPack = 1
+	else if (godPack = "Pause when found")
+		godPack = 2
 		
 	if (!setSpeed)
 		setSpeed = 1
@@ -135,14 +161,8 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	}
 	
 	instanceSleep := A_ScriptDir * 1000
-
+	
 Loop {
-
-if(Variation > 80) {
-	Msgbox, Image search variation is far too high!
-	break
-}
-
 	FormatTime, CurrentTime,, HHmm
 
     StartTime := changeDate - 45 ; 12:55 AM2355
@@ -184,7 +204,7 @@ if(Variation > 80) {
 		Sleep, %Delay%
 		failSafeTime := (A_TickCount - failSafe) // 1000
 	}
-	if(setSpeed > 1 && Packs > 0) {
+	if(setSpeed > 1 && !packs) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		if(setSpeed = 3)
 			KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
@@ -374,23 +394,21 @@ adbClick(140, 424)
 KeepSync(104, 269, 177, 296, , "Trace", 140, 424) ;wait for pack to be ready  to trace
 failSafe := A_TickCount
 failSafeTime := 0
-if(setSpeed > 1) 
-	KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-Loop {
-	if(setSpeed > 1) {
+if(setSpeed > 1) {
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
 	}
+Loop {
 	adbSwipe()
-	if(setSpeed > 1) {
-		if(setSpeed = 3)
-			KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click 3x
-		else
-			KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click 2x
-		Sleep, %Delay%
-	}
 	Sleep, 10
 	if (CheckInstances(207, 234, 222, 260, , "Bulba", 0, failSafeTime)){
+		if(setSpeed > 1) {
+			if(setSpeed = 3)
+				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click 3x
+			else
+				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click 2x
+		}
 		adbClick(166, 296)
 		break
 	}
@@ -402,23 +420,21 @@ Loop {
 KeepSync(34, 99, 74, 131, , "Swipe", 140, 375) ;click through cards until needing to swipe up
 failSafe := A_TickCount
 failSafeTime := 0
-if(setSpeed > 1)
-	KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-Loop {
-	if(setSpeed > 1) {
+if(setSpeed > 1) {
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
 	}
+Loop {
 	adbSwipeUp()
-	if(setSpeed > 1) {
-		if(setSpeed = 3)
-			KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-		else
-			KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-		Sleep, %Delay%
-	}
 	Sleep, 10
 	if (CheckInstances(131, 74, 152, 95, , "SwipeUp", 0, failSafeTime)){
+		if(setSpeed > 1) {
+			if(setSpeed = 3)
+				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
+			else
+				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
+		}
 		adbClick(166, 296)
 		break
 	}
@@ -481,23 +497,21 @@ KeepSync(104, 269, 177, 296, , "Trace", 239, 497) ;wait for pack to be ready  to
 
 failSafe := A_TickCount
 failSafeTime := 0
-if(setSpeed > 1)
-	KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-Loop {
-	if(setSpeed > 1) {
+if(setSpeed > 1) {
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
 	}
+Loop {
 	adbSwipe()
-	if(setSpeed > 1) {
-		if(setSpeed = 3)
-			KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-		else
-			KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-		Sleep, %Delay%
-	}
 	Sleep, 10
 	if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){	
+			if(setSpeed > 1) {
+				if(setSpeed = 3)
+					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
+				else
+					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
+			}
 			adbClick(166, 296)
 			break
 		}
@@ -627,23 +641,21 @@ if(deleteAccount = false) {
 
 	failSafe := A_TickCount
 	failSafeTime := 0
-	if(setSpeed > 1) 
+	if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
+		Sleep, %Delay%
+	}
 	Loop {
-		if(setSpeed > 1) {
-			KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-			Sleep, %Delay%
-		}
 		adbSwipe()	
-		if(setSpeed > 1) {
-			if(setSpeed = 3)
-				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-			else
-				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-			Sleep, %Delay%
-		}
 		Sleep, 10
 		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
+			if(setSpeed > 1) {
+				if(setSpeed = 3)
+					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
+				else
+					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
+			}
 			adbClick(166, 296)
 			break
 		}
@@ -681,23 +693,21 @@ if(deleteAccount = false) {
 	
 	failSafe := A_TickCount
 	failSafeTime := 0
-	if(setSpeed > 1)
+	if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
+		Sleep, %Delay%
+	}
 	Loop {
-		if(setSpeed > 1) {
-			KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-			Sleep, %Delay%
-		}
 		adbSwipe()
-		if(setSpeed > 1) {
-			if(setSpeed = 3)
-				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-			else
-				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-			Sleep, %Delay%
-		}
 		Sleep, 10
 		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
+			if(setSpeed > 1) {
+				if(setSpeed = 3)
+					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
+				else
+					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
+			}
 			adbClick(166, 296)
 			break
 		}
@@ -754,25 +764,23 @@ if(deleteAccount = false) {
 		Sleep, %Delay%
 		adbClick(210, 464) ; 210 464
 	}
-	if(setSpeed > 1)
-		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 	failSafe := A_TickCount
 	failSafeTime := 0
+	if(setSpeed > 1) {
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
+		Sleep, %Delay%
+	}
 	Loop {
-		if(setSpeed > 1) {
-			KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-			Sleep, %Delay%
-		}
 		adbSwipe()
 		Sleep, 10
-		if(setSpeed > 1) {
-			if(setSpeed = 3)
-				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-			else
-				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-			Sleep, %Delay%
-		}
 		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)) {
+			if(setSpeed > 1) {
+				if(setSpeed = 3)
+					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
+				else
+					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
+			}
 			adbClick(166, 296)
 			break
 		}
@@ -845,8 +853,8 @@ minutes := Floor(avgtotalSeconds / 60) ; Total minutes
 seconds := Mod(avgtotalSeconds, 60) ; Remaining seconds within the minute
 mminutes := Floor(totalSeconds / 60) ; Total minutes
 sseconds := Mod(totalSeconds, 60) ; Remaining seconds within the minute
-CreateStatusMessage("Time: " . mminutes . "m Avg: " . minutes . "m " . seconds . "s Cycles: " . rerolls, 25, 0, 533)
-LogToFile("Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Cycles: " . rerolls)
+CreateStatusMessage("Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls, 25, 0, 533)
+LogToFile("Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls)
 
 }
 return
@@ -1010,25 +1018,36 @@ resetWindows(){
 }
 
 killGodPackInstance(){
-	global winTitle
-	CreateStatusMessage("Pausing script. Found GP.")
-	LogToFile("Paused God Pack instance.")
-	; Loop {
-		; Sleep, 60000
-		; adbShell.StdIn.WriteLine("input text GP" )
-	; }
-	Pause, On 
+	global winTitle, godPack
+	if(godPack = 2) {
+		CreateStatusMessage("Pausing script. Found GP.")
+		LogToFile("Paused God Pack instance.")
+		; Loop {
+			; Sleep, 60000
+			; adbShell.StdIn.WriteLine("input text GP" )
+		; }
+		Pause, On 
+	}
+	else {
+		CreateStatusMessage("Closing script. Found GP.")
+		LogToFile("Closing God Pack instance.")
+		WinClose, %winTitle% ;in case you resume and miss that you got a god pack.
+		ExitApp
+	}
+	;I'm just paranoid
 	WinClose, %winTitle% ;in case you resume and miss that you got a god pack.
+	ExitApp
+	Pause, On 
 }
 
 restartGameInstance(reason){
 	global Delay, scriptName
 	CreateStatusMessage("Restarting game. " reason)
-	LogToFile("Restarted game for instance " scriptName " Reason: " reason, Restarted.txt)
+	LogToFile("Restarted game for instance " scriptName " Reason: " reason, "Restart.txt")
 	adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
 	sleep, 1000
 	adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
-	Sleep, 1000
+	sleep, 1000
 	Reload
 }
 
@@ -1065,14 +1084,14 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
 
 checkBorder() {
 	global winTitle, Variation
+	Sleep, 250
 	WinGetPos, x, y, Width, Height, %winTitle%
-	ImageSearch, testx, testy, 23 + x, 282 + y, 96 + x, 284 + y, *80 %A_ScriptDir%\%defaultLanguage%\Border.png ;first card
+	ImageSearch, testx, testy, 21 + x, 283 + y, 95 + x, 285 + y, *10 %A_ScriptDir%\%defaultLanguage%\Border.png ;first card
 	if (ErrorLevel = 0) {
 		CreateStatusMessage("Not a God Pack ")
-		;msgbox, 1 %testx%, %testy%
 	}
 	else {
-		ImageSearch, testx, testy, 107 + x, 282 + y, 180 + x, 284 + y, *80 %A_ScriptDir%\%defaultLanguage%\Border.png ; second card
+		ImageSearch, testx, testy, 104 + x, 283 + y, 177 + x, 285 + y, *10 %A_ScriptDir%\%defaultLanguage%\Border.png ; second card
 		if (ErrorLevel = 0) {
 			CreateStatusMessage("Not a God Pack ")
 			LogToFile("Second card checked. Not a God Pack ")
@@ -1112,7 +1131,7 @@ adbSwipeUp() {
 }
 
 adbSwipe() {
-	global adbShell, setSpeed
+	global adbShell, setSpeed, swipeSpeed
 	X1 := 35
 	Y1 := 327
 	X2 := 267
@@ -1122,16 +1141,19 @@ adbSwipe() {
 	X2 := Round(X2 / 44 * 535)
     Y2 := Round((Y2 - 44) / 489 * 960)
 	if(setSpeed = 1) {
-		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 600")
-		Sleep, 750
+		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " " . swipeSpeed)
+		sleepDuration := swipeSpeed * 1.2
+		Sleep, %sleepDuration%
 	}
 	else if(setSpeed = 2) {
-		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 750")
-		Sleep, 850
+		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " " . swipeSpeed)
+		sleepDuration := swipeSpeed * 1.2
+		Sleep, %sleepDuration%
 	} 
 	else {
-		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 750")
-		Sleep, 850
+		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " " . swipeSpeed)
+		sleepDuration := swipeSpeed * 1.2
+		Sleep, %sleepDuration%
 	}
 }
 
@@ -1278,7 +1300,11 @@ SumVariablesInJsonFile() {
     return sum
 }
 
-
+; ^e::
+	; WinGetPos, xpos, ypos, Width, Height, 1
+	; Msgbox %xpos% %ypos%
+	; checkBorder()
+; return
 ~F5::Reload
 ~F6::Pause
 ~F7::ExitApp
