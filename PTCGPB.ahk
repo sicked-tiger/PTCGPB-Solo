@@ -312,8 +312,7 @@ CreateStatusMessage(Message, X := 0, Y := 60) {
 		X := MonitorLeft + X
 		Y := MonitorTop + Y
 		; Create a new GUI with the given name, position, and message
-		Gui, %GuiName%:New, +AlwaysOnTop +ToolWindow -Caption 
-		Gui, %GuiName%:Default
+		Gui, %GuiName%:New, -AlwaysOnTop +ToolWindow -Caption 
 		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
 		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
 		Gui, %GuiName%:Add, Text, vPacksText, %Message%
