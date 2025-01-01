@@ -3,7 +3,7 @@ https://buymeacoffee.com/aarturoo
 
 *Thanks for your support, and let’s keep those god packs coming!* 😄
 
-# **__Arturo's PTCGP Bot v3.1.0__**
+# **__Arturo's PTCGP Bot v3.1.1__**
 -# *Special thanks to @pandaporo. for bringing adb inputs to my attention for v2.0*
 -# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, azureWOX, Havvak and everyone else who helped test and contributed.*
 
@@ -15,7 +15,7 @@ https://buymeacoffee.com/aarturoo
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.1.0.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.1.1.zip)
 
 **__How can I get it working?__**
 Step 1: Install the necessary programs
