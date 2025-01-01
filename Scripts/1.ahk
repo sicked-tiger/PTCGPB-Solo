@@ -115,10 +115,17 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	
 	if (!godPack)
 		godPack = 1
-	else if (godPack = "Close when found")
+	else if (godPack = "Close")
 		godPack = 1
-	else if (godPack = "Pause when found")
+	else if (godPack = "Pause")
 		godPack = 2
+	
+	if (!falsePositive)
+		godPack = 1
+	else if (falsePositive = "No")
+		falsePositive = 1
+	else if (falsePositive = "Yes")
+		falsePositive = 2
 		
 	if (!setSpeed)
 		setSpeed = 1
@@ -860,7 +867,7 @@ seconds := Mod(avgtotalSeconds, 60) ; Remaining seconds within the minute
 mminutes := Floor(totalSeconds / 60) ; Total minutes
 sseconds := Mod(totalSeconds, 60) ; Remaining seconds within the minute
 CreateStatusMessage("Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls, 25, 0, 533)
-LogToFile("Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls)
+LogToFile("Packs: " . packs . " Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls)
 
 }
 return
