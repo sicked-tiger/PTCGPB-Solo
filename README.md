@@ -3,18 +3,19 @@ https://buymeacoffee.com/aarturoo
 
 *Thanks for your support, and let’s keep those god packs coming!* 😄
 
-# **__Arturo's PTCGP Bot v3.0.0__**
+# **__Arturo's PTCGP Bot v3.1.0__**
 -# *Special thanks to @pandaporo. for bringing adb inputs to my attention for v2.0*
 -# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, azureWOX, Havvak and everyone else who helped test and contributed.*
 
 **__What does this do?__**
 - Rerolls accounts to 26 cards in under 3 mins from account creation to deletion stopping an instance if it gets a god pack.
+- It can now run behind windows in the background (not minimized) and does not take control of your mouse or keyboard!
 - Gif of a bot run: https://i.imgur.com/DfqAp7c.gif
 
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.0.0.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.1.0.zip)
 
 **__How can I get it working?__**
 Step 1: Install the necessary programs
@@ -30,12 +31,14 @@ Step 2: Set-Up MuMu Player
   - Forced use of discrete graphics
   - **Custom: 540 x 960 220 dpi**
   - **Screen brightness: 50**
+  - **Screen style: Common**
   - FPS: 60
   - **Do not turn on the FPS display**
   - Close system sound
   - **Uncheck: Keep running in the background**
   - Exit directly
 - Name your instances "1", "2", "3", "4", etc. without the quotes.
+  - Make sure there are no other instances named the same even if they aren't running!
 - The very first instance in the multi-instance window is incompatible. just name another one 1.
 
 Step 3: Install PTCGP
@@ -47,10 +50,10 @@ Step 4:
 - Download the Bot zip
 - Extract it by Right click the zip > extract
 
-Step 5: **Change scale to 125% in your windows settings.**
-- Press windows key
-- Type "display settings"
-- Look for the scale setting and change it to 125% for all your monitors.
+Step 5: Windows settings
+- **Change scale to 125% in your windows settings.** > Press windows key > Type "display settings" > Look for the scale setting and change it to 125% for all your monitors.
+- all windows color filters off
+- HDR off
 
 Step 6: 
 - Start your instances
@@ -61,6 +64,7 @@ Step 6:
 
 Step 7: 
 - Run PTCGPB.ahk
+- If you're using the new speed mod linked above then make sure to click the "PM" logo > cog wheel > save preferences > cog wheel > set speed to the one you will be running at > minimize
 
 Step 8: Input your script settings
 - Number of instances you are running
@@ -72,7 +76,7 @@ Step 8: Input your script settings
 - Netease Path: If you didn't change your path upon installation leave it. Otherwise input the path.
 - Speed: This is what game speed you want to run at if you have the new speed mod.
   - 2x works with both the old and the new.
-  - With the new on be sure to: click the platinmods logo > cog wheel > save preferences
+  - With the new on be sure to: click the platinmods logo > cog wheel > save preferences > set to 2x speed
 - Language: Select your game language
 - Monitor: Select which monitor you'd like it to run on. Try to start the mumu instances in the correct monitor to prevent issues
 - Swipe Speed: The duration of the swipe. Increase/decrease it if it's not swiping well on your system.

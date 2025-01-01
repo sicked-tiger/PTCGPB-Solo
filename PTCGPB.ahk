@@ -17,12 +17,13 @@ InitializeJsonFile() ; Create or open the JSON file
     IniRead, changeDate, Settings.ini, UserSettings, ChangeDate, 0100
     IniRead, Columns, Settings.ini, UserSettings, Columns, 5
     IniRead, openPack, Settings.ini, UserSettings, openPack, Mew
-    IniRead, godPack, Settings.ini, UserSettings, godPack, Close when found
+    IniRead, godPack, Settings.ini, UserSettings, godPack, Close
     IniRead, Instances, Settings.ini, UserSettings, Instances, 10
 	IniRead, setSpeed, Settings.ini, UserSettings, setSpeed, 2x
     IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, English
     IniRead, SelectedMonitorIndex, Settings.ini, UserSettings, SelectedMonitorIndex, 1
     IniRead, swipeSpeed, Settings.ini, UserSettings, swipeSpeed, 600
+    IniRead, falsePositive, Settings.ini, UserSettings, falsePositive, No
 
 ; Main GUI setup
 ; Add the link text at the bottom of the GUI
@@ -105,6 +106,24 @@ Gui, Add, DropDownList, x275 y404 w72 vsetSpeed choose%defaultSpeed% Center, 2x|
 
 Gui, Add, Edit, vswipeSpeed x348 y404 w72 Center, %swipeSpeed%
 
+; Pack selection logic
+if (godPack = "Close") {
+    defaultgodPack := 1
+} else if (godPack = "Pause") {
+    defaultgodPack := 2
+}
+
+Gui, Add, DropDownList, x275 y166 w72 vgodPack choose%defaultgodPack% Center, Close|Pause
+
+; Pack selection logic
+if (falsePositive = "No") {
+    defaultFP := 1
+} else if (falsePositive = "Yes") {
+    defaultFP := 2
+}
+
+Gui, Add, DropDownList, x348 y166 w72 vfalsePositive choose%defaultFP% Center, No|Yes
+
 Gui, Font, s10 Bold, Segoe UI 
 Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
 
@@ -114,7 +133,8 @@ Gui Add, Button, x342 y77 w17 h19 gShowMsgInstances, ? ;Questionmark box for Ins
 Gui Add, Button, x415 y77 w17 h19 gShowMsgColumns, ? ;Questionmark box for Instance Per Row Field
 
 Gui Add, Button, x190 y145 w17 h19 gShowMsgPacks, ? ;Questionmark box for Pack to Open Field
-Gui Add, Button, x415 y145 w17 h19 gShowMsgGodPacks, ? ;Questionmark box for God Pack to Open Field
+Gui Add, Button, x337 y145 w17 h19 gShowMsgGodPacks, ? ;Questionmark box for God Pack to Open Field
+Gui Add, Button, x423 y145 w17 h19 gShowMsgFP, ? ;Questionmark box for God Pack to Open Field
 
 Gui Add, Button, x215 y219 w17 h19 gShowMsgLanguage, ? ;Questionmark box for God Pack to Open Field
 Gui Add, Button, x400 y219 w17 h19 gShowMsgMonitor, ? ;Questionmark box for God Pack to Open Field
@@ -126,20 +146,12 @@ Gui Add, Button, x193 y378 w17 h19 gShowMsgFolder, ? ;Questionmark box for Swipe
 Gui Add, Button, x343 y378 w17 h19 gShowMsgSpeed, ? ;Questionmark box for Speed Field
 Gui Add, Button, x408 y378 w17 h19 gShowMsgSwipeSpeed, ? ;Questionmark box for SwipeSpeed Field
 
-; Pack selection logic
-if (godPack = "Close when found") {
-    defaultgodPack := 1
-} else if (godPack = "Pause when found") {
-    defaultgodPack := 2
-}
-
-Gui, Add, DropDownList, x275 y166 w145 h70 vgodPack choose%defaultgodPack% Center, Close when found|Pause when found
 ; Show the GUI
 Gui, Show
 return
 
 ShowMsgName:
-    MsgBox, Input the name you want the accounts to have
+    MsgBox, Input the name you want the accounts to have. `nIf it's getting stuck inputting the name then make sure your dpi is set to 220. ;'
 return
 
 ShowMsgInstances:
@@ -155,7 +167,11 @@ ShowMsgPacks:
 return
 
 ShowMsgGodPacks:
-    MsgBox, Select the behavior you want when finding a god pack.
+    MsgBox, Select the behavior you want when finding a god pack. `nClose will close the emulator and stop the script to save resources. `nPause will only pause the script on the opening screen.
+return
+
+ShowMsgFP:
+    MsgBox, If you're getting frequent false positives change this option to Yes. If you aren't getting any false positives then leave it on No.
 return
 
 ShowMsgLanguage:
@@ -163,7 +179,7 @@ ShowMsgLanguage:
 return
 
 ShowMsgMonitor:
-    MsgBox, Select the monitor you want the instances to be on. `nBe sure to start them on that monitor to prevent issues
+    MsgBox, Select the monitor you want the instances to be on. `nBe sure to start them on that monitor to prevent issues. `nIf you're having issues make sure all monitors are set to 125`% scale. ;'
 return
 
 ShowMsgDelay:
@@ -179,11 +195,11 @@ ShowMsgFolder:
 return
 
 ShowMsgSpeed:
-    MsgBox, Select the speed configuration. `n2x flat speed. (usually better when maxing out your system) `n1x/2x to swipe at 1x speed then do the rest on 2x. (Good option if you are having issues swiping on flat 2x speed) `n1x/3x to swipe at 1x speed then do the reset on 3x. (usually better when running fewer instances)
+    MsgBox, Select the speed configuration. `n2x flat speed. (usually better when maxing out your system) `n1x/2x to swipe at 1x speed then do the rest on 2x. This needs the new speed mod in the guide. (Good option if you are having issues swiping on flat 2x speed) `n1x/3x to swipe at 1x speed then do the reset on 3x. This needs the new speed mod in the guide. (usually better when running fewer instances)
 return
 
 ShowMsgSwipeSpeed:
-    MsgBox, Input the swipe speed in milliseconds. `nAnything from 100 to 1000 can probably work. `nPlay around with the speed to get the best speed for your system.
+    MsgBox, Input the swipe speed in milliseconds. `nAnything from 100 to 1000 can probably work. `nPlay around with the speed to get the best speed for your system. Lower number = faster speed. 
 return
 
 ArrangeWindows:
@@ -229,6 +245,7 @@ IniWrite, %setSpeed%, Settings.ini, UserSettings, setSpeed
 IniWrite, %defaultLanguage%, Settings.ini, UserSettings, defaultLanguage
 IniWrite, %SelectedMonitorIndex%, Settings.ini, UserSettings, SelectedMonitorIndex
 IniWrite, %swipeSpeed%, Settings.ini, UserSettings, swipeSpeed
+IniWrite, %falsePositive%, Settings.ini, UserSettings, falsePositive
 
 ; Loop to process each instance
 Loop, %Instances%
@@ -262,7 +279,7 @@ Loop {
 	total := SumVariablesInJsonFile()
 	totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
 	mminutes := Floor(totalSeconds / 60)
-	CreateStatusMessage("Time: " . mminutes . "m Packs: " . total, 135, 533)
+	CreateStatusMessage("Time: " . mminutes . "m Packs: " . total, 5, 510)
 	Sleep, 10000
 }
 Return
@@ -281,7 +298,7 @@ resetWindows(Title, SelectedMonitorIndex){
 			SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 			SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 
-			CreateStatusMessage("Arranging window positions and sizes", 0, 60)
+			CreateStatusMessage("Arranging window positions and sizes")
 			rowHeight := 533  ; Adjust the height of each row
 			currentRow := Floor((Title - 1) / Columns)
 			y := currentRow * rowHeight	
@@ -300,7 +317,7 @@ resetWindows(Title, SelectedMonitorIndex){
 	return true
 }
 
-CreateStatusMessage(Message, X := 0, Y := 60) {
+CreateStatusMessage(Message, X := 0, Y := 80) {
 	global PacksText, SelectedMonitorIndex
 	MaxRetries := 10
 	RetryCount := 0
@@ -316,7 +333,7 @@ CreateStatusMessage(Message, X := 0, Y := 60) {
 		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
 		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
 		Gui, %GuiName%:Add, Text, vPacksText, %Message%
-		Gui, %GuiName%:Show,NoActivate x%X% y%Y% AutoSize,NoActivate %GuiName%
+		Gui, %GuiName%:Show,NoActivate x%X% y%Y% AutoSize, %GuiName%
 	}
 }
 

@@ -30,6 +30,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	jsonFileName := A_ScriptDir . "\..\json\Packs.json"
 	IniRead, SelectedMonitorIndex, %A_ScriptDir%\..\Settings.ini, UserSettings, SelectedMonitorIndex, 1:
 	IniRead, swipeSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, swipeSpeed, 600
+	IniRead, falsePositive, %A_ScriptDir%\..\Settings.ini, UserSettings, falsePositive, No
 	IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, 1
 	
 	
@@ -53,7 +54,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 			;Winset, Alwaysontop, On, %winTitle%
 			OwnerWND := WinExist(winTitle)
 			x4 := x + 5
-			y4 := y + 25
+			y4 := y + 44
 			
 		
 			Gui, New, +Owner%OwnerWND% -AlwaysOnTop +ToolWindow -Caption 
@@ -114,10 +115,17 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	
 	if (!godPack)
 		godPack = 1
-	else if (godPack = "Close when found")
+	else if (godPack = "Close")
 		godPack = 1
-	else if (godPack = "Pause when found")
+	else if (godPack = "Pause")
 		godPack = 2
+	
+	if (!falsePositive)
+		godPack = 1
+	else if (falsePositive = "No")
+		falsePositive = 1
+	else if (falsePositive = "Yes")
+		falsePositive = 2
 		
 	if (!setSpeed)
 		setSpeed = 1
@@ -223,7 +231,7 @@ KeepSync(77, 144, 169, 175, , "Country", 143, 370) ;select month and year and cl
 
 adbClick(80, 400)
 Sleep, %Delay%
-adbClick(80, 400)
+adbClick(80, 375)
 Sleep, %Delay%
 failSafe := A_TickCount
 failSafeTime := 0
@@ -238,7 +246,7 @@ adbClick(142, 159)
 	Sleep, %Delay%
 adbClick(80, 400)
 	Sleep, %Delay%
-adbClick(80, 400)
+adbClick(80, 375)
     Sleep, %Delay%
 adbClick(82, 422)
 	failSafeTime := (A_TickCount - failSafe) // 1000
@@ -248,7 +256,7 @@ adbClick(82, 422)
 
 adbClick(200, 400)
 Sleep, %Delay%
-adbClick(200, 400)
+adbClick(200, 375)
 Sleep, %Delay%
 failSafe := A_TickCount
 failSafeTime := 0
@@ -264,7 +272,7 @@ Loop ;select month and year and click
 	Sleep, %Delay%
 	adbClick(200, 400)
 	Sleep, %Delay%
-	adbClick(200, 400)
+	adbClick(200, 375)
 	Sleep, %Delay%
 	adbClick(142, 159)
 	Sleep, %Delay%
@@ -450,7 +458,10 @@ Loop {
 
 KeepSync(70, 80, 133, 109, , "Move", 134, 375) ; click through until move
 Sleep, %Delay%
-KeepSync(105, 242, 173, 277, , "Proceed", 141, 483) ;wait for menu to proceed then click ok
+if(setSpeed > 2)
+	KeepSync(105, 242, 173, 277, , "Proceed", 141, 483, 500) ;wait for menu to proceed then click ok. increased delay in between clicks to fix freezing on 3x speed
+else
+	KeepSync(105, 242, 173, 277, , "Proceed", 141, 483) ;wait for menu to proceed then click ok
 Sleep, %Delay%
 adbClick(204, 371)
 
@@ -858,8 +869,8 @@ minutes := Floor(avgtotalSeconds / 60) ; Total minutes
 seconds := Mod(avgtotalSeconds, 60) ; Remaining seconds within the minute
 mminutes := Floor(totalSeconds / 60) ; Total minutes
 sseconds := Mod(totalSeconds, 60) ; Remaining seconds within the minute
-CreateStatusMessage("Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls, 25, 0, 533)
-LogToFile("Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls)
+CreateStatusMessage("Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls, 25, 0, 510)
+LogToFile("Packs: " . packs . " Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls)
 
 }
 return
@@ -1083,34 +1094,48 @@ LogToFile(message, logFile := "") {
     FileAppend, % "[" readableTime "] " message "`n", %logFile%
 }
 
-CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
+CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 	global scriptName, winTitle, statusText, SelectedMonitorIndex
 	MaxRetries := 10
 	RetryCount := 0
 	try {
+		OwnerWND := WinExist(winTitle)			
+		
+		Gui, New, +Owner%OwnerWND% -AlwaysOnTop +ToolWindow -Caption
 		GuiName := GuiName+scriptName
 		statusText := GuiName+scriptName
 		WinGetPos, xpos, ypos, Width, Height, %winTitle%
 		X := X + xpos + 5
 		Y := Y + ypos
+		if(!X)
+			X := 0
+		if(!Y)
+			Y := 0
 		
 		; Create a new GUI with the given name, position, and message
 		Gui, %GuiName%:New, -AlwaysOnTop +ToolWindow -Caption 
 		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
 		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
 		Gui, %GuiName%:Add, Text, vStatusText, %Message%
-		Gui,%GuiName%:Show,NoActivate x%X% y%Y% AutoSize,NoActivate %GuiName%
+		Gui,%GuiName%:Show,NoActivate x%X% y%Y% AutoSize, %GuiName%
 	}	
 }
 
 checkBorder() {
-	global winTitle
-	Sleep, 250
+	global winTitle, falsePositive
+	if(falsePositive = 1) {
+		Sleep, 250
+		searchVariation := 10
+	}
+	else {
+		Sleep, 1000
+		searchVariation := 25
+	}
 	pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
 	Path = %A_ScriptDir%\%defaultLanguage%\Border.png
 	pNeedle := Gdip_CreateBitmapFromFile(Path)
 	; ImageSearch within the region
-	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, 10)
+	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, searchVariation)
 	Gdip_DisposeImage(pNeedle)
 	Gdip_DisposeImage(pBitmap)
 	if (vRet = 1) {
@@ -1121,7 +1146,7 @@ checkBorder() {
 		Path = %A_ScriptDir%\%defaultLanguage%\Border.png
 		pNeedle := Gdip_CreateBitmapFromFile(Path)
 		; ImageSearch within the region
-		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, 10)
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, searchVariation)
 		Gdip_DisposeImage(pNeedle)
 		Gdip_DisposeImage(pBitmap)
 		if (vRet = 1) {
