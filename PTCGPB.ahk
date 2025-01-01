@@ -279,7 +279,7 @@ Loop {
 	total := SumVariablesInJsonFile()
 	totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
 	mminutes := Floor(totalSeconds / 60)
-	CreateStatusMessage("Time: " . mminutes . "m Packs: " . total, 135, 533)
+	CreateStatusMessage("Time: " . mminutes . "m Packs: " . total, 5, 510)
 	Sleep, 10000
 }
 Return
@@ -298,7 +298,7 @@ resetWindows(Title, SelectedMonitorIndex){
 			SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 			SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 
-			CreateStatusMessage("Arranging window positions and sizes", 0, 60)
+			CreateStatusMessage("Arranging window positions and sizes")
 			rowHeight := 533  ; Adjust the height of each row
 			currentRow := Floor((Title - 1) / Columns)
 			y := currentRow * rowHeight	
@@ -317,7 +317,7 @@ resetWindows(Title, SelectedMonitorIndex){
 	return true
 }
 
-CreateStatusMessage(Message, X := 0, Y := 60) {
+CreateStatusMessage(Message, X := 0, Y := 80) {
 	global PacksText, SelectedMonitorIndex
 	MaxRetries := 10
 	RetryCount := 0
@@ -333,7 +333,7 @@ CreateStatusMessage(Message, X := 0, Y := 60) {
 		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
 		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
 		Gui, %GuiName%:Add, Text, vPacksText, %Message%
-		Gui, %GuiName%:Show,NoActivate x%X% y%Y% AutoSize,NoActivate %GuiName%
+		Gui, %GuiName%:Show,NoActivate x%X% y%Y% AutoSize, %GuiName%
 	}
 }
 
