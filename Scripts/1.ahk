@@ -223,7 +223,7 @@ KeepSync(77, 144, 169, 175, , "Country", 143, 370) ;select month and year and cl
 
 adbClick(80, 400)
 Sleep, %Delay%
-adbClick(80, 400)
+adbClick(80, 375)
 Sleep, %Delay%
 failSafe := A_TickCount
 failSafeTime := 0
@@ -238,7 +238,7 @@ adbClick(142, 159)
 	Sleep, %Delay%
 adbClick(80, 400)
 	Sleep, %Delay%
-adbClick(80, 400)
+adbClick(80, 375)
     Sleep, %Delay%
 adbClick(82, 422)
 	failSafeTime := (A_TickCount - failSafe) // 1000
@@ -248,7 +248,7 @@ adbClick(82, 422)
 
 adbClick(200, 400)
 Sleep, %Delay%
-adbClick(200, 400)
+adbClick(200, 375)
 Sleep, %Delay%
 failSafe := A_TickCount
 failSafeTime := 0
@@ -264,7 +264,7 @@ Loop ;select month and year and click
 	Sleep, %Delay%
 	adbClick(200, 400)
 	Sleep, %Delay%
-	adbClick(200, 400)
+	adbClick(200, 375)
 	Sleep, %Delay%
 	adbClick(142, 159)
 	Sleep, %Delay%
