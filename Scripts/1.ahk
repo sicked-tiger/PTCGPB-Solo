@@ -1199,7 +1199,7 @@ Screenshot() {
 		FileCreateDir, %screenshotsDir%
 		
 	; File path for saving the screenshot locally
-	screenshotFile := screenshotsDir "\" A_Now ".png"
+	screenshotFile := screenshotsDir "\" winTitle "_" A_Now ".png"
 	
 	; Capture the screenshot on the emulator
 	; adbShell.StdIn.WriteLine("screencap /sdcard/screenshot.png")
