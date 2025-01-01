@@ -1105,10 +1105,7 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 	global scriptName, winTitle, statusText, SelectedMonitorIndex
 	MaxRetries := 10
 	RetryCount := 0
-	try {
-		OwnerWND := WinExist(winTitle)			
-		
-		Gui, New, +Owner%OwnerWND% -AlwaysOnTop +ToolWindow -Caption
+	try {	
 		GuiName := GuiName+scriptName
 		statusText := GuiName+scriptName
 		WinGetPos, xpos, ypos, Width, Height, %winTitle%
@@ -1124,7 +1121,7 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
 		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
 		Gui, %GuiName%:Add, Text, vStatusText, %Message%
-		Gui,%GuiName%:Show,NoActivate x%X% y%Y% AutoSize, %GuiName%
+		Gui,%GuiName%:Show,NoActivate x%X% y%Y% AutoSize, NoActivate %GuiName%
 	}	
 }
 
