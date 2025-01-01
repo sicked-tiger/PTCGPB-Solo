@@ -279,7 +279,7 @@ Loop {
 	total := SumVariablesInJsonFile()
 	totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
 	mminutes := Floor(totalSeconds / 60)
-	CreateStatusMessage("Time: " . mminutes . "m Packs: " . total, 5, 510)
+	CreateStatusMessage("Time: " . mminutes . "m Packs: " . total, 5, 490)
 	Sleep, 10000
 }
 Return
