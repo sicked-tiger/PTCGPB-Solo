@@ -30,6 +30,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	jsonFileName := A_ScriptDir . "\..\json\Packs.json"
 	IniRead, SelectedMonitorIndex, %A_ScriptDir%\..\Settings.ini, UserSettings, SelectedMonitorIndex, 1:
 	IniRead, swipeSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, swipeSpeed, 600
+	IniRead, falsePositive, %A_ScriptDir%\..\Settings.ini, UserSettings, falsePositive, No
 	IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, 1
 	
 	
@@ -1104,13 +1105,20 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
 }
 
 checkBorder() {
-	global winTitle
-	Sleep, 250
+	global winTitle, falsePositive
+	if(falsePositive = 1) {
+		Sleep, 250
+		searchVariation := 10
+	}
+	else {
+		Sleep, 1000
+		searchVariation := 25
+	}
 	pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
 	Path = %A_ScriptDir%\%defaultLanguage%\Border.png
 	pNeedle := Gdip_CreateBitmapFromFile(Path)
 	; ImageSearch within the region
-	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, 10)
+	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, searchVariation)
 	Gdip_DisposeImage(pNeedle)
 	Gdip_DisposeImage(pBitmap)
 	if (vRet = 1) {
@@ -1121,7 +1129,7 @@ checkBorder() {
 		Path = %A_ScriptDir%\%defaultLanguage%\Border.png
 		pNeedle := Gdip_CreateBitmapFromFile(Path)
 		; ImageSearch within the region
-		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, 10)
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, searchVariation)
 		Gdip_DisposeImage(pNeedle)
 		Gdip_DisposeImage(pBitmap)
 		if (vRet = 1) {
