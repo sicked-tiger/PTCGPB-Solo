@@ -17,7 +17,7 @@ InitializeJsonFile() ; Create or open the JSON file
     IniRead, changeDate, Settings.ini, UserSettings, ChangeDate, 0100
     IniRead, Columns, Settings.ini, UserSettings, Columns, 5
     IniRead, openPack, Settings.ini, UserSettings, openPack, Mew
-    IniRead, godPack, Settings.ini, UserSettings, godPack, Close when found
+    IniRead, godPack, Settings.ini, UserSettings, godPack, Close
     IniRead, Instances, Settings.ini, UserSettings, Instances, 10
 	IniRead, setSpeed, Settings.ini, UserSettings, setSpeed, 2x
     IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, English
@@ -106,6 +106,24 @@ Gui, Add, DropDownList, x275 y404 w72 vsetSpeed choose%defaultSpeed% Center, 2x|
 
 Gui, Add, Edit, vswipeSpeed x348 y404 w72 Center, %swipeSpeed%
 
+; Pack selection logic
+if (godPack = "Close") {
+    defaultgodPack := 1
+} else if (godPack = "Pause") {
+    defaultgodPack := 2
+}
+
+Gui, Add, DropDownList, x275 y166 w72 vgodPack choose%defaultgodPack% Center, Close|Pause
+
+; Pack selection logic
+if (falsePositive = "No") {
+    defaultFP := 1
+} else if (falsePositive = "Yes") {
+    defaultFP := 2
+}
+
+Gui, Add, DropDownList, x348 y166 w72 vfalsePositive choose%defaultFP% Center, No|Yes
+
 Gui, Font, s10 Bold, Segoe UI 
 Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
 
@@ -115,7 +133,8 @@ Gui Add, Button, x342 y77 w17 h19 gShowMsgInstances, ? ;Questionmark box for Ins
 Gui Add, Button, x415 y77 w17 h19 gShowMsgColumns, ? ;Questionmark box for Instance Per Row Field
 
 Gui Add, Button, x190 y145 w17 h19 gShowMsgPacks, ? ;Questionmark box for Pack to Open Field
-Gui Add, Button, x415 y145 w17 h19 gShowMsgGodPacks, ? ;Questionmark box for God Pack to Open Field
+Gui Add, Button, x337 y145 w17 h19 gShowMsgGodPacks, ? ;Questionmark box for God Pack to Open Field
+Gui Add, Button, x423 y145 w17 h19 gShowMsgFP, ? ;Questionmark box for God Pack to Open Field
 
 Gui Add, Button, x215 y219 w17 h19 gShowMsgLanguage, ? ;Questionmark box for God Pack to Open Field
 Gui Add, Button, x400 y219 w17 h19 gShowMsgMonitor, ? ;Questionmark box for God Pack to Open Field
@@ -127,29 +146,12 @@ Gui Add, Button, x193 y378 w17 h19 gShowMsgFolder, ? ;Questionmark box for Swipe
 Gui Add, Button, x343 y378 w17 h19 gShowMsgSpeed, ? ;Questionmark box for Speed Field
 Gui Add, Button, x408 y378 w17 h19 gShowMsgSwipeSpeed, ? ;Questionmark box for SwipeSpeed Field
 
-; Pack selection logic
-if (godPack = "Close when found") {
-    defaultgodPack := 1
-} else if (godPack = "Pause when found") {
-    defaultgodPack := 2
-}
-
-Gui, Add, DropDownList, x275 y166 w145 h70 vgodPack choose%defaultgodPack% Center, Close when found|Pause when found
-
-; Pack selection logic
-if (falsePositive = "No") {
-    defaultFP := 1
-} else if (falsePositive = "Yes") {
-    defaultFP := 2
-}
-
-Gui, Add, DropDownList, x348 y166 w72 h70 vgodPack choose%defaultFP% Center, No|Yes
 ; Show the GUI
 Gui, Show
 return
 
 ShowMsgName:
-    MsgBox, Input the name you want the accounts to have. `nIf it's getting stuck inputting the name then make sure your dpi is set to 220.
+    MsgBox, Input the name you want the accounts to have. `nIf it's getting stuck inputting the name then make sure your dpi is set to 220. ;'
 return
 
 ShowMsgInstances:
@@ -168,12 +170,16 @@ ShowMsgGodPacks:
     MsgBox, Select the behavior you want when finding a god pack. `nClose will close the emulator and stop the script to save resources. `nPause will only pause the script on the opening screen.
 return
 
+ShowMsgFP:
+    MsgBox, If you're getting frequent false positives change this option to Yes. If you aren't getting any false positives then leave it on No.
+return
+
 ShowMsgLanguage:
     MsgBox, Select your game's language. ;'
 return
 
 ShowMsgMonitor:
-    MsgBox, Select the monitor you want the instances to be on. `nBe sure to start them on that monitor to prevent issues. `nIf you're having issues make sure all monitors are set to 125% scale.
+    MsgBox, Select the monitor you want the instances to be on. `nBe sure to start them on that monitor to prevent issues. `nIf you're having issues make sure all monitors are set to 125`% scale. ;'
 return
 
 ShowMsgDelay:
@@ -239,6 +245,7 @@ IniWrite, %setSpeed%, Settings.ini, UserSettings, setSpeed
 IniWrite, %defaultLanguage%, Settings.ini, UserSettings, defaultLanguage
 IniWrite, %SelectedMonitorIndex%, Settings.ini, UserSettings, SelectedMonitorIndex
 IniWrite, %swipeSpeed%, Settings.ini, UserSettings, swipeSpeed
+IniWrite, %falsePositive%, Settings.ini, UserSettings, falsePositive
 
 ; Loop to process each instance
 Loop, %Instances%
