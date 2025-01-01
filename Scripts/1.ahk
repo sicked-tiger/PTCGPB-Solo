@@ -381,6 +381,8 @@ KeepSync(190, 241, 225, 270, , "Name", 189, 438) ;wait for name input screen
 
 KeepSync(230, 500, 270, 520, , "OK", 139, 257) ;wait for name input screen
 
+failSafe := A_TickCount
+failSafeTime := 0
 Loop {
 	adbName()
 	Sleep, %Delay%
@@ -398,6 +400,11 @@ Loop {
 		adbShell.StdIn.WriteLine("input keyevent 67")	
 		Sleep, 10
 	}
+	failSafeTime := (A_TickCount - failSafe) // 1000
+	CreateStatusMessage("In failsafe for Trace. It's been: " . failSafeTime "s ")
+	LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
+	if(failSafeTime > 45)
+		restartGameInstance("Stuck at name")
 }
 
 Sleep, %Delay%
