@@ -23,6 +23,7 @@ InitializeJsonFile() ; Create or open the JSON file
     IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, English
     IniRead, SelectedMonitorIndex, Settings.ini, UserSettings, SelectedMonitorIndex, 1
     IniRead, swipeSpeed, Settings.ini, UserSettings, swipeSpeed, 600
+    IniRead, falsePositive, Settings.ini, UserSettings, falsePositive, No
 
 ; Main GUI setup
 ; Add the link text at the bottom of the GUI
@@ -134,6 +135,15 @@ if (godPack = "Close when found") {
 }
 
 Gui, Add, DropDownList, x275 y166 w145 h70 vgodPack choose%defaultgodPack% Center, Close when found|Pause when found
+
+; Pack selection logic
+if (falsePositive = "No") {
+    defaultFP := 1
+} else if (falsePositive = "Yes") {
+    defaultFP := 2
+}
+
+Gui, Add, DropDownList, x348 y166 w72 h70 vgodPack choose%defaultFP% Center, No|Yes
 ; Show the GUI
 Gui, Show
 return
