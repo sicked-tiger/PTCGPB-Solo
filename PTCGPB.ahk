@@ -139,7 +139,7 @@ Gui, Show
 return
 
 ShowMsgName:
-    MsgBox, Input the name you want the accounts to have
+    MsgBox, Input the name you want the accounts to have. `nIf it's getting stuck inputting the name then make sure your dpi is set to 220.
 return
 
 ShowMsgInstances:
@@ -155,7 +155,7 @@ ShowMsgPacks:
 return
 
 ShowMsgGodPacks:
-    MsgBox, Select the behavior you want when finding a god pack.
+    MsgBox, Select the behavior you want when finding a god pack. `nClose will close the emulator and stop the script to save resources. `nPause will only pause the script on the opening screen.
 return
 
 ShowMsgLanguage:
@@ -163,7 +163,7 @@ ShowMsgLanguage:
 return
 
 ShowMsgMonitor:
-    MsgBox, Select the monitor you want the instances to be on. `nBe sure to start them on that monitor to prevent issues
+    MsgBox, Select the monitor you want the instances to be on. `nBe sure to start them on that monitor to prevent issues. `nIf you're having issues make sure all monitors are set to 125% scale.
 return
 
 ShowMsgDelay:
@@ -179,11 +179,11 @@ ShowMsgFolder:
 return
 
 ShowMsgSpeed:
-    MsgBox, Select the speed configuration. `n2x flat speed. (usually better when maxing out your system) `n1x/2x to swipe at 1x speed then do the rest on 2x. (Good option if you are having issues swiping on flat 2x speed) `n1x/3x to swipe at 1x speed then do the reset on 3x. (usually better when running fewer instances)
+    MsgBox, Select the speed configuration. `n2x flat speed. (usually better when maxing out your system) `n1x/2x to swipe at 1x speed then do the rest on 2x. This needs the new speed mod in the guide. (Good option if you are having issues swiping on flat 2x speed) `n1x/3x to swipe at 1x speed then do the reset on 3x. This needs the new speed mod in the guide. (usually better when running fewer instances)
 return
 
 ShowMsgSwipeSpeed:
-    MsgBox, Input the swipe speed in milliseconds. `nAnything from 100 to 1000 can probably work. `nPlay around with the speed to get the best speed for your system.
+    MsgBox, Input the swipe speed in milliseconds. `nAnything from 100 to 1000 can probably work. `nPlay around with the speed to get the best speed for your system. Lower number = faster speed. 
 return
 
 ArrangeWindows:
