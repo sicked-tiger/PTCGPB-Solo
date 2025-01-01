@@ -9,6 +9,7 @@ https://buymeacoffee.com/aarturoo
 
 **__What does this do?__**
 - Rerolls accounts to 26 cards in under 3 mins from account creation to deletion stopping an instance if it gets a god pack.
+- It can now run behind windows in the background (not minimized) and does not take control of your mouse or keyboard!
 - Gif of a bot run: https://i.imgur.com/DfqAp7c.gif
 
 **__What do I need?__**
