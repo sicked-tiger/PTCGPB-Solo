@@ -530,7 +530,7 @@ Loop {
 	LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
 		Sleep, %Delay%
 }
-pause
+
 KeepSync(69, 66, 116, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
 
 checkBorder() ;check card border to find godpacks	
@@ -900,7 +900,7 @@ CheckInstances(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", EL
 
 
 	}
-	bboxAndPause(X1, Y1, X2, Y2)
+	;bboxAndPause(X1, Y1, X2, Y2)
 
 
 
@@ -927,7 +927,7 @@ CheckInstances(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", EL
 		restartGameInstance("At the home page during: " imageName)
 	}
 	
-	if (safeTime >= 45000) {
+	if (safeTime >= 45) {
 		CreateStatusMessage("Instance " . scriptName . " has been stuck " . imageName . " for 90s. EL: " . EL . " sT: " . safeTime . " Killing it...")
 		restartGameInstance("Instance " . scriptName . " has been stuck " . imageName)
 		safeTime := safeTime/2
@@ -953,12 +953,6 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 	StartSkipTime := A_TickCount
 	
 	confirmed := false
-		
-	if(click) {
-		adbClick(clickx, clicky)
-		clickTime := A_TickCount
-	}
-	CreateStatusMessage(imageName)
 
 
 	; 100% scale changes
@@ -968,6 +962,7 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		if (Y1 < 0) {
 			Y1 := 0
 		}
+
 		if (imageName = "Platin") { ; can't do text so purple box
 			X1 := 141
 			Y1 := 189
@@ -977,8 +972,19 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 			X1 := 70
 			Y1 := 212
 		}
+
+		if (clickx = 239 and clicky = 497) { ; blanket fix for opening wonder trace hourglass end (though mostly opening for immersives)
+			clickx := 255
+			clicky := 505
+		}
 	}
 
+		
+	if(click) {
+		adbClick(clickx, clicky)
+		clickTime := A_TickCount
+	}
+	CreateStatusMessage(imageName)
 
     Loop { ; Main loop
 		Sleep, 10
@@ -998,7 +1004,7 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		Path = %imagePath%%imageName%.png
 		pNeedle := Gdip_CreateBitmapFromFile(Path)
 		;debug box
-		bboxAndPause(X1, Y1, X2, Y2)
+		;bboxAndPause(X1, Y1, X2, Y2)
 		; ImageSearch within the region
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, X1, Y1, X2, Y2, searchVariation)
 		Gdip_DisposeImage(pNeedle)
@@ -1011,7 +1017,7 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 			adbClick(259, 79)
 			}
 			ElapsedTime := (A_TickCount - StartSkipTime) // 1000
-			if (ElapsedTime >= 45000 || safeTime >= 45000) {
+			if (ElapsedTime >= 45 || safeTime >= 45) {
 				CreateStatusMessage("Instance " . scriptName . " has been stuck for 90s. Killing it...")
 				restartGameInstance("Instance " . scriptName . " has been stuck at " . imageName) ; change to reset the instance and delete data then reload script
 				StartSkipTime := A_TickCount
@@ -1163,8 +1169,8 @@ checkBorder() {
 	if (scaleParam = 277) {
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, 10)
 	} else {
-		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284-10, 90, 286-6, 10)
-		bboxAndPause(20, 284-10, 90, 286-6)
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284-6, 90, 286-6, 10)
+		;bboxAndPause(20, 284-10, 90, 286-6)
 	}
 	Gdip_DisposeImage(pNeedle)
 	Gdip_DisposeImage(pBitmap)
@@ -1172,16 +1178,16 @@ checkBorder() {
 		CreateStatusMessage("Not a God Pack ")
 	}
 	else {
-		pause ; remove later (should pause if first card is not 1 or 2 diamonds)
+		;pause ; remove later (should pause if first card is not 1 or 2 diamonds)
 		pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
 		Path = %A_ScriptDir%\%defaultLanguage%\Border.png
 		pNeedle := Gdip_CreateBitmapFromFile(Path)
 		; ImageSearch within the region
 		if (scaleParam = 277) {
-			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-10, 173, 286-6, 10)
+			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, 10)
 		} else {
-			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-10, 173, 286-6, 10)
-			bboxAndPause(103, 284-10, 173, 286-6)
+			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-6, 173, 286-6, 10)
+			;bboxAndPause(103, 284-10, 173, 286-6)
 		}
 		Gdip_DisposeImage(pNeedle)
 		Gdip_DisposeImage(pBitmap)
@@ -1201,7 +1207,7 @@ checkBorder() {
 
 adbClick(X, Y) {
 	global adbShell, setSpeed
-	X := Round(X / scaleParam * 540)
+	X := Round(X / 277 * 540)
     Y := Round((Y - 44) / 489 * 960) 
 	adbShell.StdIn.WriteLine("input tap " X " " Y)
 }
@@ -1229,7 +1235,7 @@ adbSwipe() {
 	Y1 := 327
 	X2 := 267
 	Y2 := 327
-	X1 := Round(X1 / scaleParam * 535)
+	X1 := Round(X1 / 277 * 535)
     Y1 := Round((Y1 - 44) / 489 * 960) 
 	X2 := Round(X2 / 44 * 535)
     Y2 := Round((Y2 - 44) / 489 * 960)
