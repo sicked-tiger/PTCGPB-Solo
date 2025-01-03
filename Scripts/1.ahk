@@ -1,3 +1,5 @@
+#Include %A_ScriptDir%\Include\Gdip_All.ahk
+#Include %A_ScriptDir%\Include\Gdip_Imagesearch.ahk
 #SingleInstance on
 ;SetKeyDelay, -1, -1
 SetMouseDelay, -1
@@ -8,7 +10,7 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
-global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, scaleParam
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam
 
 	
 	adbPath := A_ScriptDir . "\adb\platform-tools\adb.exe"  ; Example path, adjust if necessary
@@ -26,6 +28,9 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
     IniRead, setSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, setSpeed, 2x
 	IniRead, defaultLanguage, %A_ScriptDir%\..\Settings.ini, UserSettings, defaultLanguage, English
 	jsonFileName := A_ScriptDir . "\..\json\Packs.json"
+	IniRead, SelectedMonitorIndex, %A_ScriptDir%\..\Settings.ini, UserSettings, SelectedMonitorIndex, 1:
+	IniRead, swipeSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, swipeSpeed, 600
+	IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, 1
 	
 	
 	if(!adbPort) {
@@ -34,23 +39,24 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 	}
 	
 	; connect adb
-	instanceSleep := A_ScriptDir * 1000
+	instanceSleep := scriptName * 1000
 	Sleep, %instanceSleep%
 	RunWait, %adbPath% connect 127.0.0.1:%adbPort%,, Hide
 	
 	resetWindows()
-	
+	MaxRetries := 10
+	RetryCount := 0
 	Loop {
-		if WinExist(winTitle) {
+		try {
 			WinGetPos, x, y, Width, Height, %winTitle%
 			sleep, 2000
-			Winset, Alwaysontop, On, %winTitle%
+			;Winset, Alwaysontop, On, %winTitle%
 			OwnerWND := WinExist(winTitle)
 			x4 := x + 5
 			y4 := y + 25
 			
 		
-			Gui, New, +Owner%OwnerWND% +AlwaysOnTop +ToolWindow -Caption 
+			Gui, New, +Owner%OwnerWND% -AlwaysOnTop +ToolWindow -Caption 
 			Gui, Default
 			Gui, Margin, 4, 4  ; Set margin for the GUI
 			Gui, Font, s5 cGray Norm Bold, Segoe UI  ; Normal font for input labels
@@ -62,8 +68,33 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 			Gui, Show, NoActivate x%x4% y%y4% AutoSize
 			break
 		}
+		catch {
+			RetryCount++
+			if (RetryCount >= MaxRetries) {
+				CreateStatusMessage("Failed to create button gui.")
+				WinGetPos, x, y, Width, Height, %winTitle%
+				sleep, 2000
+				;Winset, Alwaysontop, On, %winTitle%
+				x4 := x + 5
+				y4 := y + 25
+				
+			
+				Gui, New, -AlwaysOnTop +ToolWindow -Caption 
+				Gui, Default
+				Gui, Margin, 4, 4  ; Set margin for the GUI
+				Gui, Font, s5 cGray Norm Bold, Segoe UI  ; Normal font for input labels
+				Gui, Add, Button, x0 y0 w30 h25 gReloadScript, Reload  (F5)
+				Gui, Add, Button, x30 y0 w30 h25 gPauseScript, Pause (F6)
+				Gui, Add, Button, x60 y0 w40 h25 gResumeScript, Resume (F6)
+				Gui, Add, Button, x100 y0 w30 h25 gStopScript, Stop (F7)
+				Gui, Add, Button, x130 y0 w40 h25 gTestScript, GP Test  (F8)
+				Gui, Show, NoActivate x%x4% y%y4% AutoSize
+				break
+			}
+			Sleep, 1000
+		}
 		Sleep, %Delay%
-		CreateStatusMessage("Can't find window")
+		CreateStatusMessage("Trying to create button gui...")
 	}
 		
 	if (!openPack)
@@ -80,6 +111,13 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 		Random, rand, 1, 4
 		openPack = %rand%
 	}
+	
+	if (!godPack)
+		godPack = 1
+	else if (godPack = "Close when found")
+		godPack = 1
+	else if (godPack = "Pause when found")
+		godPack = 2
 		
 	if (!setSpeed)
 		setSpeed = 1
@@ -90,18 +128,19 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 	else if (setSpeed = "1x/3x")
 		setSpeed := 3
 
-	if (defaultLanguage = "English") {
-		scaleParam := 277
-	} else if (defaultLanguage = "Japanese") {
-		scaleParam := 277
-	} else if (defaultLanguage = "English100") {
+	if (defaultLanguage = "English100")
 		scaleParam := 287
-	}
+	else
+		scaleParam := 277
 
 	rerollTime := A_TickCount	
 
+	MaxRetries := 10
+	RetryCount := 0
+	Loop {
+		try {
+			if (!adbShell) {
 	adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-
 	; Extract the Process ID
 	processID := adbShell.ProcessID
 
@@ -110,14 +149,27 @@ global winTitle, changeDate, failSafe, openPack, GodPack, Delay, failSafeTime, S
 
 	; Minimize the window using the process ID
 	WinMinimize, ahk_pid %processID%
-
-Loop {
-
-if(Variation > 80) {
-	Msgbox, Image search variation is far too high!
+			}
+			else if (adbShell.Status != 0) {
+				Sleep, 1000
+			}
+			else {
 	break
 }
-
+		}
+		catch {
+			RetryCount++
+			if(RetryCount > MaxRetries) {
+				CreateStatusMessage("Failed to connect to shell")
+				Pause
+			}
+		}
+		Sleep, 1000
+	}
+	
+	instanceSleep := scriptName * 1000
+	pToken := Gdip_Startup()
+Loop {
 	FormatTime, CurrentTime,, HHmm
 
     StartTime := changeDate - 45 ; 12:55 AM2355
@@ -142,49 +194,41 @@ if(Variation > 80) {
 		if(CheckInstances(77, 144, 169, 175, , "Country", 0, failSafeTime)) { ;if at country continue
 			break
 		}
-		if(CheckInstances(116, 77, 167, 97, , "Menu", 0, failSafeTime)) { ; if the clicks in the top right open up the game settings menu then continue to delete account
-
+		else if(CheckInstances(116, 77, 167, 97, , "Menu", 0, failSafeTime)) { ; if the clicks in the top right open up the game settings menu then continue to delete account
+			Sleep,%Delay%
 			KeepSync(56, 312, 108, 334, , "Account2", 79, 267, 2000) ;wait for account menu
+			Sleep,%Delay%
+			KeepSync(74, 104, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
+			Sleep,%Delay%
+			KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, %Delay%) ;wait for second delete save data confirmation
+			Sleep,%Delay%
+			KeepSync(30, 240, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
 			
-			Sleep, %Delay%
-
-			KeepSync(74, 111, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
-			
-			Sleep, %Delay%
-
-			KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, 2000) ;wait for second delete save data confirmation
-			
-			Sleep, %Delay%
-
-			KeepSync(30, 254, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
-			
-			Sleep, %Delay%
 			
 			adbClick(143, 370)
+			break
 		}
-		if(CheckInstances(30, 254, 121, 275, , "Delete4", 0)) { ;incase missed click on prior cycle after deleting account
-			adbClick(143, 370)
-		}
-		CreateStatusMessage("Looking for Country/Menu/Delete3")
+		CreateStatusMessage("Looking for Country/Menu")
 		Sleep, %Delay%
 		failSafeTime := (A_TickCount - failSafe) // 1000
+		CreateStatusMessage("In failsafe for Country/Menu. It's been: " . failSafeTime "s ")
+		LogToFile("In failsafe for Country/Menu. It's been: " . failSafeTime "s ")
 	}
-	
-	if(setSpeed > 1) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+	if(setSpeed > 1 && !packs) {
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		if(setSpeed = 3)
-			KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+			KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
 		else
-			KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
+			KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
 		Sleep, %Delay%
-		adbClick(137, 446)
+		adbClick(166, 296)
 		Sleep, %Delay%
 	}	
 KeepSync(77, 144, 169, 175, , "Country", 143, 370) ;select month and year and click
 
 adbClick(80, 400)
 Sleep, %Delay%
-adbClick(80, 400)
+adbClick(80, 375)
 Sleep, %Delay%
 failSafe := A_TickCount
 failSafeTime := 0
@@ -199,7 +243,9 @@ adbClick(142, 159)
 	Sleep, %Delay%
 adbClick(80, 400)
 	Sleep, %Delay%
-adbClick(80, 400)
+adbClick(80, 375)
+    Sleep, %Delay%
+adbClick(82, 422)
 	failSafeTime := (A_TickCount - failSafe) // 1000
 	CreateStatusMessage("In failsafe for Month. It's been: " . failSafeTime "s ")
 	LogToFile("In failsafe for Month. It's been: " . failSafeTime "s ")
@@ -207,7 +253,7 @@ adbClick(80, 400)
 
 adbClick(200, 400)
 Sleep, %Delay%
-adbClick(200, 400)
+adbClick(200, 375)
 Sleep, %Delay%
 failSafe := A_TickCount
 failSafeTime := 0
@@ -223,7 +269,7 @@ Loop ;select month and year and click
 	Sleep, %Delay%
 	adbClick(200, 400)
 	Sleep, %Delay%
-	adbClick(200, 400)
+	adbClick(200, 375)
 	Sleep, %Delay%
 	adbClick(142, 159)
 	Sleep, %Delay%
@@ -237,7 +283,7 @@ if(CheckInstances(93, 471, 122, 485, , "CountrySelect", 0)) {
 	failSafe := A_TickCount
 	failSafeTime := 0
 	Loop {
-		if(KeepSync(93, 471, 122, 485, , "CountrySelect", 140, 474, 1000, 1)) {
+		if(KeepSync(93, 471, 122, 485, , "CountrySelect", 140, 474, 1000, 1, failSafeTime)) {
 			sleep, %Delay%
 			sleep, %Delay%
 			adbClick(124, 250)
@@ -260,7 +306,7 @@ if(CheckInstances(93, 471, 122, 485, , "CountrySelect", 0)) {
 
 KeepSync(97, 285, 185, 315, , "TosScreen", 203, 371, 1000) ;wait to be at the tos screen while confirming birth
 
-KeepSync(81, 68, 204, 94, , "Tos", 139, 299, 1000) ;wait for tos whle clicking it
+KeepSync(81, 68, 204, 94, , "Tos", 139, 299, 1000) ;wait for tos while clicking it
 
 KeepSync(97, 285, 185, 315, , "TosScreen", 142, 486, 1000) ;wait to be at the tos screen and click x
 
@@ -300,7 +346,7 @@ adbClick(143, 348)
 Sleep, %Delay%
 
 KeepSync(51, 335, 107, 359, , "Link") ;wait for link account screen%
-
+Sleep, %Delay%
 KeepSync(19, 233, 105, 252, , "Confirm", 140, 460, 1000) ;wait for confirm download screen
 
 KeepSync(69, 248, 207, 270, , "Complete", 203, 364, 1000) ;wait for complete download screen
@@ -312,25 +358,25 @@ adbClick(143, 369)
 Sleep, %Delay%
 		
 	if(setSpeed = 3) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-		KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
-		adbClick(137, 446)
+		adbClick(166, 296)
 		Sleep, %Delay%
 	} 
 	
 	KeepSync(60, 206, 226, 248, , "Welcome", 253, 506, 110) ;click through cutscene until welcome page
 	
 	if(setSpeed = 3) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 	
-		KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+		KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
 		Sleep, %Delay%
-		adbClick(137, 446)
+		adbClick(166, 296)
 	}
 KeepSync(190, 241, 225, 270, , "Name", 189, 438) ;wait for name input screen
 
-KeepSync(75, 498, 230, 537, , "OK", 139, 257) ;wait for name input screen
+KeepSync(230, 500, 270, 520, , "OK", 139, 257) ;wait for name input screen
 
 Loop {
 	adbName()
@@ -346,7 +392,6 @@ Loop {
 	Sleep, %Delay%
 	length := StrLen(Name) ; in case it lags and misses inputting name
 	Loop %length% {
-		;Run, %adbPath% -s 127.0.0.1:%adbPort% shell input keyevent 67, , Hide
 		adbShell.StdIn.WriteLine("input keyevent 67")	
 		Sleep, 10
 	}
@@ -357,32 +402,24 @@ Sleep, %Delay%
 adbClick(140, 424)
 
 KeepSync(104, 269, 177, 296, , "Trace", 140, 424) ;wait for pack to be ready  to trace
-
-
 failSafe := A_TickCount
 failSafeTime := 0
-Loop {
 	if(setSpeed > 1) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-		KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
-		Sleep, %Delay%
-		adbClick(137, 446)
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
 	}
+Loop {
 	adbSwipe()
 	Sleep, 10
+	if (CheckInstances(195, 220, 230, 270, , "Bulba", 0, failSafeTime)){
 	if(setSpeed > 1) {
-	KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-	
 		if(setSpeed = 3)
-			KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
+				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click 3x
 		else
-			KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
-		Sleep, %Delay%
-		adbClick(137, 446)
+				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click 2x
 	}
-	Sleep, %Delay%
-	if (CheckInstances(104, 199, 169, 268, , "Bulba", 0, failSafeTime)){
+		adbClick(166, 296)
 			break
 		}
 	failSafeTime := (A_TickCount - failSafe) // 1000
@@ -391,30 +428,24 @@ Loop {
 }
 
 KeepSync(34, 99, 74, 131, , "Swipe", 140, 375) ;click through cards until needing to swipe up
-
 failSafe := A_TickCount
 failSafeTime := 0
+	if(setSpeed > 1) {
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
+		Sleep, %Delay%
+	}
 Loop {
-	if(setSpeed > 1) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-		KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
-		Sleep, %Delay%
-		adbClick(137, 446)
-		Sleep, %Delay%
-	}
 	adbSwipeUp()
-	if(setSpeed > 1) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-		if(setSpeed = 3)
-			KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
-		else
-			KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
-		Sleep, %Delay%
-		adbClick(137, 446)
-		Sleep, %Delay%
-	}
 	Sleep, 10
-	if (CheckInstances(113, 108, 175, 135, , "SwipeUp", 0, failSafeTime)){
+	if (CheckInstances(120, 70, 150, 95, , "SwipeUp", 0, failSafeTime)){
+	if(setSpeed > 1) {
+		if(setSpeed = 3)
+				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
+		else
+				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
+	}
+		adbClick(166, 296)
 			break
 		}
 	failSafeTime := (A_TickCount - failSafe) // 1000
@@ -423,7 +454,7 @@ Loop {
 }
 
 KeepSync(70, 80, 133, 109, , "Move", 134, 375) ; click through until move
-
+Sleep, %Delay%
 KeepSync(105, 242, 173, 277, , "Proceed", 141, 483) ;wait for menu to proceed then click ok
 Sleep, %Delay%
 adbClick(204, 371)
@@ -451,7 +482,7 @@ adbClick(140, 500)
 
 KeepSync(115, 255, 176, 308, , "Mission") ; wait for mission complete screen
 
-KeepSync(184, 308, 213, 339, , "Half", 143, 360) ;click until packs are clickable
+KeepSync(46, 368, 103, 411, , "Gray", 143, 360) ;wait for for missions to be clickable
 
 KeepSync(120, 176, 162, 210, , "Booster", 145, 194) ;click on packs. stop at booster pack tutorial
 
@@ -476,26 +507,22 @@ KeepSync(104, 269, 177, 296, , "Trace", 239, 497) ;wait for pack to be ready  to
 
 failSafe := A_TickCount
 failSafeTime := 0
+	if(setSpeed > 1) {
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
+		Sleep, %Delay%
+	}
 Loop {
-	if(setSpeed > 1) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-		KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
-		Sleep, %Delay%
-		adbClick(137, 446)
-		Sleep, %Delay%
-	}
 	adbSwipe()
-	if(setSpeed > 1) {
-		KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-		if(setSpeed = 3)
-			KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
-		else
-			KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
-		Sleep, %Delay%
-		adbClick(137, 446)
-	}
 	Sleep, 10
-	if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
+	if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){	
+	if(setSpeed > 1) {
+		if(setSpeed = 3)
+					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
+		else
+					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
+	}
+			adbClick(166, 296)
 			break
 		}
 	failSafeTime := (A_TickCount - failSafe) // 1000
@@ -504,13 +531,18 @@ Loop {
 		Sleep, %Delay%
 }
 
-KeepSync(76, 66, 149, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
+KeepSync(69, 66, 116, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
 
 checkBorder() ;check card border to find godpacks	
 
 KeepSync(233, 486, 272, 519, , "Skip", 146, 496) ;click on next until skip button appears
 
-KeepSync(53, 281, 86, 310, , "Wonder", 239, 497) ;stop at start of wonder tutorial
+Loop {
+		if(KeepSync(53, 281, 86, 310, , "Wonder", 239, 497, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
+			break
+		adbClick(146, 494) ;146 494
+		Sleep, %Delay%
+	}
 
 Sleep, %Delay%
 Sleep, %Delay%
@@ -541,7 +573,7 @@ failSafe := A_TickCount
 failSafeTime := 0
 Loop {
 	if(setSpeed = 3)
-		continueTime := 3
+		continueTime := 10
 	else
 		continueTime := 6
 	if(KeepSync(0, 0, 224, 246, , "End", 239, 497, , continueTime, failSafeTime)) ;click through to end of tut screen
@@ -569,7 +601,7 @@ Loop {
 	if(!GPTest) {
 		break
 	}
-	Winset, Alwaysontop, Off, %winTitle%
+	;Winset, Alwaysontop, Off, %winTitle%
 	deleteAccount := true
 	CreateStatusMessage("GP Test mode. Press button again to delete.")
 	sleep, 1000
@@ -619,26 +651,22 @@ if(deleteAccount = false) {
 
 	failSafe := A_TickCount
 	failSafeTime := 0
+		if(setSpeed > 1) {
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
+			Sleep, %Delay%
+		}
 	Loop {
-		if(setSpeed > 1) {
-			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-			KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
-			Sleep, %Delay%
-			adbClick(137, 446)
-			Sleep, %Delay%
-		}
 		adbSwipe()	
-		if(setSpeed > 1) {
-			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-			if(setSpeed = 3)
-				KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
-			else
-				KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
-			Sleep, %Delay%
-			adbClick(137, 446)
-		}
 		Sleep, 10
 		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
+		if(setSpeed > 1) {
+			if(setSpeed = 3)
+					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
+			else
+					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
+		}
+			adbClick(166, 296)
 			break
 		}
 		failSafeTime := (A_TickCount - failSafe) // 1000
@@ -648,13 +676,18 @@ if(deleteAccount = false) {
 	}
 
 		
-	KeepSync(76, 66, 149, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
+	KeepSync(69, 66, 116, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
 
 	checkBorder() ;check card border to find godpacks	
 
 	KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
 
-	KeepSync(20, 500, 55, 530, , "Home", 244, 496) ;click skip until pack is ready to open
+	Loop {
+		if(KeepSync(20, 500, 55, 530, , "Home", 244, 496, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
+			break
+		adbClick(146, 494) ;146 494
+		Sleep, %Delay%
+	}
 
 	Sleep, %Delay%
 	Sleep, %Delay%
@@ -670,26 +703,22 @@ if(deleteAccount = false) {
 	
 	failSafe := A_TickCount
 	failSafeTime := 0
+		if(setSpeed > 1) {
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
+			Sleep, %Delay%
+		}
 	Loop {
-		if(setSpeed > 1) {
-			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-			KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
-			Sleep, %Delay%
-			adbClick(137, 446)
-			Sleep, %Delay%
-		}
 		adbSwipe()
-		if(setSpeed > 1) {
-			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-			if(setSpeed = 3)
-				KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
-			else
-				KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
-			Sleep, %Delay%
-			adbClick(137, 446)
-		}
 		Sleep, 10
 		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
+		if(setSpeed > 1) {
+			if(setSpeed = 3)
+					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
+			else
+					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
+		}
+			adbClick(166, 296)
 			break
 		}
 		failSafeTime := (A_TickCount - failSafe) // 1000
@@ -697,7 +726,7 @@ if(deleteAccount = false) {
 		LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
 		Sleep, %Delay%
 	}
-	KeepSync(76, 66, 149, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
+	KeepSync(69, 66, 116, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
 
 	checkBorder() ;check card border to find godpacks	
 			
@@ -705,11 +734,12 @@ if(deleteAccount = false) {
 
 
 	Loop {
-		if(KeepSync(178, 193, 251, 282, , "Hourglass", 239, 497, , 2)) ;click on next until skip button appearsstop at hourglasses tutorial
+		if(KeepSync(178, 193, 251, 282, , "Hourglass", 239, 497, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
 			break
 		adbClick(146, 494) ;146 494
 		Sleep, %Delay%
 	}
+	/*
 	Sleep, %Delay%
 	Sleep, %Delay%
 	Sleep, %Delay%
@@ -725,8 +755,8 @@ if(deleteAccount = false) {
 	Sleep, %Delay%
 	Sleep, %Delay%
 	Sleep, %Delay%
-
-	KeepSync(98, 184, 151, 224, , "Hourglass1", 148, 438, 500, 5) ;stop at hourglasses tutorial 2
+	*/
+	KeepSync(98, 184, 151, 224, , "Hourglass1", 168, 438, 500, 5) ;stop at hourglasses tutorial 2 ;ACHTUNG 148 changed to 168
 	Sleep, %Delay%
 
 	adbClick(203, 436) ; 203 436
@@ -745,29 +775,24 @@ if(deleteAccount = false) {
 		Sleep, %Delay%
 		adbClick(210, 464) ; 210 464
 	}
-
 	failSafe := A_TickCount
 	failSafeTime := 0
-	Loop {
 		if(setSpeed > 1) {
-			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-			KeepSync(9, 215, 38, 234, , "One", 26, 226) ; click mod settings
-			Sleep, %Delay%
-			adbClick(137, 446)
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 			Sleep, %Delay%
 		}
+	Loop {
 		adbSwipe()
 		Sleep, 10
-		if(setSpeed > 1) {
-			KeepSync(88, 267, 202, 292, , "Platin", 40, 145, 2000) ; click mod settings
-			if(setSpeed = 3)
-				KeepSync(249, 214, 274, 235, , "Three", 246, 226) ; click mod settings
-			else
-				KeepSync(129, 217, 156, 235, , "Two", 140, 226) ; click mod settings
-			Sleep, %Delay%
-			adbClick(137, 446)
-		}
 		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)) {
+		if(setSpeed > 1) {
+			if(setSpeed = 3)
+					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
+			else
+					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
+		}
+			adbClick(166, 296)
 			break
 		}
 		failSafeTime := (A_TickCount - failSafe) // 1000
@@ -777,14 +802,20 @@ if(deleteAccount = false) {
 	}
 
 	
-	KeepSync(76, 66, 149, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
+	KeepSync(69, 66, 116, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
 
 	checkBorder() ;check card border to find godpacks	
 
 	KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
 	sleep, %Delay%
 	
-	KeepSync(20, 500, 55, 530, , "Home", 244, 496) ;click skip until pack is ready to open
+	Loop {
+		if(KeepSync(20, 500, 55, 530, , "Home", 244, 496, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
+			break
+		adbClick(146, 494) ;146 494
+		Sleep, %Delay%
+	}
+	
 }
 
 sleep, %Delay%
@@ -799,23 +830,25 @@ Loop
 		break
 	sleep, %Delay%
 	sleep, %Delay%
-	adbClick(50, 75)
+	adbClick(50, 100)
 	failSafeTime := (A_TickCount - failSafe) // 1000
 	CreateStatusMessage("In failsafe for Settings. It's been: " . failSafeTime "s ")
 	LogToFile("In failsafe for Settings. It's been: " . failSafeTime "s ")
 }
-
+Sleep,%Delay%
 KeepSync(24, 158, 57, 189, , "Account", 140, 440, 2000) ;wait for other menu
-
+Sleep,%Delay%
 KeepSync(56, 312, 108, 334, , "Account2", 79, 256, 1000) ;wait for account menu
-
-KeepSync(74, 111, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
-
-KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, 2000) ;wait for second delete save data confirmation
-
-KeepSync(30, 254, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
-
+Sleep,%Delay%
+KeepSync(74, 104, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
+Sleep,%Delay%
+KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, %Delay%) ;wait for second delete save data 
+Sleep,%Delay%
+KeepSync(30, 240, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
+Sleep,%Delay%
 adbClick(143, 370)
+
+Sleep, 2500
 
 if(deleteAccount := true) {
 	CreateStatusMessage("Exiting GP Test Mode")
@@ -831,47 +864,76 @@ minutes := Floor(avgtotalSeconds / 60) ; Total minutes
 seconds := Mod(avgtotalSeconds, 60) ; Remaining seconds within the minute
 mminutes := Floor(totalSeconds / 60) ; Total minutes
 sseconds := Mod(totalSeconds, 60) ; Remaining seconds within the minute
-CreateStatusMessage("Time: " . mminutes . "m Avg: " . minutes . "m " . seconds . "s Cycles: " . rerolls, 25, 0, 533)
-LogToFile("Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Cycles: " . rerolls . " Packs: " . packs)
+CreateStatusMessage("Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls, 25, 0, 533)
+LogToFile("Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls)
 
 }
 return
 
-CheckInstances(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", EL := 1, safeTime := 0) {
+CheckInstances(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", EL := 1, safeTime := 0) {
 	global winTitle, Variation, failSafe
 	if(searchVariation = "")
 		searchVariation := Variation
-	imagePath := A_ScriptDir . "\" . defaultLanguage . "\" . imageName
-	x := 0
-    y := 0
+	imagePath := A_ScriptDir . "\" . defaultLanguage . "\"
 	confirmed := false
 	
-	CreateStatusMessage(imageName ".png")
-	x := 0
-	y := 0
-	
-	WinGetPos, x, y, Width, Height, %winTitle%
+	CreateStatusMessage(imageName)
+	pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
+	Path = %imagePath%%imageName%.png
+	pNeedle := Gdip_CreateBitmapFromFile(Path)
+
+
+	; 100% scale changes
+	if (scaleParam = 287) {
+		Y1 -= 8 ; offset, should be 44-36 i think?
+		Y2 -= 8
+		
+		if (imageName = "Bulba") { ; too much to the left somehow? ask Arturo if it's normal later
+			X1 := 200
+			Y1 := 220
+			X2 := 230
+			Y2 := 260
+		}
+
+
+	}
+	BBOXANDPAUSE(X1, Y1, X2, Y2)
+
+
+
 	; ImageSearch within the region
-	ImageSearch, , , % x1 + x, % y1 + y, % x2 + x, % y2 + y, *%searchVariation% %imagePath%.png
-	if (!confirmed && ErrorLevel = EL) {
+	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, X1, Y1, X2, Y2, searchVariation)
+	Gdip_DisposeImage(pNeedle)
+	Gdip_DisposeImage(pBitmap)
+	if(EL = 0)
+		GDEL := 1
+	else
+		GDEL := 0
+	if (!confirmed && vRet = GDEL) {
 		confirmed := true
 	}
-	if (safeTime >= 90) {
+	pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
+	Path = %imagePath%App.png
+	pNeedle := Gdip_CreateBitmapFromFile(Path)
+	; ImageSearch within the region
+	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, searchVariation)
+	Gdip_DisposeImage(pNeedle)
+	Gdip_DisposeImage(pBitmap)
+	if (vRet = 1) {
+		CreateStatusMessage("At home page. Opening app..." )
+		restartGameInstance("At the home page during: " imageName)
+	}
+	
+	if (safeTime >= 45000) {
 		CreateStatusMessage("Instance " . scriptName . " has been stuck " . imageName . " for 90s. EL: " . EL . " sT: " . safeTime . " Killing it...")
 		restartGameInstance("Instance " . scriptName . " has been stuck " . imageName)
 		safeTime := safeTime/2
 		failSafe := A_TickCount
 	}
-	ImageSearch, , , % 15 + x, % 155 + y, % 270 + x, % 420 + y, *%searchVariation% %A_ScriptDir%\%defaultLanguage%\App.png
-	if (ErrorLevel = 0) {
-		CreateStatusMessage("At home page. Opening app..." )
-		restartGameInstance("At the home page during: " imageName)
-	}
-	
 	return (confirmed)
 }
 
-KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx := 0, clicky := 0, sleepTime := "", skip := false, safeTime := 0) {
+KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx := 0, clicky := 0, sleepTime := "", skip := false, safeTime := 0) {
 	global winTitle, Variation, failSafe, confirmed
 	if(searchVariation = "")
 		searchVariation := Variation
@@ -893,13 +955,30 @@ KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		adbClick(clickx, clicky)
 		clickTime := A_TickCount
 	}
-	CreateStatusMessage(imageName ".png (" (click ? clickx ", " clicky ")": "no click)"))
+	CreateStatusMessage(imageName)
+
+
+	; 100% scale changes
+	if (scaleParam = 287) {
+		Y1 -= 8 ; offset, should be 44-36 i think
+		Y2 -= 8
+		
+		if (imageName = "Platin") { ; can't do text so purple box?
+			X1 := 141
+			Y1 := 189
+			X2 := 208
+			Y2 := 224
+		} else if (imageName = "End") { ; wouldn't work with 0, 0 origin
+			X1 := 70
+			Y1 := 212
+		}
+	}
+
+
 
 	
     Loop { ; Main loop
 		Sleep, 10
-		x := 0
-		y := 0
 		if(click) {
 			ElapsedClickTime := A_TickCount - clickTime
 			if(ElapsedClickTime > sleepTime) {
@@ -911,10 +990,44 @@ KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		if (confirmed = true) {
 			continue
 		}
-		WinGetPos, x, y, Width, Height, %winTitle%
 
-		ImageSearch, , , % 15 + x, % 155 + y, % 270 + x, % 420 + y, *%searchVariation% %imagePath%Error1.png
-		if (ErrorLevel = 0) {
+		pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
+		Path = %imagePath%%imageName%.png
+		pNeedle := Gdip_CreateBitmapFromFile(Path)
+
+
+		;debug box
+		BBOXANDPAUSE(X1, Y1, X2, Y2)
+
+
+		; ImageSearch within the region
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, X1, Y1, X2, Y2, searchVariation)
+		Gdip_DisposeImage(pNeedle)
+		Gdip_DisposeImage(pBitmap)
+		if (!confirmed && vRet = 1) {
+			confirmed := true
+		} else {
+			if(imageName = "Skip3") {
+				Sleep, 1000
+			adbClick(259, 79)
+			}
+			ElapsedTime := (A_TickCount - StartSkipTime) // 1000
+			if (ElapsedTime >= 45000 || safeTime >= 45000) {
+				CreateStatusMessage("Instance " . scriptName . " has been stuck for 90s. Killing it...")
+				restartGameInstance("Instance " . scriptName . " has been stuck at " . imageName) ; change to reset the instance and delete data then reload script
+				StartSkipTime := A_TickCount
+				failSafe := A_TickCount
+			}
+		}
+
+		pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
+		Path = %imagePath%Error1.png
+		pNeedle := Gdip_CreateBitmapFromFile(Path)
+		; ImageSearch within the region
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, searchVariation)
+		Gdip_DisposeImage(pNeedle)
+		Gdip_DisposeImage(pBitmap)
+		if (vRet = 1) {
 			CreateStatusMessage("Error message in " scriptName " Clicking retry..." )
 			LogToFile("Error message in " scriptName " Clicking retry..." )
 			adbClick(82, 389)
@@ -922,31 +1035,16 @@ KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx :
 			adbClick(139, 386)
 			Sleep, 1000
 		}
-		ImageSearch, , , % 15 + x, % 155 + y, % 270 + x, % 420 + y, *%searchVariation% %imagePath%App.png
-		if (ErrorLevel = 0) {
+		pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
+		Path = %imagePath%App.png
+		pNeedle := Gdip_CreateBitmapFromFile(Path)
+		; ImageSearch within the region
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, searchVariation)
+		Gdip_DisposeImage(pNeedle)
+		Gdip_DisposeImage(pBitmap)
+		if (vRet = 1) {
 			CreateStatusMessage("At home page. Opening app..." )
 			restartGameInstance("Found myself at the home page during: " imageName)
-		}
-		; ImageSearch within the region
-		ImageSearch, , , % x1 + x, % y1 + y, % x2 + x, % y2 + y, *%searchVariation% %imagePath%%imageName%.png
-		if (!confirmed && ErrorLevel = 0) {
-			confirmed := true
-		}
-		else if(ErrorLevel = 2) {
-			MsgBox, Cannot find source image %imageName% make sure the Game folder is in the same folder as the ahk or exe.
-			Reload
-		} else {
-			if(imageName = "Skip3") {
-				Sleep, 1000
-			adbClick(259, 79)
-			}
-			ElapsedTime := (A_TickCount - StartSkipTime) // 1000
-			if (ElapsedTime >= 90 || safeTime >= 90) {
-				CreateStatusMessage("Instance " . scriptName . " has been stuck for 90s. Killing it...")
-				restartGameInstance("Instance " . scriptName . " has been stuck at " . imageName) ; change to reset the instance and delete data then reload script
-				StartSkipTime := A_TickCount
-				failSafe := A_TickCount
-			}
 		}
 		
 		if(skip) {
@@ -967,37 +1065,62 @@ KeepSync(x1, y1, x2, y2, searchVariation := "", imageName := "DEFAULT", clickx :
 
 
 resetWindows(){
-	global Columns, winTitle
+	global Columns, winTitle, SelectedMonitorIndex
 	CreateStatusMessage("Arranging window positions and sizes")
-	if !WinExist(Title)
-		Msgbox, Window titled: %Title% does not exist
+	RetryCount := 0
+	MaxRetries := 10
+	Loop
+	{
+		try {
+			; Get monitor origin from index
+			SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
+			SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 	Title := winTitle
 	rowHeight := 533  ; Adjust the height of each row
 	currentRow := Floor((winTitle - 1) / Columns)
 	y := currentRow * rowHeight	
-	x := Mod((winTitle - 1), Columns) * scaleParam
+			x := Mod((winTitle - 1), Columns) * scaleParam
 	
-	WinMove, %Title%, , 0 + x, 0 + y, scaleParam, 537
+			WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), scaleParam, 537
+			break
+		}
+		catch {
+			if (RetryCount > MaxRetries)
+				CreateStatusMessage("Pausing. Can't find window " . winTitle)
+				Pause
+		}
+		Sleep, 1000
+	}
 	return true
 }
 
 killGodPackInstance(){
-	global winTitle
+	global winTitle, godPack
+	if(godPack = 2) {
 	CreateStatusMessage("Pausing script. Found GP.")
 	LogToFile("Paused God Pack instance.")
-	Sleep, 10
+		; Loop {
+			; Sleep, 60000
+			; adbShell.StdIn.WriteLine("input text GP" )
+		; }
 	Pause, On 
+	}
+	else {
+		CreateStatusMessage("Closing script. Found GP.")
+		LogToFile("Closing God Pack instance.")
 	WinClose, %winTitle% ;in case you resume and miss that you got a god pack.
+		ExitApp
+	}
 }
 
 restartGameInstance(reason){
 	global Delay, scriptName
 	CreateStatusMessage("Restarting game. " reason)
-	LogToFile("Restarted game for instance " scriptName " Reason: " reason, Restarted)
+	LogToFile("Restarted game for instance " scriptName " Reason: " reason, "Restart.txt")
 	adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
 	sleep, 1000
 	adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
-	Sleep, 1000
+	sleep, 1000
 	Reload
 }
 
@@ -1012,20 +1135,18 @@ LogToFile(message, logFile := "") {
 }
 
 CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
-	global scriptName, winTitle, statusText
-	if WinExist(winTitle) {
+	global scriptName, winTitle, statusText, SelectedMonitorIndex
+	MaxRetries := 10
+	RetryCount := 0
+	try {
 		GuiName := GuiName+scriptName
 		statusText := GuiName+scriptName
 		WinGetPos, xpos, ypos, Width, Height, %winTitle%
 		X := X + xpos + 5
 		Y := Y + ypos
-		if (scaleParam = 287) {
-			Y := Y - 8 ;Gui blocks Privacy.png area in 100% scale otherwise
-		}
 		
 		; Create a new GUI with the given name, position, and message
-		Gui, %GuiName%:New, +AlwaysOnTop +ToolWindow -Caption 
-		Gui, %GuiName%:Default
+		Gui, %GuiName%:New, -AlwaysOnTop +ToolWindow -Caption 
 		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
 		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
 		Gui, %GuiName%:Add, Text, vStatusText, %Message%
@@ -1034,16 +1155,30 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 60) {
 }
 
 checkBorder() {
-	global winTitle, Variation
-	WinGetPos, x, y, Width, Height, %winTitle%
-	ImageSearch, testx, testy, 23 + x, 282 + y, 96 + x, 284 + y, *80 %A_ScriptDir%\%defaultLanguage%\Border.png ;first card
-	if (ErrorLevel = 0) {
+	global winTitle
+	Sleep, 250
+	pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
+	Path = %A_ScriptDir%\%defaultLanguage%\Border.png
+	pNeedle := Gdip_CreateBitmapFromFile(Path)
+	; ImageSearch within the region
+	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284-10, 90, 286-6, 10)
+	BBOXANDPAUSE(20, 284-10, 90, 286-6, False)
+	Gdip_DisposeImage(pNeedle)
+	Gdip_DisposeImage(pBitmap)
+	if (vRet = 1) {
 		CreateStatusMessage("Not a God Pack ")
-		;msgbox, 1 %testx%, %testy%
 	}
 	else {
-		ImageSearch, testx, testy, 107 + x, 282 + y, 180 + x, 284 + y, *80 %A_ScriptDir%\%defaultLanguage%\Border.png ; second card
-		if (ErrorLevel = 0) {
+		pause ; remove later (should pause if first card is non-diamond)
+		pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
+		Path = %A_ScriptDir%\%defaultLanguage%\Border.png
+		pNeedle := Gdip_CreateBitmapFromFile(Path)
+		; ImageSearch within the region
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-10, 173, 286-6, 10)
+		BBOXANDPAUSE(103, 284-10, 173, 286-6, False)
+		Gdip_DisposeImage(pNeedle)
+		Gdip_DisposeImage(pBitmap)
+		if (vRet = 1) {
 			CreateStatusMessage("Not a God Pack ")
 			LogToFile("Second card checked. Not a God Pack ")
 		}
@@ -1082,26 +1217,29 @@ adbSwipeUp() {
 }
 
 adbSwipe() {
-	global adbShell, setSpeed
+	global adbShell, setSpeed, swipeSpeed
 	X1 := 35
 	Y1 := 327
 	X2 := 267
 	Y2 := 327
-	X1 := Round(X1 / scaleParam * 540)
+	X1 := Round(X1 / scaleParam * 535)
     Y1 := Round((Y1 - 44) / 489 * 960) 
-	X2 := Round(X2 / scaleParam * 540)
+	X2 := Round(X2 / 44 * 535)
     Y2 := Round((Y2 - 44) / 489 * 960)
 	if(setSpeed = 1) {
-		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 600")
-		Sleep, 750
+		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " " . swipeSpeed)
+		sleepDuration := swipeSpeed * 1.2
+		Sleep, %sleepDuration%
 	}
 	else if(setSpeed = 2) {
-		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 200")
-		Sleep, 500
+		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " " . swipeSpeed)
+		sleepDuration := swipeSpeed * 1.2
+		Sleep, %sleepDuration%
 	} 
 	else {
-		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " 200")
-		Sleep, 300
+		adbShell.StdIn.WriteLine("input swipe " . X1 . " " . Y1 . " " . X2 . " " . Y2 . " " . swipeSpeed)
+		sleepDuration := swipeSpeed * 1.2
+		Sleep, %sleepDuration%
 	}
 }
 
@@ -1118,16 +1256,19 @@ Screenshot() {
 	screenshotFile := screenshotsDir "\" A_Now ".png"
 	
 	; Capture the screenshot on the emulator
-	adbShell.StdIn.WriteLine("screencap /sdcard/screenshot.png")
-	Sleep, 1000  ; Wait for the screenshot command to complete
+	; adbShell.StdIn.WriteLine("screencap /sdcard/screenshot.png")
+	; Sleep, 1000  ; Wait for the screenshot command to complete
 
 	; Pull the screenshot to the local folder
-	RunWait, % adbPath . " -s 127.0.0.1:" . adbPort . " pull /sdcard/screenshot.png """ . screenshotFile . """",, Hide
-	Sleep, 500  ; Wait for the pull command to complete
+	; RunWait, % adbPath . " -s 127.0.0.1:" . adbPort . " pull /sdcard/screenshot.png """ . screenshotFile . """",, Hide
+	; Sleep, 500  ; Wait for the pull command to complete
 
 	; Delete the screenshot from the emulator
-	adbShell.StdIn.WriteLine("rm /sdcard/screenshot.png")
-	Sleep, 500  ; Shorter wait for cleanup
+	; adbShell.StdIn.WriteLine("rm /sdcard/screenshot.png")
+	; Sleep, 500  ; Shorter wait for cleanup
+
+	pBitmap := from_window(WinExist(winTitle))
+	Gdip_SaveBitmapToFile(pBitmap, screenshotFile) 
 }
 
 
@@ -1169,7 +1310,7 @@ ToggleTestScript()
 	}
 	else {
 		CreateStatusMessage("Exiting GP Test Mode")
-		Winset, Alwaysontop, On, %winTitle%
+		;Winset, Alwaysontop, On, %winTitle%
 		GPTest := false
 	}
 }
@@ -1248,9 +1389,83 @@ SumVariablesInJsonFile() {
     return sum
 }
 
+from_window(ByRef image) {
+  ; Thanks tic - https://www.autohotkey.com/boards/viewtopic.php?t=6517
 
+  ; Get the handle to the window.
+  image := (hwnd := WinExist(image)) ? hwnd : image
+
+  ; Restore the window if minimized! Must be visible for capture.
+  if DllCall("IsIconic", "ptr", image)
+	 DllCall("ShowWindow", "ptr", image, "int", 4)
+
+  ; Get the width and height of the client window.
+  VarSetCapacity(Rect, 16) ; sizeof(RECT) = 16
+  DllCall("GetClientRect", "ptr", image, "ptr", &Rect)
+	 , width  := NumGet(Rect, 8, "int")
+	 , height := NumGet(Rect, 12, "int")
+
+  ; struct BITMAPINFOHEADER - https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader
+  hdc := DllCall("CreateCompatibleDC", "ptr", 0, "ptr")
+  VarSetCapacity(bi, 40, 0)                ; sizeof(bi) = 40
+	 , NumPut(       40, bi,  0,   "uint") ; Size
+	 , NumPut(    width, bi,  4,   "uint") ; Width
+	 , NumPut(  -height, bi,  8,    "int") ; Height - Negative so (0, 0) is top-left.
+	 , NumPut(        1, bi, 12, "ushort") ; Planes
+	 , NumPut(       32, bi, 14, "ushort") ; BitCount / BitsPerPixel
+  hbm := DllCall("CreateDIBSection", "ptr", hdc, "ptr", &bi, "uint", 0, "ptr*", pBits:=0, "ptr", 0, "uint", 0, "ptr")
+  obm := DllCall("SelectObject", "ptr", hdc, "ptr", hbm, "ptr")
+
+  ; Print the window onto the hBitmap using an undocumented flag. https://stackoverflow.com/a/40042587
+  DllCall("PrintWindow", "ptr", image, "ptr", hdc, "uint", 0x3) ; PW_CLIENTONLY | PW_RENDERFULLCONTENT
+  ; Additional info on how this is implemented: https://www.reddit.com/r/windows/comments/8ffr56/altprintscreen/
+
+  ; Convert the hBitmap to a Bitmap using a built in function as there is no transparency.
+  DllCall("gdiplus\GdipCreateBitmapFromHBITMAP", "ptr", hbm, "ptr", 0, "ptr*", pBitmap:=0)
+
+  ; Cleanup the hBitmap and device contexts.
+  DllCall("SelectObject", "ptr", hdc, "ptr", obm)
+  DllCall("DeleteObject", "ptr", hbm)
+  DllCall("DeleteDC",     "ptr", hdc)
+
+  return pBitmap
+}
+
+; ^e::
+	; WinGetPos, xpos, ypos, Width, Height, 1
+	; Msgbox %xpos% %ypos%
+	; checkBorder()
+; return
 ~F5::Reload
 ~F6::Pause
 ~F7::ExitApp
 ~F8::ToggleTestScript()
-~F9::restartGameInstance(F9)
+~F9::restartGameInstance("F9")
+
+BBOXANDPAUSE(X1, Y1, X2, Y2, doPause := False) {
+	BoxWidth := X2-X1
+	BoxHeight := Y2-Y1
+	; Create a GUI
+	Gui, BoundingBox:+AlwaysOnTop +ToolWindow -Caption +E0x20
+	Gui, BoundingBox:Color, 123456
+	Gui, BoundingBox:+LastFound  ; Make the GUI window the last found window for use by the line below. (straght from documentation)
+	WinSet, TransColor, 123456
+
+
+	; Create the box with borders and show
+	Gui, BoundingBox:Add, Progress, x0 y0 w%BoxWidth% h2 BackgroundRed
+	Gui, BoundingBox:Add, Progress, x0 y0 w2 h%BoxHeight% BackgroundRed
+	Gui, BoundingBox:Add, Progress, x%BoxWidth% y0 w2 h%BoxHeight% BackgroundRed
+	Gui, BoundingBox:Add, Progress, x0 y%BoxHeight% w%BoxWidth% h2 BackgroundRed
+	Gui, BoundingBox:Show, x%X1% y%Y1% NoActivate
+	Sleep, 100
+	
+	if (doPause) {
+		Pause
+	}
+
+	if GetKeyState("F4", "P") {
+		Pause
+	}
+    Gui, BoundingBox:Destroy
+}
