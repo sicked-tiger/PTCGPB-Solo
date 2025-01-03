@@ -88,3 +88,6 @@ Step 9: Click Start
 
 Step 10: Find god packs
 - Your bot should be running
+
+__**GP Test button:**__
+This is so you can verify if a god pack is alive or not. Press the button or F8 and the bot will stop after the wonder pick tutorial so you are able to add the god pack account you want to verify. After you manually add and verify it press F8 again and the bot will delete the account data and start over. If you need more attempts then you can press F8 another time for it to stop again.
