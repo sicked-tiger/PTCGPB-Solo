@@ -530,7 +530,7 @@ Loop {
 	LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
 		Sleep, %Delay%
 }
-
+pause
 KeepSync(69, 66, 116, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
 
 checkBorder() ;check card border to find godpacks	
@@ -573,7 +573,7 @@ failSafe := A_TickCount
 failSafeTime := 0
 Loop {
 	if(setSpeed = 3)
-		continueTime := 10
+		continueTime := 1
 	else
 		continueTime := 6
 	if(KeepSync(0, 0, 224, 246, , "End", 239, 497, , continueTime, failSafeTime)) ;click through to end of tut screen
@@ -885,10 +885,13 @@ CheckInstances(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", EL
 
 	; 100% scale changes
 	if (scaleParam = 287) {
-		Y1 -= 8 ; offset, should be 44-36 i think?
+		Y1 -= 8 ; offset, should be 44-36 i think? idk math
 		Y2 -= 8
+		if (Y1 < 0) {
+			Y1 := 0
+		}
 		
-		if (imageName = "Bulba") { ; too much to the left somehow? ask Arturo if it's normal later
+		if (imageName = "Bulba") { ; too much to the left somehow? idk how that happens
 			X1 := 200
 			Y1 := 220
 			X2 := 230
@@ -897,7 +900,7 @@ CheckInstances(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", EL
 
 
 	}
-	BBOXANDPAUSE(X1, Y1, X2, Y2)
+	bboxAndPause(X1, Y1, X2, Y2)
 
 
 
@@ -962,21 +965,21 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 	if (scaleParam = 287) {
 		Y1 -= 8 ; offset, should be 44-36 i think
 		Y2 -= 8
-		
-		if (imageName = "Platin") { ; can't do text so purple box?
+		if (Y1 < 0) {
+			Y1 := 0
+		}
+		if (imageName = "Platin") { ; can't do text so purple box
 			X1 := 141
 			Y1 := 189
 			X2 := 208
 			Y2 := 224
-		} else if (imageName = "End") { ; wouldn't work with 0, 0 origin
+		} else if (imageName = "End") {
 			X1 := 70
 			Y1 := 212
 		}
 	}
 
 
-
-	
     Loop { ; Main loop
 		Sleep, 10
 		if(click) {
@@ -994,12 +997,8 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
 		Path = %imagePath%%imageName%.png
 		pNeedle := Gdip_CreateBitmapFromFile(Path)
-
-
 		;debug box
-		BBOXANDPAUSE(X1, Y1, X2, Y2)
-
-
+		bboxAndPause(X1, Y1, X2, Y2)
 		; ImageSearch within the region
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, X1, Y1, X2, Y2, searchVariation)
 		Gdip_DisposeImage(pNeedle)
@@ -1161,21 +1160,29 @@ checkBorder() {
 	Path = %A_ScriptDir%\%defaultLanguage%\Border.png
 	pNeedle := Gdip_CreateBitmapFromFile(Path)
 	; ImageSearch within the region
-	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284-10, 90, 286-6, 10)
-	BBOXANDPAUSE(20, 284-10, 90, 286-6, False)
+	if (scaleParam = 277) {
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, 10)
+	} else {
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284-10, 90, 286-6, 10)
+		bboxAndPause(20, 284-10, 90, 286-6)
+	}
 	Gdip_DisposeImage(pNeedle)
 	Gdip_DisposeImage(pBitmap)
 	if (vRet = 1) {
 		CreateStatusMessage("Not a God Pack ")
 	}
 	else {
-		pause ; remove later (should pause if first card is non-diamond)
+		pause ; remove later (should pause if first card is not 1 or 2 diamonds)
 		pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
 		Path = %A_ScriptDir%\%defaultLanguage%\Border.png
 		pNeedle := Gdip_CreateBitmapFromFile(Path)
 		; ImageSearch within the region
-		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-10, 173, 286-6, 10)
-		BBOXANDPAUSE(103, 284-10, 173, 286-6, False)
+		if (scaleParam = 277) {
+			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-10, 173, 286-6, 10)
+		} else {
+			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-10, 173, 286-6, 10)
+			bboxAndPause(103, 284-10, 173, 286-6)
+		}
 		Gdip_DisposeImage(pNeedle)
 		Gdip_DisposeImage(pBitmap)
 		if (vRet = 1) {
@@ -1442,7 +1449,7 @@ from_window(ByRef image) {
 ~F8::ToggleTestScript()
 ~F9::restartGameInstance("F9")
 
-BBOXANDPAUSE(X1, Y1, X2, Y2, doPause := False) {
+bboxAndPause(X1, Y1, X2, Y2, doPause := False) {
 	BoxWidth := X2-X1
 	BoxHeight := Y2-Y1
 	; Create a GUI
@@ -1467,5 +1474,6 @@ BBOXANDPAUSE(X1, Y1, X2, Y2, doPause := False) {
 	if GetKeyState("F4", "P") {
 		Pause
 	}
+
     Gui, BoundingBox:Destroy
 }
