@@ -1230,9 +1230,16 @@ checkBorder() {
 			if(skipInvalidGP = 2) {
 				Loop 8 {
 					pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
-					Path = %A_ScriptDir%\Skip\%A_Index%.png
-					pNeedle := Gdip_CreateBitmapFromFile(Path)
-					vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, 40)
+					if (scaleParam = 277) { ; 125% scale
+						Path = %A_ScriptDir%\Skip\%A_Index%.png
+						pNeedle := Gdip_CreateBitmapFromFile(Path)
+						vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, 40)
+					} else {
+						Path = %A_ScriptDir%\Skip\100\%A_Index%.png
+						pNeedle := Gdip_CreateBitmapFromFile(Path)
+						vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165-6, 265, 405-6, 40)
+						;bboxAndPause(5, 165-6, 265, 405-6, True)
+					}
 					Gdip_DisposeImage(pNeedle)
 					Gdip_DisposeImage(pBitmap)
 					if (vRet = 1) {
