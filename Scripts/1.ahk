@@ -774,7 +774,7 @@ if(deleteAccount = false) {
 	Sleep, %Delay%
 	Sleep, %Delay%
 	*/
-	KeepSync(98, 184, 151, 224, , "Hourglass1", 168, 438, 500, 5) ;stop at hourglasses tutorial 2 ;ACHTUNG 148 changed to 168
+	KeepSync(98, 184, 151, 224, , "Hourglass1", 168, 438, 500, 5) ;stop at hourglasses tutorial 2
 	Sleep, %Delay%
 
 	adbClick(203, 436) ; 203 436
