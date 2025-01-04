@@ -14,6 +14,8 @@ InitializeJsonFile() ; Create or open the JSON file
     IniRead, Name, Settings.ini, UserSettings, Name, player1
     IniRead, Delay, Settings.ini, UserSettings, Delay, 250
     IniRead, folderPath, Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
+    IniRead, discordWebhookURL, Settings.ini, UserSettings, discordWebhookURL, ""
+    IniRead, discordUserId, Settings.ini, UserSettings, discordUserId, ""
     IniRead, changeDate, Settings.ini, UserSettings, ChangeDate, 0100
     IniRead, Columns, Settings.ini, UserSettings, Columns, 5
     IniRead, openPack, Settings.ini, UserSettings, openPack, Mew
@@ -28,7 +30,7 @@ InitializeJsonFile() ; Create or open the JSON file
 ; Main GUI setup
 ; Add the link text at the bottom of the GUI
 
-Gui, Show, w500 h500, Arturo's PTCGPB Bot Setup ;' Ensure the GUI size is appropriate
+Gui, Show, w500 h570, Arturo's PTCGPB Bot Setup ;' Ensure the GUI size is appropriate
 
 Gui, Color, White  ; Set the background color to white
 Gui, Font, s10 Bold , Segoe UI 
@@ -37,10 +39,10 @@ Gui, Font, s10 Bold , Segoe UI
 Gui, Add, Button, gArrangeWindows x215 y208 w70 h32, Arrange Windows
 Gui, Add, Button, gStart x227 y258 w46 h32 vArrangeWindows, Start
 
-Gui, Add, Text, x0 y464 w500 h30 vLinkText gOpenLink cBlue Center +BackgroundTrans
+Gui, Add, Text, x0 y534 w570 h30 vLinkText gOpenLink cBlue Center +BackgroundTrans
 Gui, Font, s15 Bold , Segoe UI
 ; Add the background image to the GUI
-Gui, Add, Picture, x0 y0 w500 h500, %A_ScriptDir%\Scripts\GUI\GUI.png
+Gui, Add, Picture, x0 y0 w500 h570, %A_ScriptDir%\Scripts\GUI\GUI.png
 
 ; Add input controls
 Gui, Add, Edit, vName x80 y95 w145 Center, %Name%
@@ -106,6 +108,7 @@ Gui, Add, DropDownList, x275 y404 w72 vsetSpeed choose%defaultSpeed% Center, 2x|
 
 Gui, Add, Edit, vswipeSpeed x348 y404 w72 Center, %swipeSpeed%
 
+
 ; Pack selection logic
 if (godPack = "Close") {
     defaultgodPack := 1
@@ -127,6 +130,15 @@ Gui, Add, DropDownList, x348 y166 w72 vfalsePositive choose%defaultFP% Center, N
 Gui, Font, s10 Bold, Segoe UI 
 Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
 
+if(discordUserID = "")
+	VarSetCapacity(discordUserId, 0)  ; Unsets the variable completely
+	
+if(discordWebhookURL = "")
+	VarSetCapacity(discordWebhookURL, 0)  ; Unsets the variable completely
+
+Gui, Add, Edit, vdiscordUserId x273 y474 w72 h35 Center, %discordUserId%
+Gui, Add, Edit, vdiscordWebhookURL x348 y474 w72 h35 Center, %discordWebhookURL%
+
 Gui, Font, s10 cGray Norm Bold, Segoe UI  ; Normal font for input labels
 Gui Add, Button, x190 y72 w17 h19 gShowMsgName, ? ;Questionmark box for Name Field
 Gui Add, Button, x342 y77 w17 h19 gShowMsgInstances, ? ;Questionmark box for Instance Field
@@ -145,6 +157,9 @@ Gui Add, Button, x411 y307 w17 h19 gShowMsgTimeZone, ? ;Questionmark box for Tim
 Gui Add, Button, x193 y378 w17 h19 gShowMsgFolder, ? ;Questionmark box for SwipeSpeed Field
 Gui Add, Button, x343 y378 w17 h19 gShowMsgSpeed, ? ;Questionmark box for Speed Field
 Gui Add, Button, x408 y378 w17 h19 gShowMsgSwipeSpeed, ? ;Questionmark box for SwipeSpeed Field
+
+Gui Add, Button, x428 y448 w17 h19 gShowMsgdiscordwebHook, ? ;Questionmark box for discord id Field
+Gui Add, Button, x330 y448 w17 h19 gShowMsgdiscordID, ? ;Questionmark box for discord web hook Field
 
 ; Show the GUI
 Gui, Show
@@ -202,6 +217,14 @@ ShowMsgSwipeSpeed:
     MsgBox, Input the swipe speed in milliseconds. `nAnything from 100 to 1000 can probably work. `nPlay around with the speed to get the best speed for your system. Lower number = faster speed. 
 return
 
+ShowMsgdiscordID:
+    MsgBox, Input your discord ID for pings using webhook. 
+return
+
+ShowMsgdiscordwebHook:
+    MsgBox, Input your server's webhook. Follow the guide. It will be something like: https://discord.com/api/webhooks/124124151245/oihri1u24hifb12oiu43hy1 ;'
+return
+
 ArrangeWindows:
 	GuiControlGet, Instances,, Instances
 	GuiControlGet, Columns,, Columns
@@ -236,6 +259,8 @@ findAdbPorts(folderPath)
 IniWrite, %Name%, Settings.ini, UserSettings, Name
 IniWrite, %Delay%, Settings.ini, UserSettings, Delay
 IniWrite, %folderPath%, Settings.ini, UserSettings, folderPath
+IniWrite, %discordWebhookURL%, Settings.ini, UserSettings, discordWebhookURL
+IniWrite, %discordUserId%, Settings.ini, UserSettings, discordUserId
 IniWrite, %ChangeDate%, Settings.ini, UserSettings, ChangeDate
 IniWrite, %Columns%, Settings.ini, UserSettings, Columns
 IniWrite, %openPack%, Settings.ini, UserSettings, openPack
