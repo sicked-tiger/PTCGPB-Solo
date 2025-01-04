@@ -98,11 +98,12 @@ __**GP Test button:**__
 This is so you can verify if a god pack is alive or not. Press the button or F8 and the bot will stop after the wonder pick tutorial so you are able to add the god pack account you want to verify. After you manually add and verify it press F8 again and the bot will delete the account data and start over. If you need more attempts then you can press F8 another time for it to stop again.
 
 # Common Issues
-__Invalid port__
+__Invalid port or failed to launch 1.ahk__
 - Your mumu folder path is different from the typical default path so find where it installed. Mine is in: C:\Program Files\Netease and this would be what i would paste there
 - Skip using the very first instance in the mumu multi instance window. i think the config file for that one is different so my script cant get its port
 - Make sure you don't have other instances of mumu named the same even if they're not running.
-- Make sure there is no spaces leading to the bot's directory in the folder path
+- Make sure there are no spaces leading to the bot's directory in the folder path
+- Unblock security in the ptcgpb properties: [Image](https://media.discordapp.net/attachments/1316114771568754721/1324170598775132261/image.png?ex=677a7938&is=677927b8&hm=8593d02ca3fada3e8c258f69aec10bb30f21c51d01276b991f4bf0912b24ce4a&=&format=webp&quality=lossless&width=1817&height=897)
 
 __Error 0x800700E8__
 - If it happens after already being able to click then one of the terminal windows may have been closed try restarting.
