@@ -3,7 +3,7 @@ https://buymeacoffee.com/aarturoo
 
 *Thanks for your support, and let’s keep those god packs coming!* 😄
 
-# **__Arturo's Pokemon Trading Card Game Pocket Bot v3.1.1__**
+# **__Arturo's Pokemon Trading Card Game Pocket Bot v3.2.0__**
 -# *Special thanks to @pandaporo. for bringing adb inputs to my attention for v2.0*
 -# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, azureWOX, Havvak and everyone else who helped test and contributed.*
 
@@ -15,12 +15,13 @@ https://buymeacoffee.com/aarturoo
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.1.1.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.2.0.zip)
 
 **__How can I get it working?__**
+
 Step 1: Install the necessary programs
 - AutoHotKey
-- MuMu Player (Leave the default folder install)
+- Global MuMu Player (Leave the default folder install)
 
 Step 2: Set-Up MuMu Player
 - Install
@@ -81,6 +82,10 @@ Step 8: Input your script settings
 - Monitor: Select which monitor you'd like it to run on. Try to start the mumu instances in the correct monitor to prevent issues
 - Swipe Speed: The duration of the swipe. Increase/decrease it if it's not swiping well on your system.
 - God Pack: Whether you want it to pause on a god pack or to close the emulator to save resources.
+- False positive prevention: If you are getting to many false positives (stopping on a pack that isn't a god pack) then enable this
+- Arrange windows: Arranges the windows in rows/columns
+- Discord ID: if you're going to use webhooks to send yourself messages add your discord id so you are pinged
+- Discord Webhook url: your discord's server webhook URL. Create a server in discord > create any channel > click the edit channel cog wheel > integrations > create a webhook > click on the webhook created > copy webhook url. That is what goes here.
 - Click Next
 
 Step 9: Click Start
@@ -91,3 +96,73 @@ Step 10: Find god packs
 
 __**GP Test button:**__
 This is so you can verify if a god pack is alive or not. Press the button or F8 and the bot will stop after the wonder pick tutorial so you are able to add the god pack account you want to verify. After you manually add and verify it press F8 again and the bot will delete the account data and start over. If you need more attempts then you can press F8 another time for it to stop again.
+
+# Common Issues
+__Invalid port__
+- Your mumu folder path is different from the typical default path so find where it installed. Mine is in: C:\Program Files\Netease and this would be what i would paste there
+- Skip using the very first instance in the mumu multi instance window. i think the config file for that one is different so my script cant get its port
+- Make sure you don't have other instances of mumu named the same even if they're not running.
+- Make sure there is no spaces leading to the bot's directory in the folder path
+
+__Error 0x800700E8__
+- If it happens after already being able to click then one of the terminal windows may have been closed try restarting.
+- Your window names might be wrong
+- Make sure you allow adb when you run it. If you disallowed it or never got the prompt restart pc and try again
+- Make sure there is no spaces leading to the bot's directory in the folder path
+- 
+__Platin.png__
+- Make sure DPI is 220 in mumu
+- Make sure the new mod is installed
+- Reset the mumu display and font to default
+- Untick keep running in background in the mumu app settings.
+
+__One of my AHK is no longer running how do i restart it?__
+- bot folder > scripts > double click the one that stopped
+
+__It doesn't do anything/Stuck Arranging windows__
+- Make sure you named your instance just the number "1", "2", "3", etc. and not "MuMu Player 1", "MuMu Player 2", etc.
+- Make sure you don't have other instances named the same even if they're not running.
+- The very first mumu instance in the list with the lock can't be used.
+
+__Clicking top right at "Country or Menu"__
+- MuMu's emulator resolution must be 540x960 with 220dpi
+- Windows scale needs to be set to 125% in your windows display settings. If you have multiple monitors then all of them need to be set to 125%
+- The game needs to be in english
+- HDR needs to be off
+- Resolution is incorrect in mumu settings
+- Don't press MuMu's align window button
+- Don't resize the instances manually the script does it
+- Mumu screen style setting must be set to common
+- Doesn't work if you have a 4k resolution you have to scale it down to 1440p
+- You input the incorrect number of instances
+- Mumu's brightness needs to be 50
+- AMD graphics driver: disable graphics enhancement
+- Make sure your instances are named 1, 2, 3, 4 etc. Just the number, counting starting from 1. Nothing else.
+- Turn off windows color filters
+
+__"Cannot find source image"__
+- You need to extract from the .zip first
+
+__I get stuck at naming or OK__
+- Make sure dpi is set at 220 in the mumu settings.
+
+__Having issues swiping packs__
+1. If you are having issues swiping on the 2x speed setting you can try switching to 1x/2x or 1x/3x where it will swipe at 1x speed then switch. You need the newest mod version in the set up guide
+2. Play around with the new swipe speed setting. This is going to be through trial and error, but you can put in a little work to get it working better for you..
+3. People have been reporting better swiping if they match mumu's fps to their monitor's fps.
+4. Run fewer instances or try increasing your CPU cores in mumu
+
+__False positive god packs found__
+If the second card in your false positive GP is not a common border then there is something that is making your colors different. Double check the following:
+- HDR off in windows
+- Color filters off in windows
+- Common screen style in mumu
+- Brightness on 50 in mumu
+
+If all of that is fine then you can set the false positive setting to yes in the bot set up.
+
+Why are false positives happening? Am I missing out on god packs?
+- There are 2 reasons this can happen. 1. there is a split second delay between getting to the opening screen and the cards being shown or 2. There is something different somewhere with your color settings so it detects other card borders as common. Changing the false positive setting to yes addresses both of these.
+- No, you're not missing out on god packs. This is because the bot detects the common borders to skip the cards. If no common borders are detected then it flags it as a god pack and as a result false negatives should be impossible unless you're running with high image search variation like it was doing in prior versions
+
+If none of this solves your issue then restart your PC and try again.
