@@ -1164,7 +1164,7 @@ checkBorder() {
 				pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
 				Path = %A_ScriptDir%\Skip\%A_Index%.png
 				pNeedle := Gdip_CreateBitmapFromFile(Path)
-				vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, 40)
+				vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, 40)
 				Gdip_DisposeImage(pNeedle)
 				Gdip_DisposeImage(pBitmap)
 				if (vRet = 1) {
