@@ -26,6 +26,7 @@ InitializeJsonFile() ; Create or open the JSON file
     IniRead, SelectedMonitorIndex, Settings.ini, UserSettings, SelectedMonitorIndex, 1
     IniRead, swipeSpeed, Settings.ini, UserSettings, swipeSpeed, 600
     IniRead, falsePositive, Settings.ini, UserSettings, falsePositive, No
+    IniRead, skipInvalidGP, Settings.ini, UserSettings, skipInvalidGP, Yes
 
 ; Main GUI setup
 ; Add the link text at the bottom of the GUI
@@ -127,18 +128,27 @@ if (falsePositive = "No") {
 
 Gui, Add, DropDownList, x348 y166 w72 vfalsePositive choose%defaultFP% Center, No|Yes
 
+; Pack selection logic
+if (skipInvalidGP = "No") {
+    defaultskipGP := 1
+} else if (skipInvalidGP = "Yes") {
+    defaultskipGP := 2
+}
+
+Gui, Add, DropDownList, x80 y476 w145 vskipInvalidGP choose%defaultskipGP% Center, No|Yes
+
 Gui, Font, s10 Bold, Segoe UI 
 Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
 
 if(StrLen(discordUserID) > 2)
-	Gui, Add, Edit, vdiscordUserId x273 y474 w72 h35 Center, %discordUserId%
+	Gui, Add, Edit, vdiscordUserId x273 y476 w72 h35 Center, %discordUserId%
 else
-	Gui, Add, Edit, vdiscordUserId x273 y474 w72 h35 Center
+	Gui, Add, Edit, vdiscordUserId x273 y476 w72 h35 Center
 	
 if(StrLen(discordWebhookURL) > 2)
-	Gui, Add, Edit, vdiscordWebhookURL x348 y474 w72 h35 Center, %discordWebhookURL%
+	Gui, Add, Edit, vdiscordWebhookURL x348 y476 w72 h35 Center, %discordWebhookURL%
 else
-	Gui, Add, Edit, vdiscordWebhookURL x348 y474 w72 h35 Center
+	Gui, Add, Edit, vdiscordWebhookURL x348 y476 w72 h35 Center
 
 
 
@@ -274,6 +284,7 @@ IniWrite, %defaultLanguage%, Settings.ini, UserSettings, defaultLanguage
 IniWrite, %SelectedMonitorIndex%, Settings.ini, UserSettings, SelectedMonitorIndex
 IniWrite, %swipeSpeed%, Settings.ini, UserSettings, swipeSpeed
 IniWrite, %falsePositive%, Settings.ini, UserSettings, falsePositive
+IniWrite, %skipInvalidGP%, Settings.ini, UserSettings, skipInvalidGP
 
 ; Loop to process each instance
 Loop, %Instances%
