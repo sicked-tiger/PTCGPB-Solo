@@ -117,7 +117,7 @@ __Platin.png__
 __One of my AHK is no longer running how do i restart it?__
 - bot folder > scripts > double click the one that stopped
 
-__It doesn't do anything/Stuck resetting windows__
+__It doesn't do anything/Stuck Arranging windows__
 - Make sure you named your instance just the number "1", "2", "3", etc. and not "MuMu Player 1", "MuMu Player 2", etc.
 - Make sure you don't have other instances named the same even if they're not running.
 - The very first mumu instance in the list with the lock can't be used.
