@@ -10,7 +10,7 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, discordUserId, discordWebhookURL
 
 	
 	adbPath := A_ScriptDir . "\adb\platform-tools\adb.exe"  ; Example path, adjust if necessary
@@ -32,6 +32,8 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	IniRead, swipeSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, swipeSpeed, 600
 	IniRead, falsePositive, %A_ScriptDir%\..\Settings.ini, UserSettings, falsePositive, No
 	IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, 1
+	IniRead, discordWebhookURL, Settings.ini, UserSettings, discordWebhookURL, ""
+    IniRead, discordUserId, Settings.ini, UserSettings, discordUserId, ""
 	
 	
 	if(!adbPort) {
@@ -169,7 +171,6 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 		}
 		Sleep, 1000
 	}
-	
 	instanceSleep := scriptName * 1000
 	pToken := Gdip_Startup()
 Loop {
@@ -186,7 +187,7 @@ Loop {
 		
 	While(((CurrentTime - StartTime >= 0) && (CurrentTime - StartTime <= 5)) || ((EndTime - CurrentTime >= 0) && (EndTime - CurrentTime <= 5)))
 	{
-		CreateStatusMessage("I need a break... Sleeping until " . changeDate + 5 . " to avoid being kicked out from the date change")
+		CreateStatusMessage("I need a break... Sleeping until " . changeDate + 5 . " `nto avoid being kicked out from the date change")
 		FormatTime, CurrentTime,, HHmm ; Update the current time after sleep
 		Sleep, 5000
 	}
@@ -1126,7 +1127,8 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 }
 
 checkBorder() {
-	global winTitle, falsePositive
+	global winTitle, falsePositive, discordUserId
+	invalidGP := false
 	if(falsePositive = 1) {
 		Sleep, 250
 		searchVariation := 10
@@ -1158,11 +1160,33 @@ checkBorder() {
 			LogToFile("Second card checked. Not a God Pack ")
 		}
 		else {
-			CreateStatusMessage("God Pack Found!!! In instance: " . scriptName)
-			godPackLog = GPlog.txt
-			LogToFile("Congrats! God pack found in instance: " . scriptName, godPackLog)
-			Screenshot()
-			killGodPackInstance()
+			Loop 8 {
+				pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
+				Path = %A_ScriptDir%\Skip\%A_Index%.png
+				pNeedle := Gdip_CreateBitmapFromFile(Path)
+				vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, 40)
+				Gdip_DisposeImage(pNeedle)
+				Gdip_DisposeImage(pBitmap)
+				if (vRet = 1) {
+					invalidGP := true
+				}
+			}
+			if(invalidGP) {
+				logMessage := "Sorry, invalid god pack in instance: " . scriptName
+				CreateStatusMessage(logMessage)
+				godPackLog = GPlog.txt
+				LogToFile(logMessage, godPackLog)
+				LogToDiscord(logMessage, Screenshot(), discordUserId)
+				killGodPackInstance()
+			}
+			else {
+				logMessage := "Congrats! God pack found in instance: " . scriptName
+				CreateStatusMessage(logMessage)
+				godPackLog = GPlog.txt
+				LogToFile(logMessage, godPackLog)
+				LogToDiscord(logMessage, Screenshot(), discordUserId)
+				killGodPackInstance()
+			}
 		}
 	}
 }
@@ -1229,25 +1253,39 @@ Screenshot() {
 		
 	; File path for saving the screenshot locally
 	screenshotFile := screenshotsDir "\" winTitle "_" A_Now ".png"
-	
-	; Capture the screenshot on the emulator
-	; adbShell.StdIn.WriteLine("screencap /sdcard/screenshot.png")
-	; Sleep, 1000  ; Wait for the screenshot command to complete
-
-	; Pull the screenshot to the local folder
-	; RunWait, % adbPath . " -s 127.0.0.1:" . adbPort . " pull /sdcard/screenshot.png """ . screenshotFile . """",, Hide
-	; Sleep, 500  ; Wait for the pull command to complete
-
-	; Delete the screenshot from the emulator
-	; adbShell.StdIn.WriteLine("rm /sdcard/screenshot.png")
-	; Sleep, 500  ; Shorter wait for cleanup
 
 	pBitmap := from_window(WinExist(winTitle))
 	Gdip_SaveBitmapToFile(pBitmap, screenshotFile) 
+	
+	return screenshotFile
 }
 
+LogToDiscord(message, screenshotFile := "", ping := false) {
+    global discordUserId, discordWebhookURL
+    if (discordWebhookURL != "") {
+        ; Prepare the message data
+        if (ping && discordUserId != "") {
+            data := "{""content"": ""<@" discordUserId "> " message """}"
+        } else {
+            data := "{""content"": """ message """}"
+        }
 
+        ; Create the HTTP request object
+        whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        whr.Open("POST", discordWebhookURL, false)
+        whr.SetRequestHeader("Content-Type", "application/json")
+        whr.Send(data)
 
+        ; If an image file is provided, send it
+        if (screenshotFile != "") {
+            ; Check if the file exists
+            if (FileExist(screenshotFile)) {
+                ; Send the image using curl
+                RunWait, curl -F "file=@%screenshotFile%" %discordWebhookURL%,, Hide
+            }
+        }
+    }
+}
 	; Pause Script
 	PauseScript:
 		CreateStatusMessage("Pausing...")
