@@ -10,7 +10,7 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, discordUserId, discordWebhookURL
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, discordUserId, discordWebhookURL, skipInvalidGP
 
 	
 	adbPath := A_ScriptDir . "\adb\platform-tools\adb.exe"  ; Example path, adjust if necessary
@@ -31,6 +31,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	IniRead, SelectedMonitorIndex, %A_ScriptDir%\..\Settings.ini, UserSettings, SelectedMonitorIndex, 1:
 	IniRead, swipeSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, swipeSpeed, 600
 	IniRead, falsePositive, %A_ScriptDir%\..\Settings.ini, UserSettings, falsePositive, No
+	IniRead, skipInvalidGP, %A_ScriptDir%\..\Settings.ini, UserSettings, skipInvalidGP, No
 	IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, 1
 	IniRead, discordWebhookURL, Settings.ini, UserSettings, discordWebhookURL, ""
     IniRead, discordUserId, Settings.ini, UserSettings, discordUserId, ""
@@ -128,6 +129,13 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 		falsePositive = 1
 	else if (falsePositive = "Yes")
 		falsePositive = 2
+	
+	if (!skipInvalidGP)
+		skipInvalidGP = 1
+	else if (skipInvalidGP = "No")
+		skipInvalidGP = 1
+	else if (skipInvalidGP = "Yes")
+		skipInvalidGP = 2
 		
 	if (!setSpeed)
 		setSpeed = 1
@@ -1127,7 +1135,7 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 }
 
 checkBorder() {
-	global winTitle, falsePositive, discordUserId
+	global winTitle, falsePositive, discordUserId, skipInvalidGP
 	invalidGP := false
 	if(falsePositive = 1) {
 		Sleep, 250
@@ -1160,15 +1168,17 @@ checkBorder() {
 			LogToFile("Second card checked. Not a God Pack ")
 		}
 		else {
-			Loop 8 {
-				pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
-				Path = %A_ScriptDir%\Skip\%A_Index%.png
-				pNeedle := Gdip_CreateBitmapFromFile(Path)
-				vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, 40)
-				Gdip_DisposeImage(pNeedle)
-				Gdip_DisposeImage(pBitmap)
-				if (vRet = 1) {
-					invalidGP := true
+			if(skipInvalidGP = 2) {
+				Loop 8 {
+					pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
+					Path = %A_ScriptDir%\Skip\%A_Index%.png
+					pNeedle := Gdip_CreateBitmapFromFile(Path)
+					vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, 40)
+					Gdip_DisposeImage(pNeedle)
+					Gdip_DisposeImage(pBitmap)
+					if (vRet = 1) {
+						invalidGP := true
+					}
 				}
 			}
 			if(invalidGP) {
