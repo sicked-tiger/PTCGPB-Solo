@@ -142,7 +142,6 @@ __"Cannot find source image"__
 
 __I get stuck at naming or OK__
 - Make sure dpi is set at 220 in the mumu settings.
-- If you have a 1920x1080 monitor and running instances in the second row then hide your taskbar or move it to the right side
 
 __Having issues swiping packs__
 1. If you are having issues swiping on the 2x speed setting you can try switching to 1x/2x or 1x/3x where it will swipe at 1x speed then switch. You need the newest mod version in the set up guide
