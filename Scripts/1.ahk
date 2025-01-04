@@ -467,7 +467,7 @@ Loop {
 KeepSync(70, 80, 133, 109, , "Move", 134, 375) ; click through until move
 Sleep, %Delay%
 if(setSpeed > 2)
-	KeepSync(105, 242, 173, 277, , "Proceed", 141, 483, 500) ;wait for menu to proceed then click ok. increased delay in between clicks to fix freezing on 3x speed
+	KeepSync(105, 242, 173, 277, , "Proceed", 141, 483, 800) ;wait for menu to proceed then click ok. increased delay in between clicks to fix freezing on 3x speed
 else
 	KeepSync(105, 242, 173, 277, , "Proceed", 141, 483) ;wait for menu to proceed then click ok
 Sleep, %Delay%
