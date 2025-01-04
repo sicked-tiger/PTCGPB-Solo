@@ -222,7 +222,7 @@ ShowMsgdiscordID:
 return
 
 ShowMsgdiscordwebHook:
-    MsgBox, Input your server's webhook. Follow the guide. It will be something like: https://discord.com/api/webhooks/124124151245/oihri1u24hifb12oiu43hy1 ;'
+    MsgBox, Input your server's webhook. It will be something like: https://discord.com/api/webhooks/124124151245/oihri1u24hifb12oiu43hy1 `nCreate a server in discord > for any channel > click the edit channel cog wheel > integrations > create a webhook > click on the webhook created > copy webhook url. Paste that here. ;'
 return
 
 ArrangeWindows:
