@@ -102,12 +102,14 @@ __Invalid port__
 - Your mumu folder path is different from the typical default path so find where it installed. Mine is in: C:\Program Files\Netease and this would be what i would paste there
 - Skip using the very first instance in the mumu multi instance window. i think the config file for that one is different so my script cant get its port
 - Make sure you don't have other instances of mumu named the same even if they're not running.
+- Make sure there is no spaces leading to the bot's directory in the folder path
 
 __Error 0x800700E8__
 - If it happens after already being able to click then one of the terminal windows may have been closed try restarting.
 - Your window names might be wrong
- - Make sure you allow adb when you run it. If you disallowed it or never got the prompt restart pc and try again
-
+- Make sure you allow adb when you run it. If you disallowed it or never got the prompt restart pc and try again
+- Make sure there is no spaces leading to the bot's directory in the folder path
+- 
 __Platin.png__
 - Make sure DPI is 220 in mumu
 - Make sure the new mod is installed
