@@ -130,14 +130,17 @@ Gui, Add, DropDownList, x348 y166 w72 vfalsePositive choose%defaultFP% Center, N
 Gui, Font, s10 Bold, Segoe UI 
 Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
 
-if(discordUserID = "")
-	VarSetCapacity(discordUserId, 0)  ; Unsets the variable completely
+if(StrLen(discordUserID) > 2)
+	Gui, Add, Edit, vdiscordUserId x273 y474 w72 h35 Center, %discordUserId%
+else
+	Gui, Add, Edit, vdiscordUserId x273 y474 w72 h35 Center
 	
-if(discordWebhookURL = "")
-	VarSetCapacity(discordWebhookURL, 0)  ; Unsets the variable completely
+if(StrLen(discordWebhookURL) > 2)
+	Gui, Add, Edit, vdiscordWebhookURL x348 y474 w72 h35 Center, %discordWebhookURL%
+else
+	Gui, Add, Edit, vdiscordWebhookURL x348 y474 w72 h35 Center
 
-Gui, Add, Edit, vdiscordUserId x273 y474 w72 h35 Center, %discordUserId%
-Gui, Add, Edit, vdiscordWebhookURL x348 y474 w72 h35 Center, %discordWebhookURL%
+
 
 Gui, Font, s10 cGray Norm Bold, Segoe UI  ; Normal font for input labels
 Gui Add, Button, x190 y72 w17 h19 gShowMsgName, ? ;Questionmark box for Name Field
