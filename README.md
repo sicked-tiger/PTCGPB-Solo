@@ -18,6 +18,7 @@ https://buymeacoffee.com/aarturoo
 - [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.1.1.zip)
 
 **__How can I get it working?__**
+
 Step 1: Install the necessary programs
 - AutoHotKey
 - Global MuMu Player (Leave the default folder install)
