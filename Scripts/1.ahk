@@ -38,7 +38,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	
 	
 	if(!adbPort) {
-		Msgbox, Invalid port. Stopping...
+		Msgbox, Invalid port... Check the common issues section in the readme/github guide.
 		ExitApp
 	}
 	
@@ -76,23 +76,22 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 			RetryCount++
 			if (RetryCount >= MaxRetries) {
 				CreateStatusMessage("Failed to create button gui.")
-				WinGetPos, x, y, Width, Height, %winTitle%
-				sleep, 2000
-				;Winset, Alwaysontop, On, %winTitle%
-				x4 := x + 5
-				y4 := y + 25
+				; WinGetPos, x, y, Width, Height, %winTitle%
+				; sleep, 2000
+				; x4 := x + 5
+				; y4 := y + 25
 				
 			
-				Gui, New, -AlwaysOnTop +ToolWindow -Caption 
-				Gui, Default
-				Gui, Margin, 4, 4  ; Set margin for the GUI
-				Gui, Font, s5 cGray Norm Bold, Segoe UI  ; Normal font for input labels
-				Gui, Add, Button, x0 y0 w30 h25 gReloadScript, Reload  (F5)
-				Gui, Add, Button, x30 y0 w30 h25 gPauseScript, Pause (F6)
-				Gui, Add, Button, x60 y0 w40 h25 gResumeScript, Resume (F6)
-				Gui, Add, Button, x100 y0 w30 h25 gStopScript, Stop (F7)
-				Gui, Add, Button, x130 y0 w40 h25 gTestScript, GP Test  (F8)
-				Gui, Show, NoActivate x%x4% y%y4% AutoSize
+				; Gui, New, -AlwaysOnTop +ToolWindow -Caption 
+				; Gui, Default
+				; Gui, Margin, 4, 4  ; Set margin for the GUI
+				; Gui, Font, s5 cGray Norm Bold, Segoe UI  ; Normal font for input labels
+				; Gui, Add, Button, x0 y0 w30 h25 gReloadScript, Reload  (F5)
+				; Gui, Add, Button, x30 y0 w30 h25 gPauseScript, Pause (F6)
+				; Gui, Add, Button, x60 y0 w40 h25 gResumeScript, Resume (F6)
+				; Gui, Add, Button, x100 y0 w30 h25 gStopScript, Stop (F7)
+				; Gui, Add, Button, x130 y0 w40 h25 gTestScript, GP Test  (F8)
+				; Gui, Show, NoActivate x%x4% y%y4% AutoSize
 				break
 			}
 			Sleep, 1000
@@ -426,13 +425,13 @@ Sleep, %Delay%
 adbClick(140, 424)
 
 KeepSync(104, 269, 177, 296, , "Trace", 140, 424) ;wait for pack to be ready  to trace
-failSafe := A_TickCount
-failSafeTime := 0
 	if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
 	}
+failSafe := A_TickCount
+failSafeTime := 0
 Loop {
 	adbSwipe()
 	Sleep, 10
@@ -452,13 +451,13 @@ Loop {
 }
 
 KeepSync(34, 99, 74, 131, , "Swipe", 140, 375) ;click through cards until needing to swipe up
-failSafe := A_TickCount
-failSafeTime := 0
 	if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
 	}
+failSafe := A_TickCount
+failSafeTime := 0
 Loop {
 	adbSwipeUp()
 	Sleep, 10
@@ -531,14 +530,13 @@ Sleep, %Delay%
 adbClick(142, 436)
 
 KeepSync(104, 269, 177, 296, , "Trace", 239, 497) ;wait for pack to be ready  to Trace
-
-failSafe := A_TickCount
-failSafeTime := 0
 	if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
 	}
+failSafe := A_TickCount
+failSafeTime := 0
 Loop {
 	adbSwipe()
 	Sleep, 10
@@ -603,7 +601,7 @@ Loop {
 		continueTime := 1
 	else
 		continueTime := 6
-	if(KeepSync(0, 0, 224, 246, , "End", 239, 497, , continueTime, failSafeTime)) ;click through to end of tut screen
+	if(KeepSync(60, 210, 224, 246, , "End", 239, 497, , continueTime, failSafeTime)) ;click through to end of tut screen
 		break
 	sleep, %Delay%
 adbClick(143, 492)
@@ -628,7 +626,29 @@ Loop {
 	if(!GPTest) {
 		break
 	}
-	;Winset, Alwaysontop, Off, %winTitle%
+	if(!deleteAccount) {
+		adbClick(143, 518)
+		Sleep, %Delay%
+		Sleep, %Delay%
+		adbClick(143, 518)
+		Sleep, %Delay%
+		Sleep, %Delay%
+		adbClick(143, 518)
+		Sleep, %Delay%
+		Sleep, %Delay%
+		adbClick(143, 518)
+		Sleep, %Delay%
+		Sleep, %Delay%
+		adbClick(143, 518)
+		Sleep, %Delay%
+		Sleep, %Delay%
+		adbClick(143, 518)
+		Sleep, %Delay%
+		Sleep, %Delay%
+		adbClick(143, 518)
+		Sleep, %Delay%
+		Sleep, %Delay%
+	}
 	deleteAccount := true
 	CreateStatusMessage("GP Test mode. Press button again to delete.")
 	sleep, 1000
@@ -676,13 +696,13 @@ if(deleteAccount = false) {
 	adbClick(146, 439)
 	}
 
-	failSafe := A_TickCount
-	failSafeTime := 0
 		if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 			Sleep, %Delay%
 		}
+	failSafe := A_TickCount
+	failSafeTime := 0
 	Loop {
 		adbSwipe()	
 		Sleep, 10
@@ -728,13 +748,13 @@ if(deleteAccount = false) {
 	adbClick(142, 429)
 	}
 	
-	failSafe := A_TickCount
-	failSafeTime := 0
 		if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 			Sleep, %Delay%
 		}
+	failSafe := A_TickCount
+	failSafeTime := 0
 	Loop {
 		adbSwipe()
 		Sleep, 10
@@ -945,7 +965,7 @@ CheckInstances(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", EL
 	Gdip_DisposeImage(pBitmap)
 	if (vRet = 1) {
 		CreateStatusMessage("At home page. Opening app..." )
-		restartGameInstance("At the home page during: " imageName)
+		restartGameInstance("At the home page during: `n" imageName)
 	}
 	
 	if (safeTime >= 45) {
@@ -1068,7 +1088,7 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		Gdip_DisposeImage(pBitmap)
 		if (vRet = 1) {
 			CreateStatusMessage("At home page. Opening app..." )
-			restartGameInstance("Found myself at the home page during: " imageName)
+			restartGameInstance("Found myself at the home page during: `n" imageName)
 		}
 		
 		if(skip) {
@@ -1132,7 +1152,7 @@ killGodPackInstance(){
 	else {
 		CreateStatusMessage("Closing script. Found GP.")
 		LogToFile("Closing God Pack instance.")
-	WinClose, %winTitle% ;in case you resume and miss that you got a god pack.
+		WinClose, %winTitle% ;in case you resume and miss that you got a god pack.
 		ExitApp
 	}
 }
@@ -1248,12 +1268,12 @@ checkBorder() {
 				}
 			}
 			if(invalidGP) {
-				logMessage := "Sorry, invalid god pack in instance: " . scriptName
+				logMessage := "Skipping invalid god pack in instance: " . scriptName
 				CreateStatusMessage(logMessage)
-			godPackLog = GPlog.txt
+				godPackLog = GPlog.txt
 				LogToFile(logMessage, godPackLog)
 				LogToDiscord(logMessage, Screenshot(), discordUserId)
-			killGodPackInstance()
+				;killGodPackInstance()
 			}
 			else {
 				logMessage := "Congrats! God pack found in instance: " . scriptName
@@ -1339,27 +1359,43 @@ Screenshot() {
 LogToDiscord(message, screenshotFile := "", ping := false) {
     global discordUserId, discordWebhookURL
     if (discordWebhookURL != "") {
-        ; Prepare the message data
-        if (ping && discordUserId != "") {
-            data := "{""content"": ""<@" discordUserId "> " message """}"
-        } else {
-            data := "{""content"": """ message """}"
-        }
+		MaxRetries := 10
+		RetryCount := 0
+		Loop {
+			try {
+				; Prepare the message data
+				if (ping && discordUserId != "") {
+					data := "{""content"": ""<@" discordUserId "> " message """}"
+				} else {
+					data := "{""content"": """ message """}"
+				}
 
-        ; Create the HTTP request object
-        whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-        whr.Open("POST", discordWebhookURL, false)
-        whr.SetRequestHeader("Content-Type", "application/json")
-        whr.Send(data)
+				; Create the HTTP request object
+				whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+				whr.Open("POST", discordWebhookURL, false)
+				whr.SetRequestHeader("Content-Type", "application/json")
+				whr.Send(data)
 
-        ; If an image file is provided, send it
-        if (screenshotFile != "") {
-            ; Check if the file exists
-            if (FileExist(screenshotFile)) {
-                ; Send the image using curl
-                RunWait, curl -F "file=@%screenshotFile%" %discordWebhookURL%,, Hide
-            }
-        }
+				; If an image file is provided, send it
+				if (screenshotFile != "") {
+					; Check if the file exists
+					if (FileExist(screenshotFile)) {
+						; Send the image using curl
+						RunWait, curl -F "file=@%screenshotFile%" %discordWebhookURL%,, Hide
+					}
+				}
+				break
+			}
+			catch {
+				RetryCount++
+				if (RetryCount >= MaxRetries) {
+					CreateStatusMessage("Failed to send discord message.")
+				}
+				Sleep, 250
+				break
+			}
+			sleep, 250
+		}
     }
 }
 	; Pause Script
