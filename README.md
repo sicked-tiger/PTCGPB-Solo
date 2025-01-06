@@ -113,7 +113,10 @@ __Error 0x800700E8__
 - Your window names might be wrong
 - Make sure you allow adb when you run it. If you disallowed it or never got the prompt restart pc and try again
 - Make sure there is no spaces leading to the bot's directory in the folder path
-- 
+
+__Black bars when switching from scale 100/125__
+- Try again/reload the bot and it should fix itself. It sometimes happens on the first try.
+
 __Platin.png__
 - Make sure DPI is 220 in mumu
 - Make sure the new mod is installed
