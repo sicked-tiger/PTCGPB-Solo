@@ -5,6 +5,7 @@ https://buymeacoffee.com/aarturoo
 
 # **__Arturo's Pokemon Trading Card Game Pocket Bot v3.3.0__**
 -# *Special thanks to azureWox, Flubsthefool, havaak, pifobi for their code contributions*
+
 -# *Thanks to everyone who has helped test or has contributed their suggestions to make the bot better!*
 
 **__What does this do?__**
