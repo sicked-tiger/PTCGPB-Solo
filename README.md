@@ -84,7 +84,7 @@ Step 8: Input your script settings
 - God Pack: Whether you want it to pause on a god pack or to close the emulator to save resources.
 - False positive prevention: If you are getting to many false positives (stopping on a pack that isn't a god pack) then enable this
 - Arrange windows: Arranges the windows in rows/columns
-- Discord ID: if you're going to use webhooks to send yourself messages add your discord id so you are pinged
+- Discord ID: if you're going to use webhooks to send yourself messages add your discord id so you are pinged. Not your username, but your numerical discord ID.
 - Discord Webhook url: your discord's server webhook URL. Create a server in discord > create any channel > click the edit channel cog wheel > integrations > create a webhook > click on the webhook created > copy webhook url. That is what goes here.
 - Click Next
 
