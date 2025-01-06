@@ -10,7 +10,7 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, discordUserId, discordWebhookURL, skipInvalidGP
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, skipInvalidGP
 
 	
 	adbPath := A_ScriptDir . "\adb\platform-tools\adb.exe"  ; Example path, adjust if necessary
@@ -146,29 +146,34 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	else if (setSpeed = "1x/3x")
 		setSpeed := 3
 
+	if (defaultLanguage = "English100")
+		scaleParam := 287
+	else
+		scaleParam := 277
+
 	rerollTime := A_TickCount	
-	
+
 	MaxRetries := 10
 	RetryCount := 0
 	Loop {
 		try {
 			if (!adbShell) {
-				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-				; Extract the Process ID
-				processID := adbShell.ProcessID
+	adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
+	; Extract the Process ID
+	processID := adbShell.ProcessID
 
-				; Wait for the console window to open using the process ID
-				WinWait, ahk_pid %processID%
+	; Wait for the console window to open using the process ID
+	WinWait, ahk_pid %processID%
 
-				; Minimize the window using the process ID
-				WinMinimize, ahk_pid %processID%
+	; Minimize the window using the process ID
+	WinMinimize, ahk_pid %processID%
 			}
 			else if (adbShell.Status != 0) {
 				Sleep, 1000
 			}
 			else {
-				break
-			}
+	break
+}
 		}
 		catch {
 			RetryCount++
@@ -423,7 +428,7 @@ adbClick(140, 424)
 KeepSync(104, 269, 177, 296, , "Trace", 140, 424) ;wait for pack to be ready  to trace
 failSafe := A_TickCount
 failSafeTime := 0
-if(setSpeed > 1) {
+	if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
@@ -432,15 +437,15 @@ Loop {
 	adbSwipe()
 	Sleep, 10
 	if (CheckInstances(195, 220, 230, 270, , "Bulba", 0, failSafeTime)){
-		if(setSpeed > 1) {
-			if(setSpeed = 3)
+	if(setSpeed > 1) {
+		if(setSpeed = 3)
 				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click 3x
-			else
+		else
 				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click 2x
-		}
-		adbClick(166, 296)
-		break
 	}
+		adbClick(166, 296)
+			break
+		}
 	failSafeTime := (A_TickCount - failSafe) // 1000
 	CreateStatusMessage("In failsafe for Trace. It's been: " . failSafeTime "s ")
 	LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
@@ -449,7 +454,7 @@ Loop {
 KeepSync(34, 99, 74, 131, , "Swipe", 140, 375) ;click through cards until needing to swipe up
 failSafe := A_TickCount
 failSafeTime := 0
-if(setSpeed > 1) {
+	if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
@@ -458,15 +463,15 @@ Loop {
 	adbSwipeUp()
 	Sleep, 10
 	if (CheckInstances(120, 70, 150, 95, , "SwipeUp", 0, failSafeTime)){
-		if(setSpeed > 1) {
-			if(setSpeed = 3)
+	if(setSpeed > 1) {
+		if(setSpeed = 3)
 				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-			else
+		else
 				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-		}
-		adbClick(166, 296)
-		break
 	}
+		adbClick(166, 296)
+			break
+		}
 	failSafeTime := (A_TickCount - failSafe) // 1000
 	CreateStatusMessage("In failsafe for swipe up. It's been: " . failSafeTime "s ")
 	Sleep, %Delay%
@@ -477,7 +482,7 @@ Sleep, %Delay%
 if(setSpeed > 2)
 	KeepSync(105, 242, 173, 277, , "Proceed", 141, 483, 800) ;wait for menu to proceed then click ok. increased delay in between clicks to fix freezing on 3x speed
 else
-	KeepSync(105, 242, 173, 277, , "Proceed", 141, 483) ;wait for menu to proceed then click ok
+KeepSync(105, 242, 173, 277, , "Proceed", 141, 483) ;wait for menu to proceed then click ok
 Sleep, %Delay%
 adbClick(204, 371)
 
@@ -529,7 +534,7 @@ KeepSync(104, 269, 177, 296, , "Trace", 239, 497) ;wait for pack to be ready  to
 
 failSafe := A_TickCount
 failSafeTime := 0
-if(setSpeed > 1) {
+	if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
 		Sleep, %Delay%
@@ -538,12 +543,12 @@ Loop {
 	adbSwipe()
 	Sleep, 10
 	if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){	
-			if(setSpeed > 1) {
-				if(setSpeed = 3)
+	if(setSpeed > 1) {
+		if(setSpeed = 3)
 					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-				else
+		else
 					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-			}
+	}
 			adbClick(166, 296)
 			break
 		}
@@ -673,21 +678,21 @@ if(deleteAccount = false) {
 
 	failSafe := A_TickCount
 	failSafeTime := 0
-	if(setSpeed > 1) {
+		if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-		Sleep, %Delay%
-	}
+			Sleep, %Delay%
+		}
 	Loop {
 		adbSwipe()	
 		Sleep, 10
 		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
-			if(setSpeed > 1) {
-				if(setSpeed = 3)
+		if(setSpeed > 1) {
+			if(setSpeed = 3)
 					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-				else
+			else
 					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-			}
+		}
 			adbClick(166, 296)
 			break
 		}
@@ -703,7 +708,7 @@ if(deleteAccount = false) {
 	checkBorder() ;check card border to find godpacks	
 
 	KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
-	
+
 	Loop {
 		if(KeepSync(20, 500, 55, 530, , "Home", 244, 496, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
 			break
@@ -725,21 +730,21 @@ if(deleteAccount = false) {
 	
 	failSafe := A_TickCount
 	failSafeTime := 0
-	if(setSpeed > 1) {
+		if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-		Sleep, %Delay%
-	}
+			Sleep, %Delay%
+		}
 	Loop {
 		adbSwipe()
 		Sleep, 10
 		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)){
-			if(setSpeed > 1) {
-				if(setSpeed = 3)
+		if(setSpeed > 1) {
+			if(setSpeed = 3)
 					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-				else
+			else
 					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-			}
+		}
 			adbClick(166, 296)
 			break
 		}
@@ -761,6 +766,7 @@ if(deleteAccount = false) {
 		adbClick(146, 494) ;146 494
 		Sleep, %Delay%
 	}
+	/*
 	Sleep, %Delay%
 	Sleep, %Delay%
 	Sleep, %Delay%
@@ -776,8 +782,8 @@ if(deleteAccount = false) {
 	Sleep, %Delay%
 	Sleep, %Delay%
 	Sleep, %Delay%
-
-	KeepSync(98, 184, 151, 224, , "Hourglass1", 148, 438, 500, 5) ;stop at hourglasses tutorial 2
+	*/
+	KeepSync(98, 184, 151, 224, , "Hourglass1", 168, 438, 500, 5) ;stop at hourglasses tutorial 2
 	Sleep, %Delay%
 
 	adbClick(203, 436) ; 203 436
@@ -798,21 +804,21 @@ if(deleteAccount = false) {
 	}
 	failSafe := A_TickCount
 	failSafeTime := 0
-	if(setSpeed > 1) {
+		if(setSpeed > 1) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-		Sleep, %Delay%
-	}
+			Sleep, %Delay%
+		}
 	Loop {
 		adbSwipe()
 		Sleep, 10
 		if (CheckInstances(230, 486, 272, 526, , "Skip3", 0, failSafeTime)) {
-			if(setSpeed > 1) {
-				if(setSpeed = 3)
+		if(setSpeed > 1) {
+			if(setSpeed = 3)
 					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-				else
+			else
 					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-			}
+		}
 			adbClick(166, 296)
 			break
 		}
@@ -902,6 +908,23 @@ CheckInstances(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", EL
 	pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
 	Path = %imagePath%%imageName%.png
 	pNeedle := Gdip_CreateBitmapFromFile(Path)
+
+	; 100% scale changes
+	if (scaleParam = 287) {
+		Y1 -= 8 ; offset, should be 44-36 i think?
+		Y2 -= 8
+		if (Y1 < 0) {
+			Y1 := 0
+		}
+		if (imageName = "Bulba") { ; too much to the left? idk how that happens
+			X1 := 200
+			Y1 := 220
+			X2 := 230
+			Y2 := 260
+		}
+	}
+	;bboxAndPause(X1, Y1, X2, Y2)
+
 	; ImageSearch within the region
 	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, X1, Y1, X2, Y2, searchVariation)
 	Gdip_DisposeImage(pNeedle)
@@ -951,6 +974,30 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 	StartSkipTime := A_TickCount
 	
 	confirmed := false
+
+	; 100% scale changes
+	if (scaleParam = 287) {
+		Y1 -= 8 ; offset, should be 44-36 i think?
+		Y2 -= 8
+		if (Y1 < 0) {
+			Y1 := 0
+		}
+
+		if (imageName = "Platin") { ; can't do text so purple box
+			X1 := 141
+			Y1 := 189
+			X2 := 208
+			Y2 := 224
+		} else if (imageName = "End") { ; instead of 0, 0
+			X1 := 70
+			Y1 := 212
+		}
+
+		if (clickx = 239 and clicky = 497) { ; blanket fix for opening wonder trace hourglass end (though mostly opening for immersives)
+			clickx := 255
+			clicky := 505
+		}
+	}
 		
 	if(click) {
 		adbClick(clickx, clicky)
@@ -958,7 +1005,7 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 	}
 	CreateStatusMessage(imageName)
 
-	
+
     Loop { ; Main loop
 		Sleep, 10
 		if(click) {
@@ -976,6 +1023,7 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
 		Path = %imagePath%%imageName%.png
 		pNeedle := Gdip_CreateBitmapFromFile(Path)
+		;bboxAndPause(X1, Y1, X2, Y2)
 		; ImageSearch within the region
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, X1, Y1, X2, Y2, searchVariation)
 		Gdip_DisposeImage(pNeedle)
@@ -1051,13 +1099,13 @@ resetWindows(){
 			; Get monitor origin from index
 			SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 			SysGet, Monitor, Monitor, %SelectedMonitorIndex%
-			Title := winTitle
-			rowHeight := 533  ; Adjust the height of each row
-			currentRow := Floor((winTitle - 1) / Columns)
-			y := currentRow * rowHeight	
-			x := Mod((winTitle - 1), Columns) * 277
-			
-			WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), 277, 537
+	Title := winTitle
+	rowHeight := 533  ; Adjust the height of each row
+	currentRow := Floor((winTitle - 1) / Columns)
+	y := currentRow * rowHeight	
+			x := Mod((winTitle - 1), Columns) * scaleParam
+	
+			WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), scaleParam, 537
 			break
 		}
 		catch {
@@ -1073,18 +1121,18 @@ resetWindows(){
 killGodPackInstance(){
 	global winTitle, godPack
 	if(godPack = 2) {
-		CreateStatusMessage("Pausing script. Found GP.")
-		LogToFile("Paused God Pack instance.")
+	CreateStatusMessage("Pausing script. Found GP.")
+	LogToFile("Paused God Pack instance.")
 		; Loop {
 			; Sleep, 60000
 			; adbShell.StdIn.WriteLine("input text GP" )
 		; }
-		Pause, On 
+	Pause, On 
 	}
 	else {
 		CreateStatusMessage("Closing script. Found GP.")
 		LogToFile("Closing God Pack instance.")
-		WinClose, %winTitle% ;in case you resume and miss that you got a god pack.
+	WinClose, %winTitle% ;in case you resume and miss that you got a god pack.
 		ExitApp
 	}
 }
@@ -1114,7 +1162,7 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 	global scriptName, winTitle, statusText, SelectedMonitorIndex
 	MaxRetries := 10
 	RetryCount := 0
-	try {	
+	try {
 		GuiName := GuiName+scriptName
 		statusText := GuiName+scriptName
 		WinGetPos, xpos, ypos, Width, Height, %winTitle%
@@ -1131,14 +1179,14 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
 		Gui, %GuiName%:Add, Text, vStatusText, %Message%
 		Gui,%GuiName%:Show,NoActivate x%X% y%Y% AutoSize, NoActivate %GuiName%
-	}	
+	}
 }
 
 checkBorder() {
 	global winTitle, falsePositive, discordUserId, skipInvalidGP
 	invalidGP := false
 	if(falsePositive = 1) {
-		Sleep, 250
+	Sleep, 250
 		searchVariation := 10
 	}
 	else {
@@ -1149,18 +1197,29 @@ checkBorder() {
 	Path = %A_ScriptDir%\%defaultLanguage%\Border.png
 	pNeedle := Gdip_CreateBitmapFromFile(Path)
 	; ImageSearch within the region
-	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, searchVariation)
+	if (scaleParam = 277) {
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, searchVariation)
+	} else {
+		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284-6, 90, 286-6, searchVariation)
+		;bboxAndPause(20, 284-6, 90, 286-6)
+	}
 	Gdip_DisposeImage(pNeedle)
 	Gdip_DisposeImage(pBitmap)
 	if (vRet = 1) {
 		CreateStatusMessage("Not a God Pack ")
 	}
 	else {
+		;pause (should pause if first card is not 1 or 2 diamonds)
 		pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
 		Path = %A_ScriptDir%\%defaultLanguage%\Border.png
 		pNeedle := Gdip_CreateBitmapFromFile(Path)
 		; ImageSearch within the region
-		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, searchVariation)
+		if (scaleParam = 277) {
+			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, searchVariation)
+		} else {
+			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-6, 173, 286-6, searchVariation)
+			;bboxAndPause(103, 284-6, 173, 286-6)
+		}
 		Gdip_DisposeImage(pNeedle)
 		Gdip_DisposeImage(pBitmap)
 		if (vRet = 1) {
@@ -1171,9 +1230,16 @@ checkBorder() {
 			if(skipInvalidGP = 2) {
 				Loop 8 {
 					pBitmap := from_window(WinExist(winTitle)) ; Pick your own window title
-					Path = %A_ScriptDir%\Skip\%A_Index%.png
-					pNeedle := Gdip_CreateBitmapFromFile(Path)
-					vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, 40)
+					if (scaleParam = 277) { ; 125% scale
+						Path = %A_ScriptDir%\Skip\%A_Index%.png
+						pNeedle := Gdip_CreateBitmapFromFile(Path)
+						vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, 40)
+					} else {
+						Path = %A_ScriptDir%\Skip\100\%A_Index%.png
+						pNeedle := Gdip_CreateBitmapFromFile(Path)
+						vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165-6, 265, 405-6, 40)
+						;bboxAndPause(5, 165-6, 265, 405-6, True)
+					}
 					Gdip_DisposeImage(pNeedle)
 					Gdip_DisposeImage(pBitmap)
 					if (vRet = 1) {
@@ -1184,10 +1250,10 @@ checkBorder() {
 			if(invalidGP) {
 				logMessage := "Sorry, invalid god pack in instance: " . scriptName
 				CreateStatusMessage(logMessage)
-				godPackLog = GPlog.txt
+			godPackLog = GPlog.txt
 				LogToFile(logMessage, godPackLog)
 				LogToDiscord(logMessage, Screenshot(), discordUserId)
-				killGodPackInstance()
+			killGodPackInstance()
 			}
 			else {
 				logMessage := "Congrats! God pack found in instance: " . scriptName
@@ -1463,3 +1529,33 @@ from_window(ByRef image) {
 ~F6::Pause
 ~F7::ExitApp
 ~F8::ToggleTestScript()
+;~F9::restartGameInstance("F9")
+
+bboxAndPause(X1, Y1, X2, Y2, doPause := False) {
+	BoxWidth := X2-X1
+	BoxHeight := Y2-Y1
+	; Create a GUI
+	Gui, BoundingBox:+AlwaysOnTop +ToolWindow -Caption +E0x20
+	Gui, BoundingBox:Color, 123456
+	Gui, BoundingBox:+LastFound  ; Make the GUI window the last found window for use by the line below. (straght from documentation)
+	WinSet, TransColor, 123456 ; Makes that specific color transparent in the gui
+
+
+	; Create the borders and show
+	Gui, BoundingBox:Add, Progress, x0 y0 w%BoxWidth% h2 BackgroundRed
+	Gui, BoundingBox:Add, Progress, x0 y0 w2 h%BoxHeight% BackgroundRed
+	Gui, BoundingBox:Add, Progress, x%BoxWidth% y0 w2 h%BoxHeight% BackgroundRed
+	Gui, BoundingBox:Add, Progress, x0 y%BoxHeight% w%BoxWidth% h2 BackgroundRed
+	Gui, BoundingBox:Show, x%X1% y%Y1% NoActivate
+	Sleep, 100
+	
+	if (doPause) {
+		Pause
+	}
+
+	if GetKeyState("F4", "P") {
+		Pause
+	}
+
+    Gui, BoundingBox:Destroy
+}

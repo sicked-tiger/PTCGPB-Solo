@@ -78,7 +78,16 @@ if (defaultLanguage = "English") {
 } else if (defaultLanguage = "Italian") {
     defaultLang := 6
 }
-Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French|Korean|Chinese|Italian
+
+global scaleParam
+if (defaultLanguage = "English100") {
+    defaultLang := 7
+    scaleParam := 287
+} else {
+    scaleParam := 277
+}
+
+Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French|Korean|Chinese|Italian|English100
 
 ; Initialize monitor dropdown options
 SysGet, MonitorCount, MonitorCount
@@ -338,12 +347,12 @@ resetWindows(Title, SelectedMonitorIndex){
 			SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 
 			CreateStatusMessage("Arranging window positions and sizes")
-			rowHeight := 533  ; Adjust the height of each row
-			currentRow := Floor((Title - 1) / Columns)
-			y := currentRow * rowHeight	
-			x := Mod((Title - 1), Columns) * 277
-			
-			WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), 277, 537
+            rowHeight := 533  ; Adjust the height of each row
+            currentRow := Floor((Title - 1) / Columns)
+            y := currentRow * rowHeight	
+            x := Mod((Title - 1), Columns) * scaleParam
+	
+			WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), scaleParam, 537
 			break
 		}
 		catch {
@@ -361,17 +370,17 @@ CreateStatusMessage(Message, X := 0, Y := 80) {
 	MaxRetries := 10
 	RetryCount := 0
 	try {
-		GuiName := 22
-		PacksText := 22
+	GuiName := 22
+	PacksText := 22
 		SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 		SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 		X := MonitorLeft + X
 		Y := MonitorTop + Y
-		; Create a new GUI with the given name, position, and message
+	; Create a new GUI with the given name, position, and message
 		Gui, %GuiName%:New, -AlwaysOnTop +ToolWindow -Caption 
-		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
-		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
-		Gui, %GuiName%:Add, Text, vPacksText, %Message%
+	Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
+	Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
+	Gui, %GuiName%:Add, Text, vPacksText, %Message%
 		Gui, %GuiName%:Show,NoActivate x%X% y%Y% AutoSize, %GuiName%
 	}
 }
@@ -494,10 +503,10 @@ SumVariablesInJsonFile() {
     ; Write the total sum to a file called "total.json"
 	
 	if(sum > 0) {
-		totalFile := A_ScriptDir . "\json\total.json"
-		totalContent := "{""total_sum"": " sum "}"
-		FileDelete, %totalFile%
-		FileAppend, %totalContent%, %totalFile%
+    totalFile := A_ScriptDir . "\json\total.json"
+    totalContent := "{""total_sum"": " sum "}"
+    FileDelete, %totalFile%
+    FileAppend, %totalContent%, %totalFile%
 	}
 
     return sum
