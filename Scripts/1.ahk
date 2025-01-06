@@ -46,7 +46,11 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	instanceSleep := scriptName * 1000
 	Sleep, %instanceSleep%
 	RunWait, %adbPath% connect 127.0.0.1:%adbPort%,, Hide
-	
+	if (defaultLanguage = "English100")
+		scaleParam := 287
+	else
+		scaleParam := 277
+		
 	resetWindows()
 	MaxRetries := 10
 	RetryCount := 0
@@ -144,11 +148,6 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 		setSpeed := 2
 	else if (setSpeed = "1x/3x")
 		setSpeed := 3
-
-	if (defaultLanguage = "English100")
-		scaleParam := 287
-	else
-		scaleParam := 277
 
 	rerollTime := A_TickCount	
 
@@ -1013,7 +1012,7 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 			Y1 := 212
 		}
 
-		if (clickx = 239 and clicky = 497) { ; blanket fix for opening wonder trace hourglass end (though mostly opening for immersives)
+		if (clickx = 239 and clicky = 497  and imageName != "Wonder") { ; blanket fix for opening wonder trace hourglass end (though mostly opening for immersives)
 			clickx := 255
 			clicky := 505
 		}
@@ -1109,7 +1108,7 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 
 
 resetWindows(){
-	global Columns, winTitle, SelectedMonitorIndex
+	global Columns, winTitle, SelectedMonitorIndex, scaleParam
 	CreateStatusMessage("Arranging window positions and sizes")
 	RetryCount := 0
 	MaxRetries := 10
@@ -1119,10 +1118,10 @@ resetWindows(){
 			; Get monitor origin from index
 			SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 			SysGet, Monitor, Monitor, %SelectedMonitorIndex%
-	Title := winTitle
-	rowHeight := 533  ; Adjust the height of each row
-	currentRow := Floor((winTitle - 1) / Columns)
-	y := currentRow * rowHeight	
+			Title := winTitle
+			rowHeight := 533  ; Adjust the height of each row
+			currentRow := Floor((winTitle - 1) / Columns)
+			y := currentRow * rowHeight	
 			x := Mod((winTitle - 1), Columns) * scaleParam
 	
 			WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), scaleParam, 537
@@ -1456,7 +1455,6 @@ InitializeJsonFile() {
 AppendToJsonFile(variableValue) {
     global jsonFileName
     if (jsonFileName = "") {
-        MsgBox, JSON file not initialized. Call InitializeJsonFile() first.
         return
     }
 
@@ -1481,14 +1479,12 @@ AppendToJsonFile(variableValue) {
 SumVariablesInJsonFile() {
     global jsonFileName
     if (jsonFileName = "") {
-        MsgBox, JSON file not initialized. Call InitializeJsonFile() first.
         return 0
     }
 
     ; Read the file content
     FileRead, jsonContent, %jsonFileName%
     if (jsonContent = "") {
-        MsgBox, The JSON file is empty.
         return 0
     }
 
