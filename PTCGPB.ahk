@@ -64,30 +64,35 @@ if (openPack = "Mewtwo") {
 }
 
 Gui, Add, DropDownList, x80 y166 w145 vopenPack choose%defaultPack% Center, Mewtwo|Pikachu|Charizard|Mew|Random
+global scaleParam
 
 if (defaultLanguage = "English") {
     defaultLang := 1
+    scaleParam := 277
 } else if (defaultLanguage = "Japanese") {
     defaultLang := 2
+    scaleParam := 277
 } else if (defaultLanguage = "French") {
     defaultLang := 3
+    scaleParam := 277
 } else if (defaultLanguage = "Korean") {
     defaultLang := 4
+    scaleParam := 277
 } else if (defaultLanguage = "Chinese") {
     defaultLang := 5
+    scaleParam := 277
 } else if (defaultLanguage = "Italian") {
     defaultLang := 6
-}
-
-global scaleParam
-if (defaultLanguage = "English100") {
+    scaleParam := 277
+} else if (defaultLanguage = "English100") {
     defaultLang := 7
     scaleParam := 287
-} else {
-    scaleParam := 277
+} else if (defaultLanguage = "French100") {
+    defaultLang := 8
+    scaleParam := 287
 }
 
-Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French|Korean|Chinese|Italian|English100
+Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French|Korean|Chinese|Italian|English100|French100
 
 ; Initialize monitor dropdown options
 SysGet, MonitorCount, MonitorCount

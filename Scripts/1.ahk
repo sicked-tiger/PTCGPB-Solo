@@ -46,10 +46,12 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	instanceSleep := scriptName * 1000
 	Sleep, %instanceSleep%
 	RunWait, %adbPath% connect 127.0.0.1:%adbPort%,, Hide
-	if (defaultLanguage = "English100")
+	if (InStr(defaultLanguage, "100")) {
 		scaleParam := 287
-	else
+	} else {
 		scaleParam := 277
+	}
+		
 		
 	resetWindows()
 	MaxRetries := 10
@@ -1010,10 +1012,8 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		} else if (imageName = "End") { ; instead of 0, 0
 			X1 := 70
 			Y1 := 212
-		}
-
-		if (clickx = 239 and clicky = 497  and imageName != "Wonder") { ; blanket fix for opening wonder trace hourglass end (though mostly opening for immersives)
-			clickx := 255
+		} else if (imageName = "Opening") { ; Opening click (to skip cards) can't click on the immersive skip with 239, 497
+			clickx := 250
 			clicky := 505
 		}
 	}
@@ -1216,7 +1216,7 @@ checkBorder() {
 	Path = %A_ScriptDir%\%defaultLanguage%\Border.png
 	pNeedle := Gdip_CreateBitmapFromFile(Path)
 	; ImageSearch within the region
-	if (scaleParam = 277) {
+	if (scaleParam = 277) { ; 125% scale
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, searchVariation)
 	} else {
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284-6, 90, 286-6, searchVariation)
@@ -1233,7 +1233,7 @@ checkBorder() {
 		Path = %A_ScriptDir%\%defaultLanguage%\Border.png
 		pNeedle := Gdip_CreateBitmapFromFile(Path)
 		; ImageSearch within the region
-		if (scaleParam = 277) {
+		if (scaleParam = 277) { ; 125% scale
 			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, searchVariation)
 		} else {
 			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-6, 173, 286-6, searchVariation)
