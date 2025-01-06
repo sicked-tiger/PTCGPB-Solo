@@ -3,9 +3,9 @@ https://buymeacoffee.com/aarturoo
 
 *Thanks for your support, and let’s keep those god packs coming!* 😄
 
-# **__Arturo's Pokemon Trading Card Game Pocket Bot v3.2.0__**
--# *Special thanks to @pandaporo. for bringing adb inputs to my attention for v2.0*
--# *Thanks to Bonney, malloc, RONSLOW, ivanoski, Let, robinesch, azureWOX, Havvak and everyone else who helped test and contributed.*
+# **__Arturo's Pokemon Trading Card Game Pocket Bot v3.3.0__**
+-# *Special thanks to azureWox, Flubsthefool, havaak, pifobi for their code contributions*
+-# *Thanks to everyone who has helped test or has contributed their suggestions to make the bot better!*
 
 **__What does this do?__**
 - Rerolls accounts to 26 cards in under 3 mins from account creation to deletion stopping an instance if it gets a god pack.
@@ -15,7 +15,7 @@ https://buymeacoffee.com/aarturoo
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.2.0.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.3.0.zip)
 
 **__How can I get it working?__**
 
@@ -78,7 +78,8 @@ Step 8: Input your script settings
 - Speed: This is what game speed you want to run at if you have the new speed mod.
   - 2x works with both the old and the new.
   - With the new on be sure to: click the platinmods logo > cog wheel > save preferences > set to 2x speed
-- Language: Select your game language
+- Language: Select your game language. In order to change your language > change language settings in mumu > delete the game account data.
+  - English100 is to run it on scale 100 in English.
 - Monitor: Select which monitor you'd like it to run on. Try to start the mumu instances in the correct monitor to prevent issues
 - Swipe Speed: The duration of the swipe. Increase/decrease it if it's not swiping well on your system.
 - God Pack: Whether you want it to pause on a god pack or to close the emulator to save resources.
