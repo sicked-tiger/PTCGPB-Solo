@@ -5,7 +5,7 @@ https://buymeacoffee.com/aarturoo
 
 If you're having issues check the common issues section after the guide.
 
-# **__Arturo's Pokemon Trading Card Game Pocket Bot v3.3.1__**
+# **__Arturo's Pokemon Trading Card Game Pocket Bot v3.3.2__**
 -# *Special thanks to azureWox, Flubsthefool, havaak, pifobi for their code contributions* 
 -# *Thanks to everyone who has helped test or has contributed their suggestions to make the bot better!*
 
@@ -17,7 +17,7 @@ If you're having issues check the common issues section after the guide.
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.3.1.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.3.2.zip)
 
 **__How can I get it working?__**
 
