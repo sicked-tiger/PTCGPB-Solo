@@ -90,9 +90,12 @@ if (defaultLanguage = "English") {
 } else if (defaultLanguage = "French100") {
     defaultLang := 8
     scaleParam := 287
+} else if (defaultLanguage = "Japanese100") {
+    defaultLang := 8
+    scaleParam := 287
 }
 
-Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French|Korean|Chinese|Italian|English100|French100
+Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, English|Japanese|French|Korean|Chinese|Italian|English100|French100|Japanese100
 
 ; Initialize monitor dropdown options
 SysGet, MonitorCount, MonitorCount
