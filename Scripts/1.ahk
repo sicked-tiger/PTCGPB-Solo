@@ -1255,7 +1255,7 @@ checkBorder() {
 						Path = %A_ScriptDir%\Skip\100\%A_Index%.png
 					}
 					pNeedle := Gdip_CreateBitmapFromFile(Path)
-					vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, 40)
+					vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, searchVariation)
 					;bboxAndPause(5, 165, 265, 405, True)
 					Gdip_DisposeImage(pNeedle)
 					Gdip_DisposeImage(pBitmap)
