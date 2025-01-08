@@ -91,7 +91,7 @@ if (defaultLanguage = "English") {
     defaultLang := 8
     scaleParam := 287
 } else if (defaultLanguage = "Japanese100") {
-    defaultLang := 8
+    defaultLang := 9
     scaleParam := 287
 }
 
