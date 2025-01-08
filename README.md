@@ -17,7 +17,7 @@ If you're having issues check the common issues section after the guide.
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.3.2.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.4.0.zip)
 
 **__How can I get it working?__**
 
@@ -55,6 +55,7 @@ Step 4:
 
 Step 5: Windows settings
 - **Change scale to 125% in your windows settings.** > Press windows key > Type "display settings" > Look for the scale setting and change it to 125% for all your monitors.
+  - Scale 100% available for some languages. Select the corresponding setting in the languages section.
 - all windows color filters off
 - HDR off
 
