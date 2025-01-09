@@ -5,7 +5,7 @@ https://buymeacoffee.com/aarturoo
 
 If you're having issues check the common issues section after the guide.
 
-# **__Arturo's Pokemon Trading Card Game Pocket Bot v3.4.0__**
+# **__Arturo's Pokemon Trading Card Game Pocket Bot v4.0.0__**
 -# *Special thanks to azureWox, Flubsthefool, havaak, pifobi for their code contributions* 
 -# *Thanks to everyone who has helped test or has contributed their suggestions to make the bot better!*
 
@@ -39,6 +39,7 @@ Step 2: Set-Up MuMu Player
   - **Do not turn on the FPS display**
   - Close system sound
   - **Uncheck: Keep running in the background**
+  - **Check: Enable Root Permissions**
   - Exit directly
 - Name your instances "1", "2", "3", "4", etc. without the quotes.
   - Make sure there are no other instances named the same even if they aren't running!
@@ -90,6 +91,7 @@ Step 8: Input your script settings
 - Arrange windows: Arranges the windows in rows/columns
 - Discord ID: if you're going to use webhooks to send yourself messages add your discord id so you are pinged. Not your username, but your numerical discord ID.
 - Discord Webhook url: your discord's server webhook URL. Create a server in discord > create any channel > click the edit channel cog wheel > integrations > create a webhook > click on the webhook created > copy webhook url. That is what goes here.
+- Account Deletion: Select the method to delete the account. File method deletes the XML file and then closes/reopens the game. This should be more efficient. Clicks method will simulate clicking and deleting the account through the Menu. Use this if for some reason your game takes a long time starting up.
 - Click Next
 
 Step 9: Click Start
