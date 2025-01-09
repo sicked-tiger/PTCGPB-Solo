@@ -134,9 +134,11 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 		godPack = 1
 	else if (godPack = "Pause")
 		godPack = 2
+	if (godPack = "Continue")
+		godPack = 3
 	
 	if (!falsePositive)
-		godPack = 1
+		falsePositive = 1
 	else if (falsePositive = "No")
 		falsePositive = 1
 	else if (falsePositive = "Yes")
@@ -1206,11 +1208,10 @@ resetWindows(){
 killGodPackInstance(){
 	global winTitle, godPack
 	if(godPack = 2) {
-	CreateStatusMessage("Pausing script. Found GP.")
-	LogToFile("Paused God Pack instance.")
-	Pause, On 
-	}
-	else {
+		CreateStatusMessage("Pausing script. Found GP.")
+		LogToFile("Paused God Pack instance.")
+		Pause, On 
+	} else if(godPack = 1) {
 		CreateStatusMessage("Closing script. Found GP.")
 		LogToFile("Closing God Pack instance.")
 		WinClose, %winTitle%
@@ -1279,7 +1280,7 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 }
 
 checkBorder() {
-	global winTitle, falsePositive, discordUserId, skipInvalidGP
+	global winTitle, falsePositive, discordUserId, skipInvalidGP, keepRolling
 	invalidGP := false
 	if(falsePositive = 1) {
 	Sleep, 250
@@ -1357,7 +1358,10 @@ checkBorder() {
 				LogToFile(logMessage, godPackLog)
 				LogToDiscord(logMessage, Screenshot(), discordUserId)
 				saveAccount()
-				killGodPackInstance()
+				if(godPack < 3)
+					killGodPackInstance()
+				else if(godPack = 3)
+					restartGameInstance("God Pack found. Continuing...") ; Continues since it saves the xml data to later inject and recover the account
 			}
 		}
 	}
