@@ -27,11 +27,12 @@ InitializeJsonFile() ; Create or open the JSON file
     IniRead, swipeSpeed, Settings.ini, UserSettings, swipeSpeed, 600
     IniRead, falsePositive, Settings.ini, UserSettings, falsePositive, No
     IniRead, skipInvalidGP, Settings.ini, UserSettings, skipInvalidGP, Yes
+    IniRead, deleteMethod, Settings.ini, UserSettings, deleteMethod, File
 
 ; Main GUI setup
 ; Add the link text at the bottom of the GUI
 
-Gui, Show, w500 h570, Arturo's PTCGPB Bot Setup ;' Ensure the GUI size is appropriate
+Gui, Show, w500 h640, Arturo's PTCGPB Bot Setup ;' Ensure the GUI size is appropriate
 
 Gui, Color, White  ; Set the background color to white
 Gui, Font, s10 Bold , Segoe UI 
@@ -40,10 +41,10 @@ Gui, Font, s10 Bold , Segoe UI
 Gui, Add, Button, gArrangeWindows x215 y208 w70 h32, Arrange Windows
 Gui, Add, Button, gStart x227 y258 w46 h32 vArrangeWindows, Start
 
-Gui, Add, Text, x0 y534 w570 h30 vLinkText gOpenLink cBlue Center +BackgroundTrans
+Gui, Add, Text, x0 y604 w640 h30 vLinkText gOpenLink cBlue Center +BackgroundTrans
 Gui, Font, s15 Bold , Segoe UI
 ; Add the background image to the GUI
-Gui, Add, Picture, x0 y0 w500 h570, %A_ScriptDir%\Scripts\GUI\GUI.png
+Gui, Add, Picture, x0 y0 w500 h640, %A_ScriptDir%\Scripts\GUI\GUI.png
 
 ; Add input controls
 Gui, Add, Edit, vName x80 y95 w145 Center, %Name%
@@ -91,7 +92,7 @@ if (defaultLanguage = "English") {
     defaultLang := 8
     scaleParam := 287
 } else if (defaultLanguage = "Japanese100") {
-    defaultLang := 9
+    defaultLang := 8
     scaleParam := 287
 }
 
@@ -154,6 +155,15 @@ if (skipInvalidGP = "No") {
 
 Gui, Add, DropDownList, x80 y476 w145 vskipInvalidGP choose%defaultskipGP% Center, No|Yes
 
+; Pack selection logic
+if (deleteMethod = "File") {
+    defaultDelete := 1
+} else if (deleteMethod = "Clicks") {
+    defaultDelete := 2
+}
+
+Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center, File|Clicks
+
 Gui, Font, s10 Bold, Segoe UI 
 Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
 
@@ -176,9 +186,12 @@ Gui Add, Button, x415 y77 w17 h19 gShowMsgColumns, ? ;Questionmark box for Insta
 
 Gui Add, Button, x190 y145 w17 h19 gShowMsgPacks, ? ;Questionmark box for Pack to Open Field
 Gui Add, Button, x337 y145 w17 h19 gShowMsgGodPacks, ? ;Questionmark box for God Pack to Open Field
+
+
+
 Gui Add, Button, x423 y145 w17 h19 gShowMsgFP, ? ;Questionmark box for God Pack to Open Field
 
-Gui Add, Button, x215 y219 w17 h19 gShowMsgLanguage, ? ;Questionmark box for God Pack to Open Field
+Gui Add, Button, x78 y219 w17 h19 gShowMsgLanguage, ? ;Questionmark box for God Pack to Open Field
 Gui Add, Button, x400 y219 w17 h19 gShowMsgMonitor, ? ;Questionmark box for God Pack to Open Field
 
 Gui Add, Button, x192 y307 w17 h19 gShowMsgDelay, ? ;Questionmark box for Delay in ms Field
@@ -190,6 +203,9 @@ Gui Add, Button, x408 y378 w17 h19 gShowMsgSwipeSpeed, ? ;Questionmark box for S
 
 Gui Add, Button, x428 y448 w17 h19 gShowMsgdiscordwebHook, ? ;Questionmark box for discord id Field
 Gui Add, Button, x330 y448 w17 h19 gShowMsgdiscordID, ? ;Questionmark box for discord web hook Field
+
+Gui Add, Button, x230 y518 w17 h19 gShowMsgAccountDeletion, ? ;Questionmark box for Account Deletion to Open Field
+Gui Add, Button, x235 y448 w17 h19 gShowMsgSkipGP, ? ;Questionmark box for Account Deletion to Open Field
 
 ; Show the GUI
 Gui, Show
@@ -236,7 +252,7 @@ ShowMsgTimeZone:
 return
 
 ShowMsgFolder:
-    MsgBox, Where the "MuMuPlayerGlobal-12.0" folder is located. Typically it's in the Netease folder: C:\Program Files\Netease ;'
+    MsgBox, Where the "MuMuPlayerGlobal-12.0" folder is located. `nTypically it's in the Netease folder: C:\Program Files\Netease ;'
 return
 
 ShowMsgSpeed:
@@ -253,6 +269,14 @@ return
 
 ShowMsgdiscordwebHook:
     MsgBox, Input your server's webhook. It will be something like: https://discord.com/api/webhooks/124124151245/oihri1u24hifb12oiu43hy1 `nCreate a server in discord > for any channel > click the edit channel cog wheel > integrations > create a webhook > click on the webhook created > copy webhook url. Paste that here. ;'
+return
+
+ShowMsgAccountDeletion:
+    MsgBox, Select the method to delete the account. `nFile method deletes the XML file and then closes/reopens the game. This should be more efficient. `nClicks method will simulate clicking and deleting the account through the Menu. Use this if for some reason your game takes a long time starting up.
+return
+
+ShowMsgSkipGP:
+    MsgBox, Select whether or not to skip god packs. If you skip them you will still receive a discord ping and the account XML is also saved in the Accounts folder.
 return
 
 ArrangeWindows:
@@ -273,13 +297,6 @@ return
 Start:
 Gui, Submit  ; Collect the input values from the first page
 Instances := Instances  ; Directly reference the "Instances" variable
-
-; Validate if instances is a valid number
-If (Instances < 1) or (Instances > 20)
-{
-    MsgBox, Please enter a number between 1 and 20.
-    Return
-}
 
 ; Create the second page dynamically based on the number of instances
 Gui, Destroy ; Close the first page
@@ -302,6 +319,7 @@ IniWrite, %SelectedMonitorIndex%, Settings.ini, UserSettings, SelectedMonitorInd
 IniWrite, %swipeSpeed%, Settings.ini, UserSettings, swipeSpeed
 IniWrite, %falsePositive%, Settings.ini, UserSettings, falsePositive
 IniWrite, %skipInvalidGP%, Settings.ini, UserSettings, skipInvalidGP
+IniWrite, %deleteMethod%, Settings.ini, UserSettings, deleteMethod
 
 ; Loop to process each instance
 Loop, %Instances%
@@ -378,64 +396,73 @@ CreateStatusMessage(Message, X := 0, Y := 80) {
 	MaxRetries := 10
 	RetryCount := 0
 	try {
-	GuiName := 22
-	PacksText := 22
+		OwnerWND := WinExist(1)
+		GuiName := 22
+		PacksText := 22
 		SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 		SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 		X := MonitorLeft + X
 		Y := MonitorTop + Y
-	; Create a new GUI with the given name, position, and message
-		Gui, %GuiName%:New, -AlwaysOnTop +ToolWindow -Caption 
-	Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
-	Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
-	Gui, %GuiName%:Add, Text, vPacksText, %Message%
+		
+		if(OwnerWND)
+			Gui, %GuiName%:New, +Owner%OwnerWND% -AlwaysOnTop +ToolWindow -Caption 
+		else
+			Gui, %GuiName%:New, -AlwaysOnTop +ToolWindow -Caption 
+		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
+		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
+		Gui, %GuiName%:Add, Text, vPacksText, %Message%
 		Gui, %GuiName%:Show,NoActivate x%X% y%Y% AutoSize, %GuiName%
 	}
 }
 
 
 findAdbPorts(baseFolder := "C:\Program Files\Netease") {
-global adbPorts
-; Initialize variables
-adbPorts := {}  ; Create an empty associative array for adbPorts
-baseFolder = %baseFolder%\MuMuPlayerGlobal-12.0\vms\*
-; Loop through all directories in the base folder
-Loop, Files, %baseFolder%, D  ; D flag to include directories only
-{
-    folder := A_LoopFileFullPath
-    configFolder := folder "\configs"  ; The config folder inside each directory
+	global adbPorts
+	; Initialize variables
+	adbPorts := {}  ; Create an empty associative array for adbPorts
+	mumuFolder = %baseFolder%\MuMuPlayerGlobal-12.0\vms\*
+	if !FileExist(mumuFolder)
+		mumuFolder = %baseFolder%\MuMu Player 12\vms\*
+		
+	if !FileExist(mumuFolder){
+		MsgBox Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
+		ExitApp
+	}
+	; Loop through all directories in the base folder
+	Loop, Files, %mumuFolder%, D  ; D flag to include directories only
+	{
+		folder := A_LoopFileFullPath
+		configFolder := folder "\configs"  ; The config folder inside each directory
 
-    ; Check if config folder exists
-    IfExist, %configFolder%
-    {
-        ; Define paths to vm_config.json and extra_config.json
-        vmConfigFile := configFolder "\vm_config.json"
-        extraConfigFile := configFolder "\extra_config.json"
-        
-        ; Check if vm_config.json exists and read adb host port
-        IfExist, %vmConfigFile%
-        {
-            FileRead, vmConfigContent, %vmConfigFile%
-            ; Parse the JSON for adb host port
-            RegExMatch(vmConfigContent, """host_port"":\s*""(\d+)""", adbHostPort)
-            adbPort := adbHostPort1  ; Capture the adb host port value
-        }
-        
-        ; Check if extra_config.json exists and read playerName
-        IfExist, %extraConfigFile%
-        {
-            FileRead, extraConfigContent, %extraConfigFile%
-            ; Parse the JSON for playerName
-            RegExMatch(extraConfigContent, """playerName"":\s*""(.*?)""", playerName)
-            instanceName := playerName1  ; Capture the player name (instance name)
-            
-            ; Store the adbPort in the object, using instanceName as the key
-            adbPorts[instanceName] := adbPort
-        }
-    }
-}
-
-; Example of how to retrieve the adbPort by instanceName
+		; Check if config folder exists
+		IfExist, %configFolder%
+		{
+			; Define paths to vm_config.json and extra_config.json
+			vmConfigFile := configFolder "\vm_config.json"
+			extraConfigFile := configFolder "\extra_config.json"
+			
+			; Check if vm_config.json exists and read adb host port
+			IfExist, %vmConfigFile%
+			{
+				FileRead, vmConfigContent, %vmConfigFile%
+				; Parse the JSON for adb host port
+				RegExMatch(vmConfigContent, """host_port"":\s*""(\d+)""", adbHostPort)
+				adbPort := adbHostPort1  ; Capture the adb host port value
+			}
+			
+			; Check if extra_config.json exists and read playerName
+			IfExist, %extraConfigFile%
+			{
+				FileRead, extraConfigContent, %extraConfigFile%
+				; Parse the JSON for playerName
+				RegExMatch(extraConfigContent, """playerName"":\s*""(.*?)""", playerName)
+				instanceName := playerName1  ; Capture the player name (instance name)
+				
+				; Store the adbPort in the object, using instanceName as the key
+				adbPorts[instanceName] := adbPort
+			}
+		}
+	}
 }
 
 ; Global variable to track the current JSON file
@@ -484,14 +511,12 @@ AppendToJsonFile(variableValue) {
 SumVariablesInJsonFile() {
     global jsonFileName
     if (jsonFileName = "") {
-        MsgBox, JSON file not initialized. Call InitializeJsonFile() first.
-        return 0
+        return
     }
 
     ; Read the file content
     FileRead, jsonContent, %jsonFileName%
     if (jsonContent = "") {
-        MsgBox, The JSON file is empty.
         return 0
     }
 
