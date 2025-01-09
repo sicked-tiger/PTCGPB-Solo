@@ -27,7 +27,6 @@ if(!adbPorts) {
 	Msgbox, Invalid port... Check the common issues section in the readme/github guide.
 	ExitApp
 }
-msgbox %fileName% %folderPath% %winTitle%
 RunWait, %adbPath% connect 127.0.0.1:%adbPorts%,, Hide
 
 MaxRetries := 10
