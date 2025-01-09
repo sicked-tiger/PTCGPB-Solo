@@ -86,7 +86,7 @@ Step 8: Input your script settings
   - English100 is to run it on scale 100 in English.
 - Monitor: Select which monitor you'd like it to run on. Try to start the mumu instances in the correct monitor to prevent issues
 - Swipe Speed: The duration of the swipe. Increase/decrease it if it's not swiping well on your system.
-- God Pack: Whether you want it to pause on a god pack or to close the emulator to save resources.
+- God Pack: Whether you want it to pause, close the instance or continue. God pack account data is now saved as a XML, so it's possible to continue to keep using the instance and then inject it later when needed.
 - False positive prevention: If you are getting to many false positives (stopping on a pack that isn't a god pack) then enable this
 - Arrange windows: Arranges the windows in rows/columns
 - Discord ID: if you're going to use webhooks to send yourself messages add your discord id so you are pinged. Not your username, but your numerical discord ID.
