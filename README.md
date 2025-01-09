@@ -103,6 +103,9 @@ Step 10: Find god packs
 __**GP Test button:**__
 This is so you can verify if a god pack is alive or not. Press the button or F8 and the bot will stop after the wonder pick tutorial so you are able to add the god pack account you want to verify. After you manually add and verify it press F8 again and the bot will delete the account data and start over. If you need more attempts then you can press F8 another time for it to stop again.
 
+__**Extract and Inject Accounts**__
+In the Accounts folder you will find an inject and extract ahk script. This is so you can inject or extract XML data which is where the accounts log-in info is saved. Edit the EDIT_THIS.ini with; winTitle = instance name, fileName = xml file name, folderPath = MuMU folder path. Don't use quotes and don't add the .xml extension.
+
 # Common Issues
 __Invalid port or failed to launch 1.ahk__
 - Your mumu folder path is different from the typical default path so find where it installed. Mine is in: C:\Program Files\Netease and this would be what i would paste there
