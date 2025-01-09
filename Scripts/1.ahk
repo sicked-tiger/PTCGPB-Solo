@@ -1547,7 +1547,7 @@ LogToDiscord(message, screenshotFile := "", ping := false) {
 					; Check if the file exists
 					if (FileExist(screenshotFile)) {
 						; Send the image using curl
-						RunWait, curl -F "file=@%screenshotFile%" %discordWebhookURL%,, Hide
+						RunWait, curl -k -F "file=@%screenshotFile%" %discordWebhookURL%,, Hide
 					}
 				}
 				break
