@@ -1,4 +1,4 @@
-﻿#SingleInstance on
+#SingleInstance on
 ;SetKeyDelay, -1, -1
 SetMouseDelay, -1
 SetDefaultMouseSpeed, 0
@@ -136,36 +136,13 @@ loadAccount() {
 	
 	loadDir := A_ScriptDir . "\" . fileName
 	
-	RunWait, % adbPath . " -s 127.0.0.1:" . adbPorts . " push " . loadDir . ".xml" . " /sdcard/deviceAccount.xml",, Hide
+	RunWait, % adbPath . " -s 127.0.0.1:" . adbPorts . " push """ . loadDir . ".xml""" . " /sdcard/deviceAccount.xml",, Hide
 	
 	;adbShell.StdIn.WriteLine("rm /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml") ; delete account data
 	
 	;RunWait, % adbPath . " -s 127.0.0.1:" . adbPorts . " push " . loadDir . ".xml" . " /sdcard/deviceAccount.xml",, Hide
 	
 	adbShell.StdIn.WriteLine("cp /sdcard/deviceAccount.xml /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml")
-	
-	adbShell.StdIn.WriteLine("rm /sdcard/deviceAccount.xml")
-}
-
-saveAccount() {
-	global adbShell, adbPath, adbPorts, fileName
-	if (!adbShell) {
-		adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPorts . " shell")
-		; Extract the Process ID
-		processID := adbShell.ProcessID
-
-		; Wait for the console window to open using the process ID
-		WinWait, ahk_pid %processID%
-
-		; Minimize the window using the process ID
-		WinMinimize, ahk_pid %processID%
-	}
-	
-	saveDir := A_ScriptDir "\" . fileName
-	
-	adbShell.StdIn.WriteLine("cp /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml /sdcard/deviceAccount.xml")
-	
-	RunWait, % adbPath . " -s 127.0.0.1:" . adbPorts . " pull /sdcard/deviceAccount.xml """ . saveDir . ".xml",, Hide
 	
 	adbShell.StdIn.WriteLine("rm /sdcard/deviceAccount.xml")
 }
