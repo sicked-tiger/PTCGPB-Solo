@@ -846,7 +846,7 @@ if(deleteAccount = false) {
 		adbClick(146, 494) ;146 494
 		Sleep, %Delay%
 	}
-	/*
+	
 	Sleep, %Delay%
 	Sleep, %Delay%
 	Sleep, %Delay%
@@ -862,7 +862,7 @@ if(deleteAccount = false) {
 	Sleep, %Delay%
 	Sleep, %Delay%
 	Sleep, %Delay%
-	*/
+	
 	KeepSync(98, 184, 151, 224, , "Hourglass1", 168, 438, 500, 5) ;stop at hourglasses tutorial 2
 	Sleep, %Delay%
 
