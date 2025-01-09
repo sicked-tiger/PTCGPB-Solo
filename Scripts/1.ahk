@@ -1283,11 +1283,11 @@ checkBorder() {
 	invalidGP := false
 	if(falsePositive = 1) {
 	Sleep, 250
-		searchVariation := 10
+		searchVariation := 5
 	}
 	else {
 		Sleep, 1000
-		searchVariation := 25
+		searchVariation := 15
 	}
 	pBitmap := from_window(WinExist(winTitle))
 	Path = %A_ScriptDir%\%defaultLanguage%\Border.png
