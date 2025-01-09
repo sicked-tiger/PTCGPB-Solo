@@ -136,9 +136,11 @@ if (godPack = "Close") {
     defaultgodPack := 1
 } else if (godPack = "Pause") {
     defaultgodPack := 2
+} else if (godPack = "Continue") {
+    defaultgodPack := 3
 }
 
-Gui, Add, DropDownList, x275 y166 w72 vgodPack choose%defaultgodPack% Center, Close|Pause
+Gui, Add, DropDownList, x275 y166 w72 vgodPack choose%defaultgodPack% Center, Close|Pause|Continue
 
 ; Pack selection logic
 if (falsePositive = "No") {
@@ -231,7 +233,7 @@ ShowMsgPacks:
 return
 
 ShowMsgGodPacks:
-    MsgBox, Select the behavior you want when finding a god pack. `nClose will close the emulator and stop the script to save resources. `nPause will only pause the script on the opening screen.
+    MsgBox, Select the behavior you want when finding a god pack. `nClose will close the emulator and stop the script to save resources. `nPause will only pause the script on the opening screen. `nContinue will save the account data to a file and continue rolling with the instance. The xml account data can then be injected into an instance using the tools in the 'Accounts' folder to recover the god pack.
 return
 
 ShowMsgFP:
