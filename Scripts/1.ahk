@@ -1240,7 +1240,7 @@ restartGameInstance(reason, RL := true){
 	;adbShell.StdIn.WriteLine("rm -rf /data/data/jp.pokemon.pokemontcgp/cache/*") ; clear cache
 	adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
 
-	sleep, 1000
+	sleep, 3000
 	if(RL)
 		Reload
 }
