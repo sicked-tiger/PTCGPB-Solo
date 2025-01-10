@@ -1387,9 +1387,9 @@ LogToDiscord(message, screenshotFile := "", ping := false) {
 				RetryCount++
 				if (RetryCount >= MaxRetries) {
 					CreateStatusMessage("Failed to send discord message.")
+					break
 				}
 				Sleep, 250
-				break
 			}
 			sleep, 250
 		}
