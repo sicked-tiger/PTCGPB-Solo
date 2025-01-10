@@ -42,19 +42,29 @@ SaveSettings:
 adbPath := folderPath . "\MuMuPlayerGlobal-12.0\shell\adb.exe"
 findAdbPorts(folderPath)
 
+if(!WinExist(winTitle)) {
+	Msgbox, Can't find instance: %winTitle% ;'
+	ExitApp
+}
+
 if !FileExist(adbPath) ;if international mumu file path isn't found look for chinese domestic path
 	adbPath := folderPath . "\MuMu Player 12\shell\adb.exe"
 
-if !FileExist(adbPath)
+if !FileExist(adbPath) {
 	MsgBox Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
+	ExitApp
+}
 
 if(!adbPorts) {
 	Msgbox, Invalid port... Check the common issues section in the readme/github guide.
 	ExitApp
 }
 
-if(!WinExist(winTitle)) {
-	Msgbox, Can't find instance %winTitle%. ;'
+filePath := A_ScriptDir . fileName . ".xml"
+
+if(!FileExist(filePath)) {
+	Msgbox, Can't find XML file: %filePath% ;'
+	ExitApp
 }
 RunWait, %adbPath% connect 127.0.0.1:%adbPorts%,, Hide
 
