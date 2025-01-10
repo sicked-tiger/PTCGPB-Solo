@@ -11,7 +11,7 @@ global adbShell, adbPath, adbPorts, winTitle, folderPath
 
 IniRead, winTitle, %A_ScriptDir%\_EDIT_THIS.ini, UserSettings, winTitle, 1
 IniRead, fileName, %A_ScriptDir%\_EDIT_THIS.ini, UserSettings, fileName, name
-IniRead, folderPath,  %A_ScriptDir%\_EDIT_THIS.ini, Accounts.ini, folderPath, C:\Program Files\Netease
+IniRead, folderPath, %A_ScriptDir%\_EDIT_THIS.ini, UserSettings, folderPath, C:\Program Files\Netease
 
 winTitle := winTitle
 adbPath := folderPath . "\MuMuPlayerGlobal-12.0\shell\adb.exe"
