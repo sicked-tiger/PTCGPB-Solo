@@ -1280,8 +1280,8 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 	}
 }
 
-checkBorder() {
-	global winTitle, falsePositive, discordUserId, skipInvalidGP, keepRolling, packs
+checkBorder(wonderpick := true) {
+	global winTitle, falsePositive, discordUserId, skipInvalidGP, keepRolling, f
 	invalidGP := false
 	packs += 1
 	if(falsePositive = 1) {
@@ -1376,7 +1376,7 @@ checkBorder() {
 				if(godPack < 3)
 					killGodPackInstance()
 				else if(godPack = 3)
-					restartGameInstance("God Pack found. Continuing...") ; Continues since it saves the xml data to later inject and recover the account
+					restartGameInstance("God Pack found. Continuing...") ; restarts to backup and delete xml file with account info.
 			}
 		}
 	}
@@ -1524,7 +1524,7 @@ adbSwipe() {
 }
 
 Screenshot() {
-	global adbShell, adbPath
+	global adbShell, adbPath, packs
 	SetWorkingDir %A_ScriptDir%  ; Ensures the working directory is the script's directory
 
 	; Define folder and file paths
@@ -1533,7 +1533,7 @@ Screenshot() {
 		FileCreateDir, %screenshotsDir%
 		
 	; File path for saving the screenshot locally
-	screenshotFile := screenshotsDir "\" winTitle "_" A_Now ".png"
+	screenshotFile := screenshotsDir "\" winTitle "_" . packs . "packs_"A_Now ".png"
 
 	pBitmap := from_window(WinExist(winTitle))
 	Gdip_SaveBitmapToFile(pBitmap, screenshotFile) 
