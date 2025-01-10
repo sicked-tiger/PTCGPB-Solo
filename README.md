@@ -5,7 +5,7 @@ https://buymeacoffee.com/aarturoo
 
 If you're having issues check the common issues section after the guide.
 
-# **__Arturo's Pokemon Trading Card Game Pocket Bot v3.4.0__**
+# **__Arturo's Pokemon Trading Card Game Pocket Bot v4.1.0__**
 -# *Special thanks to azureWox, Flubsthefool, havaak, pifobi for their code contributions* 
 -# *Thanks to everyone who has helped test or has contributed their suggestions to make the bot better!*
 
@@ -17,7 +17,7 @@ If you're having issues check the common issues section after the guide.
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v3.4.0.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v4.1.0.zip)
 
 **__How can I get it working?__**
 
@@ -39,6 +39,7 @@ Step 2: Set-Up MuMu Player
   - **Do not turn on the FPS display**
   - Close system sound
   - **Uncheck: Keep running in the background**
+  - **Check: Enable Root Permissions**
   - Exit directly
 - Name your instances "1", "2", "3", "4", etc. without the quotes.
   - Make sure there are no other instances named the same even if they aren't running!
@@ -82,14 +83,15 @@ Step 8: Input your script settings
   - 2x works with both the old and the new.
   - With the new on be sure to: click the platinmods logo > cog wheel > save preferences > set to 2x speed
 - Language: Select your game language. In order to change your language > change language settings in mumu > delete the game account data.
-  - English100 is to run it on scale 100 in English.
+  - Language100 is to run it on scale 100%. Just the Language is to run it on 125%
 - Monitor: Select which monitor you'd like it to run on. Try to start the mumu instances in the correct monitor to prevent issues
 - Swipe Speed: The duration of the swipe. Increase/decrease it if it's not swiping well on your system.
-- God Pack: Whether you want it to pause on a god pack or to close the emulator to save resources.
+- God Pack: Whether you want it to pause, close the instance or continue. God pack account data is now saved as a XML, so it's possible to continue to keep using the instance and then inject it later when needed.
 - False positive prevention: If you are getting to many false positives (stopping on a pack that isn't a god pack) then enable this
 - Arrange windows: Arranges the windows in rows/columns
 - Discord ID: if you're going to use webhooks to send yourself messages add your discord id so you are pinged. Not your username, but your numerical discord ID.
 - Discord Webhook url: your discord's server webhook URL. Create a server in discord > create any channel > click the edit channel cog wheel > integrations > create a webhook > click on the webhook created > copy webhook url. That is what goes here.
+- Account Deletion: Select the method to delete the account. File method deletes the XML file and then closes/reopens the game. This should be more efficient. Clicks method will simulate clicking and deleting the account through the Menu. Use this if for some reason your game takes a long time starting up.
 - Click Next
 
 Step 9: Click Start
@@ -101,13 +103,16 @@ Step 10: Find god packs
 __**GP Test button:**__
 This is so you can verify if a god pack is alive or not. Press the button or F8 and the bot will stop after the wonder pick tutorial so you are able to add the god pack account you want to verify. After you manually add and verify it press F8 again and the bot will delete the account data and start over. If you need more attempts then you can press F8 another time for it to stop again.
 
+__**Extract and Inject Accounts:**__
+In the Accounts folder you will find an inject and extract ahk script. This is so you can inject or extract XML data which is where the accounts log-in info is saved. Run it and input the required info.
+
 # Common Issues
 __Invalid port or failed to launch 1.ahk__
 - Your mumu folder path is different from the typical default path so find where it installed. Mine is in: C:\Program Files\Netease and this would be what i would paste there
 - Skip using the very first instance in the mumu multi instance window. i think the config file for that one is different so my script cant get its port
 - Make sure you don't have other instances of mumu named the same even if they're not running.
 - Make sure there are no spaces leading to the bot's directory in the folder path
-- Unblock security in the ptcgpb properties: [Image](https://media.discordapp.net/attachments/1316114771568754721/1324170598775132261/image.png?ex=677a7938&is=677927b8&hm=8593d02ca3fada3e8c258f69aec10bb30f21c51d01276b991f4bf0912b24ce4a&=&format=webp&quality=lossless&width=1817&height=897)
+- Unblock security in the ptcgpb properties: [IMAGE](https://i.imgur.com/5MECnlc.png)
 
 __Error 0x800700E8__
 - If it happens after already being able to click then one of the terminal windows may have been closed try restarting.
