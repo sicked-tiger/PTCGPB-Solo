@@ -10,7 +10,7 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, skipInvalidGP, deleteXML
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, skipInvalidGP, deleteXML, packs
 
 	deleteAccount := false
 	scriptName := StrReplace(A_ScriptName, ".ahk")
@@ -223,6 +223,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	}
 	
 Loop {
+	packs := 0
 	FormatTime, CurrentTime,, HHmm
 
     StartTime := changeDate - 45 ; 12:55 AM2355
@@ -1280,8 +1281,9 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 }
 
 checkBorder() {
-	global winTitle, falsePositive, discordUserId, skipInvalidGP, keepRolling
+	global winTitle, falsePositive, discordUserId, skipInvalidGP, keepRolling, packs
 	invalidGP := false
+	packs += 1
 	if(falsePositive = 1) {
 	Sleep, 250
 		searchVariation := 5
@@ -1343,7 +1345,11 @@ checkBorder() {
 				}
 			}
 			if(invalidGP) {
-				logMessage := "Skipping invalid god pack in instance: " . scriptName
+				Condemn := ["Uh-oh!", "Oops!", "Not quite!", "Better luck next time!", "Yikes!", "That didn’t go as planned.", "Try again!", "Almost had it!", "Not your best effort.", "Keep practicing!", "Oh no!", "Close, but no cigar.", "You missed it!", "Needs work!", "Back to the drawing board!", "Whoops!", "That’s rough!", "Don’t give up!", "Ouch!", "Swing and a miss!", "Room for improvement!", "Could be better.", "Not this time.", "Try harder!", "Missed the mark.", "Keep at it!", "Bummer!", "That’s unfortunate.", "So close!", "Gotta do better!"]
+				Randmax := Condemn.Length()
+				Random, rand, 1, Randmax
+				Interjection := Condemn[rand]
+				logMessage := Interjection . "Invalid pack in instance: " . scriptName . " (" . packs . " packs) Backed up to the Accounts folder. Continuing..."
 				CreateStatusMessage(logMessage)
 				godPackLog = GPlog.txt
 				LogToFile(logMessage, godPackLog)
@@ -1352,7 +1358,16 @@ checkBorder() {
 				;killGodPackInstance()
 			}
 			else {
-				logMessage := "Congrats! God pack found in instance: " . scriptName
+				Praise := ["Congrats!", "Congratulations!", "GG!", "Whoa!", "Praise Helix! ༼ つ ◕_◕ ༽つ", "Way to go!", "You did it!", "Awesome!", "Nice!", "Cool!", "You deserve it!", "Keep going!", "This one has to be live!", "No duds, no duds, no duds!", "Fantastic!", "Bravo!", "Excellent work!", "Impressive!", "You're amazing!", "Well done!", "You're crushing it!", "Keep up the great work!", "You're unstoppable!", "Exceptional!", "You nailed it!", "Hats off to you!", "Sweet!", "Kudos!", "Phenomenal!", "Boom! Nailed it!", "Marvelous!", "Outstanding!", "Legendary!", "You're a rock star!", "Unbelievable!", "Keep shining!", "Way to crush it!", "You're on fire!", "Killing it!", "Top-notch!", "Superb!", "Epic!", "Cheers to you!", "That's the spirit!", "Magnificent!", "You're a natural!", "Gold star for you!", "You crushed it!", "Incredible!", "Shazam!", "You're a genius!", "Top-tier effort!", "This is your moment!", "Powerful stuff!", "Wicked awesome!", "Props to you!", "Big win!", "Yesss!", "Champion vibes!", "Spectacular!"]
+
+				Randmax := Praise.Length()
+				Random, rand, 1, Randmax
+				Interjection := Praise[rand]
+				
+				if(godPack < 3)
+					logMessage := Interjection . " God pack found in instance: " . scriptName . " (" . packs . " packs) Instance is stopping."
+				else if(godPack = 3)
+					logMessage := Interjection . " God Pack found in instance: " . scriptName . " (" . packs . " packs) Backed up to the Accounts folder. Continuing..."
 				CreateStatusMessage(logMessage)
 				godPackLog = GPlog.txt
 				LogToFile(logMessage, godPackLog)
