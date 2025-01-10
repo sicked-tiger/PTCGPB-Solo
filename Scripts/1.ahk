@@ -412,12 +412,12 @@ Sleep, %Delay%
 failSafe := A_TickCount
 failSafeTime := 0	
 	Loop {
-		if(CheckInstances(51, 335, 107, 359, , "Link", 0, failSafeTime)) { ;if at country continue
+		if(CheckInstances(51, 335, 107, 359, , "Link", 0, failSafeTime)) {
 			adbClick(140, 460)
 			Loop {
 				Sleep, %Delay%
 				if(CheckInstances(51, 335, 107, 359, , "Link", 1, failSafeTime)) {
-					adbClick(140, 370) ; click ok on the interrupted while opening pack prompt
+					adbClick(140, 380) ; click ok on the interrupted while opening pack prompt
 					break
 				}
 				failSafeTime := (A_TickCount - failSafe) // 1000
@@ -427,21 +427,24 @@ failSafeTime := 0
 		} else if(CheckInstances(69, 248, 207, 270, , "Complete", 0, failSafeTime)) {
 			adbClick(140, 370)
 		} else if(CheckInstances(60, 206, 226, 248, , "Welcome", 1, failSafeTime)) {
-			adbClick(253, 506)
+			adbClick(140, 380) ; click ok on the interrupted while opening pack prompt
 			Sleep, 100
 			adbClick(253, 506)
 			Sleep, 100
 			adbClick(253, 506)
 			Sleep, 100
 			adbClick(253, 506)
+			Sleep, 100
+			adbClick(253, 506)
+			Sleep, 100
 		} else if(CheckInstances(60, 206, 226, 248, , "Welcome", 0, failSafeTime)) {
 			break
 		}
 		CreateStatusMessage("Looking for Link/Welcome")
 		Sleep, %Delay%
 		failSafeTime := (A_TickCount - failSafe) // 1000
-		CreateStatusMessage("In failsafe for Country/Menu. It's been: " . failSafeTime "s ")
-		LogToFile("In failsafe for Country/Menu. It's been: " . failSafeTime "s ")
+		CreateStatusMessage("In failsafe for Link/Welcome. It's been: " . failSafeTime "s ")
+		LogToFile("In failsafe for Link/Welcome. It's been: " . failSafeTime "s ")
 	}
 	
 	;KeepSync(60, 206, 226, 248, , "Welcome", 253, 506, 110) ;click through cutscene until welcome page
@@ -509,8 +512,8 @@ Loop {
 			break
 		}
 	failSafeTime := (A_TickCount - failSafe) // 1000
-	CreateStatusMessage("In failsafe for Trace. It's been: " . failSafeTime "s ")
-	LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
+	CreateStatusMessage("In failsafe for Swipe Up. It's been: " . failSafeTime "s ")
+	LogToFile("In failsafe for Swipe Up. It's been: " . failSafeTime "s ")
 }
 
 KeepSync(34, 99, 74, 131, , "Swipe", 140, 375) ;click through cards until needing to swipe up
@@ -539,12 +542,16 @@ Loop {
 	Sleep, %Delay%
 }
 
-KeepSync(70, 80, 133, 109, , "Move", 134, 375) ; click through until move
 Sleep, %Delay%
-if(setSpeed > 2)
-	KeepSync(105, 242, 173, 277, , "Proceed", 141, 483, 800) ;wait for menu to proceed then click ok. increased delay in between clicks to fix freezing on 3x speed
-else
-KeepSync(105, 242, 173, 277, , "Proceed", 141, 483) ;wait for menu to proceed then click ok
+if(setSpeed > 2) {
+	KeepSync(70, 80, 133, 109, , "Move", 134, 375, 500) ; click through until move
+	KeepSync(105, 242, 173, 277, , "Proceed", 141, 483, 500) ;wait for menu to proceed then click ok. increased delay in between clicks to fix freezing on 3x speed
+}
+else {
+	KeepSync(70, 80, 133, 109, , "Move", 134, 375) ; click through until move
+	KeepSync(105, 242, 173, 277, , "Proceed", 141, 483) ;wait for menu to proceed then click ok
+}
+	
 Sleep, %Delay%
 adbClick(204, 371)
 
@@ -744,19 +751,26 @@ if(deleteAccount = false) {
 		Sleep, %Delay%
 		Sleep, %Delay%
 		KeepSync(233, 400, 264, 428, , "Points") ;Genetic apex
-	adbClick(56, 268)
+		adbClick(56, 268)
 		Sleep, %Delay%
 		Sleep, %Delay%
 		Sleep, %Delay%
 		Sleep, %Delay%
 		KeepSync(233, 486, 272, 519, , "Skip2", 146, 439) ;click on next until skip button appears
 	}
-		
+	failSafe := A_TickCount
+	failSafeTime := 0
 	Loop {
 		if(KeepSync(104, 269, 174, 294, , "Trace", 239, 497, , 2))
 			break ;wait for pack to be ready to Trace and click skip
 		sleep, %Delay%
-	adbClick(146, 439)
+		adbClick(146, 439)
+		
+		failSafeTime := (A_TickCount - failSafe) // 1000
+		CreateStatusMessage("In failsafe for Trace2. It's been: " . failSafeTime "s ")
+		LogToFile("In failsafe for Trace2. It's been: " . failSafeTime "s ")
+		if(failSafeTime > 45)
+			restartGameInstance("Stuck at Trace2")
 	}
 
 		if(setSpeed > 1) {
@@ -803,12 +817,21 @@ if(deleteAccount = false) {
 	Sleep, %Delay%
 	Sleep, %Delay%
 	adbClick(142, 429)
-
+	
+	failSafe := A_TickCount
+	failSafeTime := 0
 	Loop {
 		if(KeepSync(104, 269, 174, 294, , "Trace", 239, 497, , 2))
 			break ;wait for pack to be ready to Trace and click skip
 		sleep, %Delay%
-	adbClick(142, 429)
+		adbClick(142, 429)
+				
+		
+		failSafeTime := (A_TickCount - failSafe) // 1000
+		CreateStatusMessage("In failsafe for Trace3. It's been: " . failSafeTime "s ")
+		LogToFile("In failsafe for Trace3. It's been: " . failSafeTime "s ")
+		if(failSafeTime > 45)
+			restartGameInstance("Stuck at Trace3")
 	}
 	
 		if(setSpeed > 1) {
@@ -832,8 +855,8 @@ if(deleteAccount = false) {
 			break
 		}
 		failSafeTime := (A_TickCount - failSafe) // 1000
-		CreateStatusMessage("In failsafe for Trace. It's been: " . failSafeTime "s ")
-		LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
+		CreateStatusMessage("In failsafe for Skip3. It's been: " . failSafeTime "s ")
+		LogToFile("In failsafe for Skip3. It's been: " . failSafeTime "s ")
 		Sleep, %Delay%
 	}
 	KeepSync(69, 66, 116, 92, , "Opening", 239, 497) ;skip through cards until results opening screen
@@ -842,12 +865,18 @@ if(deleteAccount = false) {
 			
 	KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
 
-
+	failSafe := A_TickCount
+	failSafeTime := 0
 	Loop {
 		if(KeepSync(178, 193, 251, 282, , "Hourglass", 239, 497, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
 			break
 		adbClick(146, 494) ;146 494
 		Sleep, %Delay%
+		failSafeTime := (A_TickCount - failSafe) // 1000
+		CreateStatusMessage("In failsafe for Hourglass. It's been: " . failSafeTime "s ")
+		LogToFile("In failsafe for Hourglass. It's been: " . failSafeTime "s ")
+		if(failSafeTime > 45)
+			restartGameInstance("Stuck at Hourglass")
 	}
 	
 	Sleep, %Delay%
@@ -877,14 +906,21 @@ if(deleteAccount = false) {
 	adbClick(210, 464) ; 210 464
 	Sleep, %Delay%
 	adbClick(210, 464) ; 210 464
-
+	
+	failSafe := A_TickCount
+	failSafeTime := 0
 	Loop {
-
 		if(KeepSync(104, 269, 174, 294, , "Trace", 239, 497, , 2)) ;wait for pack to be ready to Trace and click skip
 			break 
 		Sleep, %Delay%
 		adbClick(210, 464) ; 210 464
+		failSafeTime := (A_TickCount - failSafe) // 1000
+		CreateStatusMessage("In failsafe for Trace4. It's been: " . failSafeTime "s ")
+		LogToFile("In failsafe for Trace4. It's been: " . failSafeTime "s ")
+		if(failSafeTime > 45)
+			restartGameInstance("Stuck at Trace4")
 	}
+	
 	failSafe := A_TickCount
 	failSafeTime := 0
 		if(setSpeed > 1) {
@@ -906,8 +942,8 @@ if(deleteAccount = false) {
 			break
 		}
 		failSafeTime := (A_TickCount - failSafe) // 1000
-		CreateStatusMessage("In failsafe for Trace. It's been: " . failSafeTime "s ")
-		LogToFile("In failsafe for Trace. It's been: " . failSafeTime "s ")
+		CreateStatusMessage("In failsafe for Skip3. It's been: " . failSafeTime "s ")
+		LogToFile("In failsafe for Skip3. It's been: " . failSafeTime "s ")
 		Sleep, %Delay%
 	}
 
@@ -1222,16 +1258,38 @@ killGodPackInstance(){
 
 restartGameInstance(reason, RL := true){
 	global Delay, scriptName, adbShell, adbPath, adbPort
-	if (!adbShell) {
-		adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-		; Extract the Process ID
-		processID := adbShell.ProcessID
+	RetryCount := 0
+	MaxRetries := 10
+	Loop {
+		try {
+			if (!adbShell) {
+				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
+				; Extract the Process ID
+				processID := adbShell.ProcessID
 
-		; Wait for the console window to open using the process ID
-		WinWait, ahk_pid %processID%
+				; Wait for the console window to open using the process ID
+				WinWait, ahk_pid %processID%
 
-		; Minimize the window using the process ID
-		WinMinimize, ahk_pid %processID%
+				; Minimize the window using the process ID
+				WinMinimize, ahk_pid %processID%
+				
+				adbShell.StdIn.WriteLine("su")
+			}
+			else if (adbShell.Status != 0) {
+				Sleep, 1000
+			}
+			else {
+				break
+			}
+		}
+		catch {
+			RetryCount++
+			if(RetryCount > MaxRetries) {
+				CreateStatusMessage("Failed to connect to shell")
+				Pause
+			}
+		}
+		Sleep, 1000
 	}
 	CreateStatusMessage("Restarting game. " reason)
 	if(reason != "New Run")
@@ -1257,12 +1315,9 @@ LogToFile(message, logFile := "") {
 }
 
 CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
-	global scriptName, winTitle, statusText, SelectedMonitorIndex
-	MaxRetries := 10
-	RetryCount := 0
+	global scriptName, winTitle, StatusText
 	try {
 		GuiName := GuiName+scriptName
-		statusText := GuiName+scriptName
 		WinGetPos, xpos, ypos, Width, Height, %winTitle%
 		X := X + xpos + 5
 		Y := Y + ypos
@@ -1276,7 +1331,7 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
 		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
 		Gui, %GuiName%:Add, Text, vStatusText, %Message%
-		Gui,%GuiName%:Show,NoActivate x%X% y%Y% AutoSize, NoActivate %GuiName%
+		Gui, %GuiName%:Show, NoActivate x%X% y%Y% AutoSize, NoActivate %GuiName%
 	}
 }
 
@@ -1353,7 +1408,7 @@ checkBorder(wonderpick := true) {
 				CreateStatusMessage(logMessage)
 				godPackLog = GPlog.txt
 				LogToFile(logMessage, godPackLog)
-				LogToDiscord(logMessage, Screenshot(), discordUserId)
+				LogToDiscord(logMessage, Screenshot("Invalid"), discordUserId)
 				saveAccount("Invalid")
 				;killGodPackInstance()
 			}
@@ -1384,19 +1439,40 @@ checkBorder(wonderpick := true) {
 
 saveAccount(file := "Valid") {
 	global adbShell, adbPath, adbPort
-	if (!adbShell) {
-		adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-		; Extract the Process ID
-		processID := adbShell.ProcessID
+	RetryCount := 0
+	MaxRetries := 10
+	Loop {
+		try {
+			if (!adbShell) {
+				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
+				; Extract the Process ID
+				processID := adbShell.ProcessID
 
-		; Wait for the console window to open using the process ID
-		WinWait, ahk_pid %processID%
+				; Wait for the console window to open using the process ID
+				WinWait, ahk_pid %processID%
 
-		; Minimize the window using the process ID
-		WinMinimize, ahk_pid %processID%
+				; Minimize the window using the process ID
+				WinMinimize, ahk_pid %processID%
+				
+				adbShell.StdIn.WriteLine("su")
+			}
+			else if (adbShell.Status != 0) {
+				Sleep, 1000
+			}
+			else {
+				break
+			}
+		}
+		catch {
+			RetryCount++
+			if(RetryCount > MaxRetries) {
+				CreateStatusMessage("Failed to connect to shell")
+				Pause
+			}
+		}
+		Sleep, 1000
 	}
-	
-	saveDir := A_ScriptDir "\..\Accounts\" . file . "_" . winTitle . "_" . A_Now . "_account.xml"
+	saveDir := A_ScriptDir "\..\Accounts\" . A_Now . "_" . winTitle . "_" . file . "_" . packs . "_packs.xml"
 	
 	adbShell.StdIn.WriteLine("cp /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml /sdcard/deviceAccount.xml")
 	
@@ -1407,18 +1483,39 @@ saveAccount(file := "Valid") {
 
 loadAccount() {
 	global adbShell, adbPath, adbPort
-	if (!adbShell) {
-		adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-		; Extract the Process ID
-		processID := adbShell.ProcessID
+	RetryCount := 0
+	MaxRetries := 10
+	Loop {
+		try {
+			if (!adbShell) {
+				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
+				; Extract the Process ID
+				processID := adbShell.ProcessID
 
-		; Wait for the console window to open using the process ID
-		WinWait, ahk_pid %processID%
+				; Wait for the console window to open using the process ID
+				WinWait, ahk_pid %processID%
 
-		; Minimize the window using the process ID
-		WinMinimize, ahk_pid %processID%
+				; Minimize the window using the process ID
+				WinMinimize, ahk_pid %processID%
+				
+				adbShell.StdIn.WriteLine("su")
+			}
+			else if (adbShell.Status != 0) {
+				Sleep, 1000
+			}
+			else {
+				break
+			}
+		}
+		catch {
+			RetryCount++
+			if(RetryCount > MaxRetries) {
+				CreateStatusMessage("Failed to connect to shell")
+				Pause
+			}
+		}
+		Sleep, 1000
 	}
-	
 	loadDir := A_ScriptDir "\..\Accounts\deviceaccount.xml"
 	
 	RunWait, % adbPath . " -s 127.0.0.1:" . adbPort . " push " . loadDir . " /sdcard/deviceAccount.xml",, Hide
@@ -1430,16 +1527,38 @@ loadAccount() {
 
 adbClick(X, Y) {
 	global adbShell, setSpeed, adbPath, adbPort
-	if (!adbShell) {
-		adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-		; Extract the Process ID
-		processID := adbShell.ProcessID
+	RetryCount := 0
+	MaxRetries := 10
+	Loop {
+		try {
+			if (!adbShell) {
+				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
+				; Extract the Process ID
+				processID := adbShell.ProcessID
 
-		; Wait for the console window to open using the process ID
-		WinWait, ahk_pid %processID%
+				; Wait for the console window to open using the process ID
+				WinWait, ahk_pid %processID%
 
-		; Minimize the window using the process ID
-		WinMinimize, ahk_pid %processID%
+				; Minimize the window using the process ID
+				WinMinimize, ahk_pid %processID%
+				
+				adbShell.StdIn.WriteLine("su")
+			}
+			else if (adbShell.Status != 0) {
+				Sleep, 1000
+			}
+			else {
+				break
+			}
+		}
+		catch {
+			RetryCount++
+			if(RetryCount > MaxRetries) {
+				CreateStatusMessage("Failed to connect to shell")
+				Pause
+			}
+		}
+		Sleep, 1000
 	}
 	X := Round(X / 277 * 540)
     Y := Round((Y - 44) / 489 * 960) 
@@ -1453,32 +1572,76 @@ ControlClick(X, Y) {
 
 adbName() {
 	global Name, adbShell, adbPath, adbPort
-	if (!adbShell) {
-		adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-		; Extract the Process ID
-		processID := adbShell.ProcessID
+	RetryCount := 0
+	MaxRetries := 10
+	Loop {
+		try {
+			if (!adbShell) {
+				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
+				; Extract the Process ID
+				processID := adbShell.ProcessID
 
-		; Wait for the console window to open using the process ID
-		WinWait, ahk_pid %processID%
+				; Wait for the console window to open using the process ID
+				WinWait, ahk_pid %processID%
 
-		; Minimize the window using the process ID
-		WinMinimize, ahk_pid %processID%
+				; Minimize the window using the process ID
+				WinMinimize, ahk_pid %processID%
+				
+				adbShell.StdIn.WriteLine("su")
+			}
+			else if (adbShell.Status != 0) {
+				Sleep, 1000
+			}
+			else {
+				break
+			}
+		}
+		catch {
+			RetryCount++
+			if(RetryCount > MaxRetries) {
+				CreateStatusMessage("Failed to connect to shell")
+				Pause
+			}
+		}
+		Sleep, 1000
 	}
 	adbShell.StdIn.WriteLine("input text " Name )
 }
 
 adbSwipeUp() {
 	global adbShell, adbPath, adbPort
-	if (!adbShell) {
-		adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-		; Extract the Process ID
-		processID := adbShell.ProcessID
+	RetryCount := 0
+	MaxRetries := 10
+	Loop {
+		try {
+			if (!adbShell) {
+				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
+				; Extract the Process ID
+				processID := adbShell.ProcessID
 
-		; Wait for the console window to open using the process ID
-		WinWait, ahk_pid %processID%
+				; Wait for the console window to open using the process ID
+				WinWait, ahk_pid %processID%
 
-		; Minimize the window using the process ID
-		WinMinimize, ahk_pid %processID%
+				; Minimize the window using the process ID
+				WinMinimize, ahk_pid %processID%
+				
+				adbShell.StdIn.WriteLine("su")
+			}
+			else if (adbShell.Status != 0) {
+				Sleep, 1000
+			}
+			else {
+				break
+			}
+		}
+		catch {
+			RetryCount++
+			if(RetryCount > MaxRetries) {
+				CreateStatusMessage("Failed to connect to shell")
+				Pause
+			}
+		}
+		Sleep, 1000
 	}
 	adbShell.StdIn.WriteLine("input swipe 309 816 309 355 60") 
 	;adbShell.StdIn.WriteLine("input swipe 309 816 309 555 30")	
@@ -1487,16 +1650,38 @@ adbSwipeUp() {
 
 adbSwipe() {
 	global adbShell, setSpeed, swipeSpeed, adbPath, adbPort
-	if (!adbShell) {
-		adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-		; Extract the Process ID
-		processID := adbShell.ProcessID
+	RetryCount := 0
+	MaxRetries := 10
+	Loop {
+		try {
+			if (!adbShell) {
+				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
+				; Extract the Process ID
+				processID := adbShell.ProcessID
 
-		; Wait for the console window to open using the process ID
-		WinWait, ahk_pid %processID%
+				; Wait for the console window to open using the process ID
+				WinWait, ahk_pid %processID%
 
-		; Minimize the window using the process ID
-		WinMinimize, ahk_pid %processID%
+				; Minimize the window using the process ID
+				WinMinimize, ahk_pid %processID%
+				
+				adbShell.StdIn.WriteLine("su")
+			}
+			else if (adbShell.Status != 0) {
+				Sleep, 1000
+			}
+			else {
+				break
+			}
+		}
+		catch {
+			RetryCount++
+			if(RetryCount > MaxRetries) {
+				CreateStatusMessage("Failed to connect to shell")
+				Pause
+			}
+		}
+		Sleep, 1000
 	}
 	X1 := 35
 	Y1 := 327
@@ -1523,7 +1708,7 @@ adbSwipe() {
 	}
 }
 
-Screenshot() {
+Screenshot(filename := "Valid") {
 	global adbShell, adbPath, packs
 	SetWorkingDir %A_ScriptDir%  ; Ensures the working directory is the script's directory
 
@@ -1533,7 +1718,7 @@ Screenshot() {
 		FileCreateDir, %screenshotsDir%
 		
 	; File path for saving the screenshot locally
-	screenshotFile := screenshotsDir "\" winTitle "_" . packs . "packs_"A_Now ".png"
+	screenshotFile := screenshotsDir "\" . A_Now . "_" . winTitle . "_" . filename . "_" . packs . "_packs.png"
 
 	pBitmap := from_window(WinExist(winTitle))
 	Gdip_SaveBitmapToFile(pBitmap, screenshotFile) 
@@ -1575,9 +1760,9 @@ LogToDiscord(message, screenshotFile := "", ping := false) {
 				RetryCount++
 				if (RetryCount >= MaxRetries) {
 					CreateStatusMessage("Failed to send discord message.")
+					break
 				}
 				Sleep, 250
-				break
 			}
 			sleep, 250
 		}
