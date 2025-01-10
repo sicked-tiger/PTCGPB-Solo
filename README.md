@@ -83,7 +83,7 @@ Step 8: Input your script settings
   - 2x works with both the old and the new.
   - With the new on be sure to: click the platinmods logo > cog wheel > save preferences > set to 2x speed
 - Language: Select your game language. In order to change your language > change language settings in mumu > delete the game account data.
-  - English100 is to run it on scale 100 in English.
+  - Language100 is to run it on scale 100%. Just the Language is to run it on 125%
 - Monitor: Select which monitor you'd like it to run on. Try to start the mumu instances in the correct monitor to prevent issues
 - Swipe Speed: The duration of the swipe. Increase/decrease it if it's not swiping well on your system.
 - God Pack: Whether you want it to pause, close the instance or continue. God pack account data is now saved as a XML, so it's possible to continue to keep using the instance and then inject it later when needed.
