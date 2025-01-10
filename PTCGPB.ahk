@@ -358,6 +358,8 @@ Loop {
 	total := SumVariablesInJsonFile()
 	totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
 	mminutes := Floor(totalSeconds / 60)
+	if(total = 0)
+	total := "0                "
 	CreateStatusMessage("Time: " . mminutes . "m Packs: " . total, 5, 490)
 	Sleep, 10000
 }
@@ -397,26 +399,28 @@ resetWindows(Title, SelectedMonitorIndex){
 }
 
 CreateStatusMessage(Message, X := 0, Y := 80) {
-	global PacksText, SelectedMonitorIndex
+	global PacksText, SelectedMonitorIndex, createdGUI, Instances
 	MaxRetries := 10
 	RetryCount := 0
 	try {
-		OwnerWND := WinExist(1)
 		GuiName := 22
-		PacksText := 22
 		SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 		SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 		X := MonitorLeft + X
 		Y := MonitorTop + Y
-		
-		if(OwnerWND)
-			Gui, %GuiName%:New, +Owner%OwnerWND% -AlwaysOnTop +ToolWindow -Caption 
-		else
-			Gui, %GuiName%:New, -AlwaysOnTop +ToolWindow -Caption 
-		Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
-		Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
-		Gui, %GuiName%:Add, Text, vPacksText, %Message%
-		Gui, %GuiName%:Show,NoActivate x%X% y%Y% AutoSize, %GuiName%
+		Gui %GuiName%:+LastFoundExist
+		if WinExist() {
+			GuiControl, , PacksText, %Message%
+        } else {			OwnerWND := WinExist(1)
+			if(!OwnerWND)
+				Gui, %GuiName%:New, +ToolWindow -Caption
+			else
+				Gui, %GuiName%:New, +Owner%OwnerWND% +ToolWindow -Caption 
+            Gui, %GuiName%:Margin, 2, 2  ; Set margin for the GUI
+            Gui, %GuiName%:Font, s8  ; Set the font size to 8 (adjust as needed)
+            Gui, %GuiName%:Add, Text, vPacksText, %Message%
+            Gui, %GuiName%:Show, NoActivate x%X% y%Y%, NoActivate %GuiName%
+        }
 	}
 }
 
