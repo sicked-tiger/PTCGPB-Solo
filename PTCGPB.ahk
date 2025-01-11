@@ -379,7 +379,6 @@ resetWindows(Title, SelectedMonitorIndex){
 			SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 			SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 
-			CreateStatusMessage("Arranging window positions and sizes")
             rowHeight := 533  ; Adjust the height of each row
             currentRow := Floor((Title - 1) / Columns)
             y := currentRow * rowHeight	
@@ -390,7 +389,6 @@ resetWindows(Title, SelectedMonitorIndex){
 		}
 		catch {
 			if (RetryCount > MaxRetries)
-				CreateStatusMessage("Pausing. Can't find window " . winTitle)
 				Pause
 		}
 		Sleep, 1000
