@@ -9,6 +9,10 @@ SetTitleMatchMode, 3
 
 global adbShell, adbPath, adbPorts, winTitle, folderPath
 
+IniRead, winTitle, InjectAccount.ini, UserSettings, winTitle, 1
+IniRead, fileName, InjectAccount.ini, UserSettings, fileName, name
+IniRead, folderPath, InjectAccount.ini, UserSettings, folderPath, C:\Program Files\Netease
+
 Gui, Add, Text,, This tool is to INJECT the account into the instance.`nIt will OVERWRITE any current account in that instance and you will LOSE it!
 Gui, Add, Text,, Instance Name:
 Gui, Add, Edit, vwinTitle, %winTitle%
@@ -17,18 +21,7 @@ Gui, Add, Edit, vfileName, %fileName%
 Gui, Add, Text,, MuMu Folder same as main script (C:\Program Files\Netease)
 Gui, Add, Edit, vfolderPath, %folderPath%
 Gui, Add, Button, gSaveSettings, Submit
-Gui, Add, Button, gLoadDefaults, Load Defaults
 Gui, Show, , Arturo's Account Injection Tool ;'
-Return
-
-LoadDefaults:
-	IniRead, winTitle, InjectAccount.ini, UserSettings, winTitle, 1
-	IniRead, fileName, InjectAccount.ini, UserSettings, fileName, name
-	IniRead, folderPath, InjectAccount.ini, UserSettings, folderPath, C:\Program Files\Netease
-    GuiControl,, winTitle, %winTitle%
-    GuiControl,, fileName, %fileName%
-    GuiControl,, folderPath, %folderPath%
-    MsgBox, Default values loaded!
 Return
 
 SaveSettings:
@@ -37,13 +30,14 @@ SaveSettings:
     IniWrite, %winTitle%, InjectAccount.ini, UserSettings, winTitle
 	IniWrite, %fileName%, InjectAccount.ini, UserSettings, fileName
 	IniWrite, %folderPath%, InjectAccount.ini, UserSettings, folderPath
-    MsgBox, Settings submitted! Injecting Account...
+	
+    MsgBox, Settings submitted!`nClosing the game and  injecting the account. `nIt takes a few seconds. `nYou'll get another message box telling you it's ready.
 
 adbPath := folderPath . "\MuMuPlayerGlobal-12.0\shell\adb.exe"
 findAdbPorts(folderPath)
 
 if(!WinExist(winTitle)) {
-	Msgbox, Can't find instance: %winTitle% ;'
+	Msgbox, 16, , Can't find instance: %winTitle%. Make sure that instance is running.;'
 	ExitApp
 }
 
@@ -51,19 +45,19 @@ if !FileExist(adbPath) ;if international mumu file path isn't found look for chi
 	adbPath := folderPath . "\MuMu Player 12\shell\adb.exe"
 
 if !FileExist(adbPath) {
-	MsgBox Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
+	MsgBox, 16, , Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
 	ExitApp
 }
 
 if(!adbPorts) {
-	Msgbox, Invalid port... Check the common issues section in the readme/github guide.
+	Msgbox, 16, , Invalid port... Check the common issues section in the readme/github guide.
 	ExitApp
 }
 
 filePath := A_ScriptDir . "\" . fileName . ".xml"
 
 if(!FileExist(filePath)) {
-	Msgbox, Can't find XML file: %filePath% ;'
+	Msgbox, 16, , Can't find XML file: %filePath% ;'
 	ExitApp
 }
 RunWait, %adbPath% connect 127.0.0.1:%adbPorts%,, Hide
@@ -119,7 +113,7 @@ findAdbPorts(baseFolder := "C:\Program Files\Netease") {
 		mumuFolder = %baseFolder%\MuMu Player 12\vms\*
 		
 	if !FileExist(mumuFolder){
-		MsgBox Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
+		MsgBox, 16, , Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
 		ExitApp
 	}
 	; Loop through all directories in the base folder
@@ -172,17 +166,17 @@ loadAccount() {
 		WinMinimize, ahk_pid %processID%
 	}
 	
-	;loadDir := A_ScriptDir "\" . fileName
+	adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
 	
 	loadDir := A_ScriptDir . "\" . fileName
 	
 	RunWait, % adbPath . " -s 127.0.0.1:" . adbPorts . " push """ . loadDir . ".xml""" . " /sdcard/deviceAccount.xml",, Hide
 	
-	;adbShell.StdIn.WriteLine("rm /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml") ; delete account data
-	
-	;RunWait, % adbPath . " -s 127.0.0.1:" . adbPorts . " push " . loadDir . ".xml" . " /sdcard/deviceAccount.xml",, Hide
+	Sleep, 500
 	
 	adbShell.StdIn.WriteLine("cp /sdcard/deviceAccount.xml /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml")
+	
+	Sleep, 500
 	
 	adbShell.StdIn.WriteLine("rm /sdcard/deviceAccount.xml")
 }

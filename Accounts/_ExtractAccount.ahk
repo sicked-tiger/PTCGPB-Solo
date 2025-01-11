@@ -9,6 +9,10 @@ SetTitleMatchMode, 3
 
 global adbShell, adbPath, adbPorts, winTitle, folderPath
 
+IniRead, winTitle, ExtractAccount.ini, UserSettings, winTitle, 1
+IniRead, fileName, ExtractAccount.ini, UserSettings, fileName, name
+IniRead, folderPath, ExtractAccount.ini, UserSettings, folderPath, C:\Program Files\Netease
+
 Gui, Add, Text,, This tool is to EXTRACT the account from the instance.`nMake sure the file name does not match any current account!`nIt will OVERWRITE any file named the same!
 Gui, Add, Text,, Instance Name:
 Gui, Add, Edit, vwinTitle, %winTitle%
@@ -17,18 +21,7 @@ Gui, Add, Edit, vfileName, %fileName%
 Gui, Add, Text,, MuMu Folder same as main script (C:\Program Files\Netease)
 Gui, Add, Edit, vfolderPath, %folderPath%
 Gui, Add, Button, gSaveSettings, Submit
-Gui, Add, Button, gLoadDefaults, Load Defaults
 Gui, Show, , Arturo's Account Extraction Tool ;'
-Return
-
-LoadDefaults:
-	IniRead, winTitle, ExtractAccount.ini, UserSettings, winTitle, 1
-	IniRead, fileName, ExtractAccount.ini, UserSettings, fileName, name
-	IniRead, folderPath, ExtractAccount.ini, UserSettings, folderPath, C:\Program Files\Netease
-    GuiControl,, winTitle, %winTitle%
-    GuiControl,, fileName, %fileName%
-    GuiControl,, folderPath, %folderPath%
-    MsgBox, Default values loaded!
 Return
 
 SaveSettings:
@@ -37,13 +30,14 @@ SaveSettings:
     IniWrite, %winTitle%, ExtractAccount.ini, UserSettings, winTitle
 	IniWrite, %fileName%, ExtractAccount.ini, UserSettings, fileName
 	IniWrite, %folderPath%, ExtractAccount.ini, UserSettings, folderPath
-    MsgBox, Settings submitted! Extracting Account...
+	
+    MsgBox, Settings submitted! Extracting Account. `nIt takes a few seconds. You'll get another message box telling you it's ready.
 	
 adbPath := folderPath . "\MuMuPlayerGlobal-12.0\shell\adb.exe"
 findAdbPorts(folderPath)
 
 if(!WinExist(winTitle)) {
-	Msgbox, Can't find instance: %winTitle% ;'
+	Msgbox, 16, , Can't find instance: %winTitle%. Make sure that instance is running.;'
 	ExitApp
 }
 
@@ -51,12 +45,12 @@ if !FileExist(adbPath) ;if international mumu file path isn't found look for chi
 	adbPath := folderPath . "\MuMu Player 12\shell\adb.exe"
 
 if !FileExist(adbPath) {
-	MsgBox Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
+	MsgBox, 16, , Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
 	ExitApp
 }
 
 if(!adbPorts) {
-	Msgbox, Invalid port... Check the common issues section in the readme/github guide.
+	Msgbox, 16, , Invalid port... Check the common issues section in the readme/github guide.
 	ExitApp
 }
 
@@ -90,15 +84,14 @@ MaxRetries := 10
 		catch {
 			RetryCount++
 			if(RetryCount > MaxRetries) {
-				Pause
+				Msgbox, Failed to connect to the shell. Try restarting your pc/instances and try again.
+				ExitApp
 			}
 		}
 		Sleep, 1000
 	}
 	
 	saveAccount()
-	
-	MsgBox Extracted account xml file from instance named '%winTitle%' and placed it in the Accounts folder as %fileName%.xml	
 	
 	ExitApp
 return
@@ -113,7 +106,7 @@ findAdbPorts(baseFolder := "C:\Program Files\Netease") {
 		mumuFolder = %baseFolder%\MuMu Player 12\vms\*
 		
 	if !FileExist(mumuFolder){
-		MsgBox Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
+		MsgBox, 16, , Double check your folder path! It should be the one that contains the MuMuPlayer 12 folder! `nDefault is just C:\Program Files\Netease
 		ExitApp
 	}
 	; Loop through all directories in the base folder
@@ -166,11 +159,44 @@ saveAccount() {
 		WinMinimize, ahk_pid %processID%
 	}
 	
-	saveDir := A_ScriptDir "\" . fileName
+	saveDir := A_ScriptDir "\" . fileName . ".xml"
 	
-	adbShell.StdIn.WriteLine("cp /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml /sdcard/deviceAccount.xml")
+	if(FileExist(saveDir)) {
+		MsgBox, 16, , File already exists! Delete it or input a different name then try again!
+		ExitApp
+	}
 	
-	RunWait, % adbPath . " -s 127.0.0.1:" . adbPorts . " pull /sdcard/deviceAccount.xml """ . saveDir . ".xml""",, Hide
+	count := 0
 	
-	adbShell.StdIn.WriteLine("rm /sdcard/deviceAccount.xml")
+	Loop {
+	
+		adbShell.StdIn.WriteLine("cp /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml /sdcard/deviceAccount.xml")
+		
+		Sleep, 500
+		
+		RunWait, % adbPath . " -s 127.0.0.1:" . adbPorts . " pull /sdcard/deviceAccount.xml """ . saveDir,, Hide
+		
+		Sleep, 500
+		
+		adbShell.StdIn.WriteLine("rm /sdcard/deviceAccount.xml")
+		
+		Sleep, 500
+		
+		FileGetSize, OutputVar, %saveDir%
+		
+		if(OutputVar > 0)
+			break
+		
+		if(count > 10) {
+			MsgBox, 16, , Tried 10 times. Failed to extract account.
+			ExitApp
+		}
+		count++
+	}
+	
+	adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
+	
+	adbShell.StdIn.WriteLine("rm /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml") ; delete account data
+	
+	MsgBox, Success! Extracted account '%fileName%.xml' to the Accounts folder, closed the game, and deleted the local save from the instance.
 }
