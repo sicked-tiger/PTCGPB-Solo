@@ -60,7 +60,7 @@ if(!adbPorts) {
 	ExitApp
 }
 
-filePath := A_ScriptDir . fileName . ".xml"
+filePath := A_ScriptDir . "\" . fileName . ".xml"
 
 if(!FileExist(filePath)) {
 	Msgbox, Can't find XML file: %filePath% ;'
