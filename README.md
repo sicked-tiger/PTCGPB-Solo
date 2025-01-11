@@ -69,6 +69,7 @@ Step 6:
 
 Step 7: 
 - Run PTCGPB.ahk
+- **On first run after pressing start you will be prompted for super user access in each instance. Select to allow forever.**
 - If you're using the new speed mod linked above then make sure to click the "PM" logo > cog wheel > save preferences > cog wheel > set speed to the one you will be running at > minimize
 
 Step 8: Input your script settings
