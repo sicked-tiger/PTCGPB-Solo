@@ -5,7 +5,7 @@ https://buymeacoffee.com/aarturoo
 
 If you're having issues check the common issues section after the guide.
 
-# **__Arturo's Pokemon Trading Card Game Pocket Bot v4.0.2__**
+# **__Arturo's Pokemon Trading Card Game Pocket Bot v4.1.0__**
 -# *Special thanks to azureWox, Flubsthefool, havaak, pifobi for their code contributions* 
 -# *Thanks to everyone who has helped test or has contributed their suggestions to make the bot better!*
 
@@ -107,6 +107,10 @@ __**Extract and Inject Accounts:**__
 In the Accounts folder you will find an inject and extract ahk script. This is so you can inject or extract XML data which is where the accounts log-in info is saved. Run it and input the required info.
 
 # Common Issues
+__XML file not saving__
+- Make sure you enable root in your emulator settings
+- Also, when you first run the bot after pressing start it will prompt you for super user access. Select to allow forever.
+  
 __Invalid port or failed to launch 1.ahk__
 - Your mumu folder path is different from the typical default path so find where it installed. Mine is in: C:\Program Files\Netease and this would be what i would paste there
 - Skip using the very first instance in the mumu multi instance window. i think the config file for that one is different so my script cant get its port
