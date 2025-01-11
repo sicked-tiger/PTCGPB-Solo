@@ -5,7 +5,7 @@ https://buymeacoffee.com/aarturoo
 
 If you're having issues check the common issues section after the guide.
 
-# **__Arturo's Pokemon Trading Card Game Pocket Bot v4.1.0__**
+# **__Arturo's Pokemon Trading Card Game Pocket Bot v4.0.2__**
 -# *Special thanks to azureWox, Flubsthefool, havaak, pifobi for their code contributions* 
 -# *Thanks to everyone who has helped test or has contributed their suggestions to make the bot better!*
 
@@ -17,7 +17,7 @@ If you're having issues check the common issues section after the guide.
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v4.1.0.zip)
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/archive/refs/tags/v4.0.2.zip)
 
 **__How can I get it working?__**
 
@@ -140,7 +140,6 @@ __It doesn't do anything/Stuck Arranging windows__
 __Clicking top right at "Country or Menu"__
 - MuMu's emulator resolution must be 540x960 with 220dpi
 - Windows scale needs to be set to 125% in your windows display settings. If you have multiple monitors then all of them need to be set to 125%
-- The game needs to be in english
 - HDR needs to be off
 - Resolution is incorrect in mumu settings
 - Don't press MuMu's align window button
