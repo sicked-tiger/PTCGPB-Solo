@@ -19,7 +19,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	IniRead, adbPort, %A_ScriptDir%\..\Settings.ini, UserSettings, adbPort%scriptName%, 11111
     IniRead, Name, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, player1
     IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
-	IniRead, folderPath, Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
+	IniRead, folderPath, %A_ScriptDir%\..\Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
     IniRead, Variation, %A_ScriptDir%\..\Settings.ini, UserSettings, Variation, 40
     IniRead, changeDate, %A_ScriptDir%\..\Settings.ini, UserSettings, ChangeDate, 0100
     IniRead, Columns, %A_ScriptDir%\..\Settings.ini, UserSettings, Columns, 5
@@ -203,24 +203,24 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 		}
 		Sleep, 1000
 	}
-	instanceSleep := scriptName * 1000
 	
-	Sleep, %instanceSleep%
+	restartGameInstance("Initializing bot...", false)
+	
 	pToken := Gdip_Startup()
 	
-	imagePath := A_ScriptDir . "\" . defaultLanguage . "\"
-	Path = %imagePath%App.png
-	pBitmap := from_window(WinExist(winTitle))
-	pNeedle := Gdip_CreateBitmapFromFile(Path)
-	; ImageSearch within the region
-	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, 40)
-	Gdip_DisposeImage(pNeedle)
-	Gdip_DisposeImage(pBitmap)
-	if (vRet = 1) {
-		CreateStatusMessage("Started on home page opening app..." )
-		restartGameInstance("Started on home page", false)
-		Sleep, 2000
-	}
+	; imagePath := A_ScriptDir . "\" . defaultLanguage . "\"
+	; Path = %imagePath%App.png
+	; pBitmap := from_window(WinExist(winTitle))
+	; pNeedle := Gdip_CreateBitmapFromFile(Path)
+	
+	; vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, 40)
+	; Gdip_DisposeImage(pNeedle)
+	; Gdip_DisposeImage(pBitmap)
+	; if (vRet = 1) {
+		; CreateStatusMessage("Started on home page opening app..." )
+		; restartGameInstance("Started on home page", false)
+		; Sleep, 2000
+	; }
 	
 Loop {
 	packs := 0
@@ -241,43 +241,16 @@ Loop {
 		FormatTime, CurrentTime,, HHmm ; Update the current time after sleep
 		Sleep, 5000
 	}
-	failSafe := A_TickCount
-	failSafeTime := 0
-	Loop {
-		adbClick(255, 83)
-		if(CheckInstances(77, 144, 169, 175, , "Country", 0, failSafeTime)) { ;if at country continue
-			break
-		}
-		else if(CheckInstances(116, 77, 167, 97, , "Menu", 0, failSafeTime)) { ; if the clicks in the top right open up the game settings menu then continue to delete account
-			Sleep,%Delay%
-			KeepSync(56, 312, 108, 334, , "Account2", 79, 267, 2000) ;wait for account menu
-			Sleep,%Delay%
-			KeepSync(74, 104, 133, 135, , "Delete", 145, 446, 2000) ;wait for delete save data confirmation
-			Sleep,%Delay%
-			KeepSync(73, 191, 133, 208, , "Delete2", 201, 447, %Delay%) ;wait for second delete save data confirmation
-			Sleep,%Delay%
-			KeepSync(30, 240, 121, 275, , "Delete3", 201, 369, 2000) ;wait for second 
-			
-			
-			adbClick(143, 370)
-			break
-		}
-		CreateStatusMessage("Looking for Country/Menu")
-		Sleep, %Delay%
-		failSafeTime := (A_TickCount - failSafe) // 1000
-		CreateStatusMessage("In failsafe for Country/Menu. It's been: " . failSafeTime "s ")
-		LogToFile("In failsafe for Country/Menu. It's been: " . failSafeTime "s ")
-	}
-	if(setSpeed > 1 && !packs) {
-		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-		if(setSpeed = 3)
-			KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-		else
-			KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-		Sleep, %Delay%
-		adbClick(166, 296)
-		Sleep, %Delay%
-	}	
+if(setSpeed > 1 && !packs) {
+	KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+	if(setSpeed = 3)
+		KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
+	else
+		KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
+	Sleep, %Delay%
+	adbClick(166, 296)
+	Sleep, %Delay%
+}	
 KeepSync(77, 144, 169, 175, , "Country", 143, 370) ;select month and year and click
 
 adbClick(80, 400)
@@ -1291,17 +1264,18 @@ restartGameInstance(reason, RL := true){
 		}
 		Sleep, 1000
 	}
-	CreateStatusMessage("Restarting game. " reason)
-	if(reason != "New Run")
-		LogToFile("Restarted game for instance " scriptName " Reason: " reason, "Restart.txt")
+	CreateStatusMessage("Restarting game reason: " reason)
+	
 	adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
 	adbShell.StdIn.WriteLine("rm /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml") ; delete account data
 	;adbShell.StdIn.WriteLine("rm -rf /data/data/jp.pokemon.pokemontcgp/cache/*") ; clear cache
 	adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
 
-	sleep, 3000
-	if(RL)
+	Sleep, 3000
+	if(RL) {
 		Reload
+		LogToFile("Restarted game for instance " scriptName " Reason: " reason, "Restart.txt")
+	}
 }
 
 LogToFile(message, logFile := "") {
@@ -1404,7 +1378,7 @@ checkBorder(wonderpick := true) {
 				Randmax := Condemn.Length()
 				Random, rand, 1, Randmax
 				Interjection := Condemn[rand]
-				logMessage := Interjection . "Invalid pack in instance: " . scriptName . " (" . packs . " packs) Backed up to the Accounts folder. Continuing..."
+				logMessage := Interjection . " Invalid pack in instance: " . scriptName . " (" . packs . " packs) Backed up to the Accounts folder. Continuing..."
 				CreateStatusMessage(logMessage)
 				godPackLog = GPlog.txt
 				LogToFile(logMessage, godPackLog)
@@ -1472,57 +1446,36 @@ saveAccount(file := "Valid") {
 		}
 		Sleep, 1000
 	}
+	
+	
 	saveDir := A_ScriptDir "\..\Accounts\" . A_Now . "_" . winTitle . "_" . file . "_" . packs . "_packs.xml"
-	
-	adbShell.StdIn.WriteLine("cp /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml /sdcard/deviceAccount.xml")
-	
-	RunWait, % adbPath . " -s 127.0.0.1:" . adbPort . " pull /sdcard/deviceAccount.xml """ . saveDir,, Hide
-	
-	adbShell.StdIn.WriteLine("rm /sdcard/deviceAccount.xml")
-}
-
-loadAccount() {
-	global adbShell, adbPath, adbPort
-	RetryCount := 0
-	MaxRetries := 10
+	count := 0
 	Loop {
-		try {
-			if (!adbShell) {
-				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-				; Extract the Process ID
-				processID := adbShell.ProcessID
-
-				; Wait for the console window to open using the process ID
-				WinWait, ahk_pid %processID%
-
-				; Minimize the window using the process ID
-				WinMinimize, ahk_pid %processID%
-				
-				adbShell.StdIn.WriteLine("su")
-			}
-			else if (adbShell.Status != 0) {
-				Sleep, 1000
-			}
-			else {
-				break
-			}
+		CreateStatusMessage("Attempting to save account XML...")
+	
+		adbShell.StdIn.WriteLine("cp /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml /sdcard/deviceAccount.xml")
+		
+		Sleep, 500
+		
+		RunWait, % adbPath . " -s 127.0.0.1:" . adbPort . " pull /sdcard/deviceAccount.xml """ . saveDir,, Hide
+		
+		Sleep, 500
+		
+		adbShell.StdIn.WriteLine("rm /sdcard/deviceAccount.xml")
+		
+		Sleep, 500
+		
+		FileGetSize, OutputVar, %saveDir%
+		
+		if(OutputVar > 0)
+			break
+		
+		if(count > 10) {
+			CreateStatusMessage("Attempted to save the account XML`n10 times, but was unsuccesful.`nPausing...")
+			Pause, On
 		}
-		catch {
-			RetryCount++
-			if(RetryCount > MaxRetries) {
-				CreateStatusMessage("Failed to connect to shell")
-				Pause
-			}
-		}
-		Sleep, 1000
+		count++
 	}
-	loadDir := A_ScriptDir "\..\Accounts\deviceaccount.xml"
-	
-	RunWait, % adbPath . " -s 127.0.0.1:" . adbPort . " push " . loadDir . " /sdcard/deviceAccount.xml",, Hide
-	
-	adbShell.StdIn.WriteLine("cp /sdcard/deviceAccount.xml /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml")
-	
-	adbShell.StdIn.WriteLine("rm /sdcard/deviceAccount.xml")
 }
 
 adbClick(X, Y) {
