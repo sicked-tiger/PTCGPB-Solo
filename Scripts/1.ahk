@@ -32,9 +32,9 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	IniRead, falsePositive, %A_ScriptDir%\..\Settings.ini, UserSettings, falsePositive, No
 	IniRead, skipInvalidGP, %A_ScriptDir%\..\Settings.ini, UserSettings, skipInvalidGP, No
 	IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, 1
-	IniRead, discordWebhookURL, Settings.ini, UserSettings, discordWebhookURL, ""
-    IniRead, discordUserId, Settings.ini, UserSettings, discordUserId, ""
-    IniRead, deleteMethod, Settings.ini, UserSettings, deleteMethod, File
+	IniRead, discordWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, discordWebhookURL, ""
+    IniRead, discordUserId, %A_ScriptDir%\..\Settings.ini, UserSettings, discordUserId, ""
+    IniRead, deleteMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, deleteMethod, File
 	
 	adbPath := folderPath . "\MuMuPlayerGlobal-12.0\shell\adb.exe"
 	
