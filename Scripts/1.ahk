@@ -211,10 +211,9 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	; imagePath := A_ScriptDir . "\" . defaultLanguage . "\"
 	; Path = %imagePath%App.png
 	; pBitmap := from_window(WinExist(winTitle))
-	; pNeedle := Gdip_CreateBitmapFromFile(Path)
+	; pNeedle := GetNeedle(Path)
 	
 	; vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, 40)
-	; Gdip_DisposeImage(pNeedle)
 	; Gdip_DisposeImage(pBitmap)
 	; if (vRet = 1) {
 		; CreateStatusMessage("Started on home page opening app..." )
@@ -1006,7 +1005,7 @@ CheckInstances(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", EL
 	CreateStatusMessage(imageName)
 	pBitmap := from_window(WinExist(winTitle))
 	Path = %imagePath%%imageName%.png
-	pNeedle := Gdip_CreateBitmapFromFile(Path)
+	pNeedle := GetNeedle(Path)
 
 	; 100% scale changes
 	if (scaleParam = 287) {
@@ -1026,7 +1025,6 @@ CheckInstances(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", EL
 
 	; ImageSearch within the region
 	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, X1, Y1, X2, Y2, searchVariation)
-	Gdip_DisposeImage(pNeedle)
 	Gdip_DisposeImage(pBitmap)
 	if(EL = 0)
 		GDEL := 1
@@ -1037,10 +1035,9 @@ CheckInstances(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", EL
 	}
 	pBitmap := from_window(WinExist(winTitle))
 	Path = %imagePath%App.png
-	pNeedle := Gdip_CreateBitmapFromFile(Path)
+	pNeedle := GetNeedle(Path)
 	; ImageSearch within the region
 	vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, searchVariation)
-	Gdip_DisposeImage(pNeedle)
 	Gdip_DisposeImage(pBitmap)
 	if (vRet = 1) {
 		CreateStatusMessage("At home page. Opening app..." )
@@ -1119,11 +1116,10 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 
 		pBitmap := from_window(WinExist(winTitle))
 		Path = %imagePath%%imageName%.png
-		pNeedle := Gdip_CreateBitmapFromFile(Path)
+		pNeedle := GetNeedle(Path)
 		;bboxAndPause(X1, Y1, X2, Y2)
 		; ImageSearch within the region
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, X1, Y1, X2, Y2, searchVariation)
-		Gdip_DisposeImage(pNeedle)
 		Gdip_DisposeImage(pBitmap)
 		if (!confirmed && vRet = 1) {
 			confirmed := true
@@ -1143,10 +1139,9 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 
 		pBitmap := from_window(WinExist(winTitle))
 		Path = %imagePath%Error1.png
-		pNeedle := Gdip_CreateBitmapFromFile(Path)
+		pNeedle := GetNeedle(Path)
 		; ImageSearch within the region
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, searchVariation)
-		Gdip_DisposeImage(pNeedle)
 		Gdip_DisposeImage(pBitmap)
 		if (vRet = 1) {
 			CreateStatusMessage("Error message in " scriptName " Clicking retry..." )
@@ -1158,10 +1153,9 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		}
 		pBitmap := from_window(WinExist(winTitle))
 		Path = %imagePath%App.png
-		pNeedle := Gdip_CreateBitmapFromFile(Path)
+		pNeedle := GetNeedle(Path)
 		; ImageSearch within the region
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, searchVariation)
-		Gdip_DisposeImage(pNeedle)
 		Gdip_DisposeImage(pBitmap)
 		if (vRet = 1) {
 			CreateStatusMessage("At home page. Opening app..." )
@@ -1291,7 +1285,7 @@ checkBorder(wonderpick := true) {
 	}
 	pBitmap := from_window(WinExist(winTitle))
 	Path = %A_ScriptDir%\%defaultLanguage%\Border.png
-	pNeedle := Gdip_CreateBitmapFromFile(Path)
+	pNeedle := GetNeedle(Path)
 	; ImageSearch within the region
 	if (scaleParam = 277) { ; 125% scale
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, searchVariation)
@@ -1299,7 +1293,6 @@ checkBorder(wonderpick := true) {
 		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284-6, 90, 286-6, searchVariation)
 		;bboxAndPause(20, 284-6, 90, 286-6)
 	}
-	Gdip_DisposeImage(pNeedle)
 	Gdip_DisposeImage(pBitmap)
 	if (vRet = 1) {
 		CreateStatusMessage("Not a God Pack ")
@@ -1308,7 +1301,7 @@ checkBorder(wonderpick := true) {
 		;pause (should pause if first card is not 1 or 2 diamonds)
 		pBitmap := from_window(WinExist(winTitle))
 		Path = %A_ScriptDir%\%defaultLanguage%\Border.png
-		pNeedle := Gdip_CreateBitmapFromFile(Path)
+		pNeedle := GetNeedle(Path)
 		; ImageSearch within the region
 		if (scaleParam = 277) { ; 125% scale
 			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, searchVariation)
@@ -1316,7 +1309,6 @@ checkBorder(wonderpick := true) {
 			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-6, 173, 286-6, searchVariation)
 			;bboxAndPause(103, 284-6, 173, 286-6)
 		}
-		Gdip_DisposeImage(pNeedle)
 		Gdip_DisposeImage(pBitmap)
 		if (vRet = 1) {
 			CreateStatusMessage("Not a God Pack ")
@@ -1331,10 +1323,9 @@ checkBorder(wonderpick := true) {
 					} else {
 						Path = %A_ScriptDir%\Skip\100\%A_Index%.png
 					}
-					pNeedle := Gdip_CreateBitmapFromFile(Path)
+					pNeedle := GetNeedle(Path)
 					vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, searchVariation)
 					;bboxAndPause(5, 165, 265, 405, True)
-					Gdip_DisposeImage(pNeedle)
 					Gdip_DisposeImage(pBitmap)
 					if (vRet = 1) {
 						invalidGP := true
@@ -1758,5 +1749,16 @@ initializeAdbShell() {
 			}
 		}
 		Sleep, 1000
+	}
+}
+
+GetNeedle(Path) {
+	static NeedleBitmaps := Object()
+	if (NeedleBitmaps.HasKey(Path)) {
+		return NeedleBitmaps[Path]
+	} else {
+		pNeedle := Gdip_CreateBitmapFromFile(Path)
+		NeedleBitmaps[Path] := pNeedle
+		return pNeedle
 	}
 }
