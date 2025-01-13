@@ -975,23 +975,23 @@ else {
 	restartGameInstance("New Run", false)
 }
 
-if(deleteAccount := true) {
+if(deleteAccount = true) {
 	CreateStatusMessage("Exiting GP Test Mode")
 	deleteAccount := false
 }
-	
-rerolls++
-AppendToJsonFile(4)
-packs += 4
-totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
-avgtotalSeconds := Round(totalSeconds / rerolls) ; Total time in seconds
-minutes := Floor(avgtotalSeconds / 60) ; Total minutes
-seconds := Mod(avgtotalSeconds, 60) ; Remaining seconds within the minute
-mminutes := Floor(totalSeconds / 60) ; Total minutes
-sseconds := Mod(totalSeconds, 60) ; Remaining seconds within the minute
-CreateStatusMessage("Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls, 25, 0, 510)
-LogToFile("Packs: " . packs . " Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls)
-
+else {
+	rerolls++
+	AppendToJsonFile(4)
+	packs += 4
+	totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
+	avgtotalSeconds := Round(totalSeconds / rerolls) ; Total time in seconds
+	minutes := Floor(avgtotalSeconds / 60) ; Total minutes
+	seconds := Mod(avgtotalSeconds, 60) ; Remaining seconds within the minute
+	mminutes := Floor(totalSeconds / 60) ; Total minutes
+	sseconds := Mod(totalSeconds, 60) ; Remaining seconds within the minute
+	CreateStatusMessage("Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls, 25, 0, 510)
+	LogToFile("Packs: " . packs . " Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls)
+}
 }
 return
 
