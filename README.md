@@ -41,38 +41,35 @@ Step 2: Set-Up MuMu Player
   - **Uncheck: Keep running in the background**
   - **Check: Enable Root Permissions**
   - Exit directly
-- Name your instances "1", "2", "3", "4", etc. without the quotes.
+- Clone and then name your instances "1", "2", "3", "4", etc. without the quotes. NOTHING ELSE! JUST THE NUMBER!
+  - You can clone them after doing step 3.
   - Make sure there are no other instances named the same even if they aren't running!
 - The very first instance in the multi-instance window is incompatible. just name another one 1.
 
 Step 3: Install PTCGP
  - PTCGP Speed Mod [[Old]](https://modsfire.com/y6p37S9f7n2fD38) [[New]](https://modsfire.com/6OIgGK903XQXy6O) ** - *Thanks to nowhere_222 from the platinmods forum.*
 - Drag and drop into your MuMu instance
--# **New version has a mod menu to choose from 1x-3x speed. 3x uses more resources especially when running many instances. You can still use the old version on 2x.
+  -# **New version has a mod menu to choose from 1x-3x speed. 3x uses more resources especially when running many instances. You can still use the old version on 2x.
+- Do not move the app from where it is placed on the home screen.
+- Manually open the game.
+- If you're using the new speed mod linked above then make sure to click the "PM" logo > cog wheel > save preferences > cog wheel > set speed to the one you will be running at > click minimize
+- Go through the game until it finishes downloading the initial ~600 mb download
 
-Step 4: 
-- Download the Bot zip
-- Extract it by Right click the zip > extract
-
-Step 5: Windows settings
+Step 4: Windows settings
 - **Change scale to 125% in your windows settings.** > Press windows key > Type "display settings" > Look for the scale setting and change it to 125% for all your monitors.
   - Scale 100% available for some languages. Select the corresponding setting in the languages section.
 - all windows color filters off
 - HDR off
 
+Step 5: 
+- Download the Bot zip
+- Extract it by Right clicking the zip > extract
+
 Step 6: 
-- Start your instances
-- Open PTCGP
-- Download initial 600 mb
-- Delete account
-- Restart and get it to where you select your birthdate and country. 
-
-Step 7: 
 - Run PTCGPB.ahk
-- **On first run after pressing start you will be prompted for super user access in each instance. Select to allow forever.**
-- If you're using the new speed mod linked above then make sure to click the "PM" logo > cog wheel > save preferences > cog wheel > set speed to the one you will be running at > minimize
+- **On first run after pressing start you will be prompted for super user access in each instance. Select to allow forever.** If you are not prompted make sure you have root settings enabled then try again.
 
-Step 8: Input your script settings
+Step 7: Input your script settings
 - Number of instances you are running
 - Pack you want to open
 - Delay in between actions
@@ -83,7 +80,8 @@ Step 8: Input your script settings
 - Speed: This is what game speed you want to run at if you have the new speed mod.
   - 2x works with both the old and the new.
   - With the new on be sure to: click the platinmods logo > cog wheel > save preferences > set to 2x speed
-- Language: Select your game language. In order to change your language > change language settings in mumu > delete the game account data.
+- Language: Select your game language. 
+  - In order to change your language > change language settings in mumu > delete the game account data.
   - Language100 is to run it on scale 100%. Just the Language is to run it on 125%
 - Monitor: Select which monitor you'd like it to run on. Try to start the mumu instances in the correct monitor to prevent issues
 - Swipe Speed: The duration of the swipe. Increase/decrease it if it's not swiping well on your system.
@@ -95,10 +93,10 @@ Step 8: Input your script settings
 - Account Deletion: Select the method to delete the account. File method deletes the XML file and then closes/reopens the game. This should be more efficient. Clicks method will simulate clicking and deleting the account through the Menu. Use this if for some reason your game takes a long time starting up.
 - Click Next
 
-Step 9: Click Start
+Step 8: Click Start
 - **Allow adb to run and through the firewall if it asks you**
 
-Step 10: Find god packs
+Step 9: Find god packs
 - Your bot should be running
 
 __**GP Test button:**__
