@@ -25,13 +25,13 @@ Gui, Show, , Arturo's Account Injection Tool ;'
 Return
 
 SaveSettings:
-    Gui, Submit, NoHide
+	Gui, Submit, NoHide
 	Gui, Destroy
-    IniWrite, %winTitle%, InjectAccount.ini, UserSettings, winTitle
+	IniWrite, %winTitle%, InjectAccount.ini, UserSettings, winTitle
 	IniWrite, %fileName%, InjectAccount.ini, UserSettings, fileName
 	IniWrite, %folderPath%, InjectAccount.ini, UserSettings, folderPath
 	
-    MsgBox, Settings submitted!`nClosing the game and  injecting the account. `nIt takes a few seconds. `nYou'll get another message box telling you it's ready.
+	MsgBox, Settings submitted!`nClosing the game and  injecting the account. `nIt takes a few seconds. `nYou'll get another message box telling you it's ready.
 
 adbPath := folderPath . "\MuMuPlayerGlobal-12.0\shell\adb.exe"
 findAdbPorts(folderPath)
@@ -179,4 +179,5 @@ loadAccount() {
 	Sleep, 500
 	
 	adbShell.StdIn.WriteLine("rm /sdcard/deviceAccount.xml")
+	adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
 }
