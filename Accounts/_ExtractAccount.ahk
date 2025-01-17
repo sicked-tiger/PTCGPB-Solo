@@ -25,13 +25,13 @@ Gui, Show, , Arturo's Account Extraction Tool ;'
 Return
 
 SaveSettings:
-    Gui, Submit, NoHide
+	Gui, Submit, NoHide
 	Gui, Destroy
-    IniWrite, %winTitle%, ExtractAccount.ini, UserSettings, winTitle
+	IniWrite, %winTitle%, ExtractAccount.ini, UserSettings, winTitle
 	IniWrite, %fileName%, ExtractAccount.ini, UserSettings, fileName
 	IniWrite, %folderPath%, ExtractAccount.ini, UserSettings, folderPath
 	
-    MsgBox, Settings submitted! Extracting Account. `nIt takes a few seconds. You'll get another message box telling you it's ready.
+	MsgBox, Settings submitted! Extracting Account. `nIt takes a few seconds. You'll get another message box telling you it's ready.
 	
 adbPath := folderPath . "\MuMuPlayerGlobal-12.0\shell\adb.exe"
 findAdbPorts(folderPath)
