@@ -17,7 +17,10 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	winTitle := scriptName
 	pauseToggle := false
 	IniRead, adbPort, %A_ScriptDir%\..\Settings.ini, UserSettings, adbPort%scriptName%, 11111
-    IniRead, Name, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, player1
+	IniRead, Name, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, player1
+	if (Name = "")
+		Name := RandomUsername()
+
     IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
 	IniRead, folderPath, %A_ScriptDir%\..\Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
     IniRead, Variation, %A_ScriptDir%\..\Settings.ini, UserSettings, Variation, 40
@@ -1415,6 +1418,18 @@ adbClick(X, Y) {
 ControlClick(X, Y) {
 	global winTitle
 	ControlClick, x%X% y%Y%, %winTitle%
+}
+
+RandomUsername() {
+    FileRead, content, %A_ScriptDir%\..\usernames.txt
+
+    values := StrSplit(content, "`r`n") ; Use `n if the file uses Unix line endings
+
+    ; Get a random index from the array
+    Random, randomIndex, 1, values.MaxIndex()
+
+    ; Return the random value
+    return values[randomIndex]
 }
 
 adbName() {
