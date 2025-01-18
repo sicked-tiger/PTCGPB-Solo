@@ -10,6 +10,10 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
+; Allocate and hide the console window to reduce flashing
+DllCall("AllocConsole")
+WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
+
 global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, skipInvalidGP, deleteXML, packs
 
 	deleteAccount := false
@@ -17,8 +21,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	winTitle := scriptName
 	pauseToggle := false
 	jsonFileName := A_ScriptDir . "\..\json\Packs.json"
-	;IniRead, adbPort, %A_ScriptDir%\..\Settings.ini, UserSettings, adbPort%scriptName%, 11111
-	IniRead, Name, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, player1
+	IniRead, EnteredName, %A_ScriptDir%\..\Settings.ini, UserSettings, Name
 	IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
 	IniRead, folderPath, %A_ScriptDir%\..\Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
 	IniRead, Variation, %A_ScriptDir%\..\Settings.ini, UserSettings, Variation, 20
@@ -53,7 +56,10 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	; connect adb
 	instanceSleep := scriptName * 1000
 	Sleep, %instanceSleep%
-	RunWait, %adbPath% connect 127.0.0.1:%adbPort%,, Hide
+	
+	; Attempt to connect to ADB
+	ConnectAdb()
+	
 	if (InStr(defaultLanguage, "100")) {
 		scaleParam := 287
 	} else {
@@ -90,22 +96,6 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 			RetryCount++
 			if (RetryCount >= MaxRetries) {
 				CreateStatusMessage("Failed to create button gui.")
-				; WinGetPos, x, y, Width, Height, %winTitle%
-				; sleep, 2000
-				; x4 := x + 5
-				; y4 := y + 25
-				
-			
-				; Gui, New, -AlwaysOnTop +ToolWindow -Caption 
-				; Gui, Default
-				; Gui, Margin, 4, 4  ; Set margin for the GUI
-				; Gui, Font, s5 cGray Norm Bold, Segoe UI  ; Normal font for input labels
-				; Gui, Add, Button, x0 y0 w30 h25 gReloadScript, Reload  (F5)
-				; Gui, Add, Button, x30 y0 w30 h25 gPauseScript, Pause (F6)
-				; Gui, Add, Button, x60 y0 w40 h25 gResumeScript, Resume (F6)
-				; Gui, Add, Button, x100 y0 w30 h25 gStopScript, Stop (F7)
-				; Gui, Add, Button, x130 y0 w40 h25 gTestScript, GP Test  (F8)
-				; Gui, Show, NoActivate x%x4% y%y4% AutoSize
 				break
 			}
 			Sleep, 1000
@@ -170,40 +160,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 
 	rerollTime := A_TickCount	
 	
-	MaxRetries := 10
-	RetryCount := 0
-	Loop {
-		try {
-			if (!adbShell) {
-				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-				; Extract the Process ID
-				processID := adbShell.ProcessID
-
-				; Wait for the console window to open using the process ID
-				WinWait, ahk_pid %processID%
-
-				; Minimize the window using the process ID
-				WinMinimize, ahk_pid %processID%
-				
-				adbShell.StdIn.WriteLine("su")
-			}
-			else if (adbShell.Status != 0) {
-				Sleep, 1000
-			}
-			else {
-				Sleep, 1000
-				break
-			}
-		}
-		catch {
-			RetryCount++
-			if(RetryCount > MaxRetries) {
-				CreateStatusMessage("Failed to connect to shell")
-				Pause
-			}
-		}
-		Sleep, 1000
-	}
+	initializeAdbShell()
 	
 	restartGameInstance("Initializing bot...", false)
 	
@@ -429,7 +386,8 @@ KeepSync(0, 476, 40, 502, , "OK", 139, 257) ;wait for name input screen
 failSafe := A_TickCount
 failSafeTime := 0
 Loop {
-	adbName()
+	name := GetPlayerName()
+	adbName(name)
 	Sleep, %Delay%
 	if(KeepSync(121, 490, 161, 520, , "Return", 185, 372, , 5)) ;click through until return button on open pack
 		break
@@ -440,7 +398,7 @@ Loop {
 	Sleep, %Delay%
 	adbClick(139, 254)
 	Sleep, %Delay%
-	length := StrLen(Name) ; in case it lags and misses inputting name
+	length := StrLen(name) ; in case it lags and misses inputting name
 	Loop %length% {
 		adbShell.StdIn.WriteLine("input keyevent 67")	
 		Sleep, 10
@@ -1431,10 +1389,22 @@ ControlClick(X, Y) {
 	ControlClick, x%X% y%Y%, %winTitle%
 }
 
-adbName() {
-	global Name, adbShell, adbPath, adbPort
+RandomUsername() {
+    FileRead, content, %A_ScriptDir%\..\usernames.txt
+
+    values := StrSplit(content, "`r`n") ; Use `n if the file uses Unix line endings
+
+    ; Get a random index from the array
+    Random, randomIndex, 1, values.MaxIndex()
+
+    ; Return the random value
+    return values[randomIndex]
+}
+
+adbName(name) {
+	global adbShell, adbPath, adbPort
 	initializeAdbShell()
-	adbShell.StdIn.WriteLine("input text " Name )
+	adbShell.StdIn.WriteLine("input text " . name )
 }
 
 adbSwipeUp() {
@@ -1726,40 +1696,106 @@ bboxAndPause(X1, Y1, X2, Y2, doPause := False) {
 
 ; Function to initialize ADB Shell
 initializeAdbShell() {
-	global adbShell, adbPath, adbPort
-	RetryCount := 0
-	MaxRetries := 10
-	Loop {
-		try {
-			if (!adbShell) {
-				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-				; Extract the Process ID
-				processID := adbShell.ProcessID
+    global adbShell, adbPath, adbPort
+    RetryCount := 0
+    MaxRetries := 10
+    BackoffTime := 1000  ; Initial backoff time in milliseconds
 
-				; Wait for the console window to open using the process ID
-				WinWait, ahk_pid %processID%
-
-				; Minimize the window using the process ID
-				WinMinimize, ahk_pid %processID%
+    Loop {
+        try {
+            if (!adbShell) {
+                ; Validate adbPath and adbPort
+                if (!FileExist(adbPath)) {
+                    throw "ADB path is invalid."
+                }
+                if (adbPort < 0 || adbPort > 65535)
+					throw "ADB port is invalid."
 				
-				adbShell.StdIn.WriteLine("su")
-			}
-			else if (adbShell.Status != 0) {
-				Sleep, 1000
-			}
-			else {
-				break
-			}
-		}
-		catch {
+				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
+
+                adbShell.StdIn.WriteLine("su")
+            } else if (adbShell.Status != 0) {
+                Sleep, BackoffTime
+                BackoffTime += 1000 ; Increase the backoff time
+            } else {
+                break
+            }
+        } catch e {
+            RetryCount++
+            if (RetryCount > MaxRetries) {
+                CreateStatusMessage("Failed to connect to shell: " . e.message)
+				LogToFile("Failed to connect to shell: " . e.message)
+                Pause
+            }
+        }
+        Sleep, BackoffTime
+    }
+}
+ConnectAdb() {
+	global adbPath, adbPort, StatusText
+	MaxRetries := 5
+	RetryCount := 0
+	connected := false
+	ip := "127.0.0.1:" . adbPort ; Specify the connection IP:port
+
+	CreateStatusMessage("Connecting to ADB...")
+
+	Loop %MaxRetries% {
+		; Attempt to connect using CmdRet
+		connectionResult := CmdRet(adbPath . " connect " . ip)
+
+		; Check for successful connection in the output
+		if InStr(connectionResult, "connected to " . ip) {
+			connected := true
+			CreateStatusMessage("ADB connected successfully.")
+			return true
+		} else {
 			RetryCount++
-			if(RetryCount > MaxRetries) {
-				CreateStatusMessage("Failed to connect to shell")
-				Pause
-			}
+			CreateStatusMessage("ADB connection failed. Retrying (" . RetryCount . "/" . MaxRetries . ").")
+			Sleep, 2000
 		}
-		Sleep, 1000
 	}
+
+	if !connected {
+		CreateStatusMessage("Failed to connect to ADB after multiple retries. Please check your emulator and port settings.")
+		Reload
+	}
+}
+
+CmdRet(sCmd, callBackFuncObj := "", encoding := "")
+{
+   static HANDLE_FLAG_INHERIT := 0x00000001, flags := HANDLE_FLAG_INHERIT
+        , STARTF_USESTDHANDLES := 0x100, CREATE_NO_WINDOW := 0x08000000
+
+   (encoding = "" && encoding := "cp" . DllCall("GetOEMCP", "UInt"))
+   DllCall("CreatePipe", "PtrP", hPipeRead, "PtrP", hPipeWrite, "Ptr", 0, "UInt", 0)
+   DllCall("SetHandleInformation", "Ptr", hPipeWrite, "UInt", flags, "UInt", HANDLE_FLAG_INHERIT)
+
+   VarSetCapacity(STARTUPINFO , siSize :=    A_PtrSize*4 + 4*8 + A_PtrSize*5, 0)
+   NumPut(siSize              , STARTUPINFO)
+   NumPut(STARTF_USESTDHANDLES, STARTUPINFO, A_PtrSize*4 + 4*7)
+   NumPut(hPipeWrite          , STARTUPINFO, A_PtrSize*4 + 4*8 + A_PtrSize*3)
+   NumPut(hPipeWrite          , STARTUPINFO, A_PtrSize*4 + 4*8 + A_PtrSize*4)
+
+   VarSetCapacity(PROCESS_INFORMATION, A_PtrSize*2 + 4*2, 0)
+
+   if !DllCall("CreateProcess", "Ptr", 0, "Str", sCmd, "Ptr", 0, "Ptr", 0, "UInt", true, "UInt", CREATE_NO_WINDOW
+                              , "Ptr", 0, "Ptr", 0, "Ptr", &STARTUPINFO, "Ptr", &PROCESS_INFORMATION)
+   {
+      DllCall("CloseHandle", "Ptr", hPipeRead)
+      DllCall("CloseHandle", "Ptr", hPipeWrite)
+      throw "CreateProcess is failed"
+   }
+   DllCall("CloseHandle", "Ptr", hPipeWrite)
+   VarSetCapacity(sTemp, 4096), nSize := 0
+   while DllCall("ReadFile", "Ptr", hPipeRead, "Ptr", &sTemp, "UInt", 4096, "UIntP", nSize, "UInt", 0) {
+      sOutput .= stdOut := StrGet(&sTemp, nSize, encoding)
+      ( callBackFuncObj && callBackFuncObj.Call(stdOut) )
+   }
+   DllCall("CloseHandle", "Ptr", NumGet(PROCESS_INFORMATION))
+   DllCall("CloseHandle", "Ptr", NumGet(PROCESS_INFORMATION, A_PtrSize))
+   DllCall("CloseHandle", "Ptr", hPipeRead)
+   Return sOutput
 }
 
 GetNeedle(Path) {
@@ -1821,8 +1857,15 @@ findAdbPorts(baseFolder := "C:\Program Files\Netease") {
 	}
 }
 
-;^e::
-	;msgbox ss
-	;pToken := Gdip_Startup()
-	;Screenshot()
-;return
+GetPlayerName() {
+	if (EnteredName = "")
+		return RandomUsername()
+
+	return EnteredName
+}
+
+; ^e::
+	; msgbox ss
+	; pToken := Gdip_Startup()
+	; Screenshot()
+; return
