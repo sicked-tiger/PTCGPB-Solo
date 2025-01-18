@@ -15,11 +15,11 @@ IniRead, folderPath, InjectAccount.ini, UserSettings, folderPath, C:\Program Fil
 
 Gui, Add, Text,, This tool is to INJECT the account into the instance.`nIt will OVERWRITE any current account in that instance and you will LOSE it!
 Gui, Add, Text,, Instance Name:
-Gui, Add, Edit, vwinTitle, %winTitle%
+Gui, Add, Edit, vwinTitle w200, %winTitle%
 Gui, Add, Text,, File Name (without spaces and without .xml):
-Gui, Add, Edit, vfileName, %fileName%
+Gui, Add, Edit, vfileName w200, %fileName%
 Gui, Add, Text,, MuMu Folder same as main script (C:\Program Files\Netease)
-Gui, Add, Edit, vfolderPath, %folderPath%
+Gui, Add, Edit, vfolderPath w200, %folderPath%
 Gui, Add, Button, gSaveSettings, Submit
 Gui, Show, , Arturo's Account Injection Tool ;'
 Return
