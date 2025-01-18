@@ -57,7 +57,7 @@ Step 3: Install PTCGP
 - Go through the game until it finishes downloading the initial ~600 mb download
 
 Step 4: Windows settings
-- **Change scale to 125% or 100% in your windows settings.** > Press windows key > Type "display settings" > Look for the scale setting and change it to 125% for all your monitors.
+- **Change scale to 125% or 100% in your windows settings.** > Press windows key > Type "display settings" > Look for the scale setting and change it to 100% or 125% for all of your monitors.
 - all windows color filters off
 - HDR off
 
