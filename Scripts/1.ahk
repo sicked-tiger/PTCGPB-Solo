@@ -1821,8 +1821,8 @@ findAdbPorts(baseFolder := "C:\Program Files\Netease") {
 	}
 }
 
-^e::
-	msgbox ss
-	pToken := Gdip_Startup()
-	Screenshot()
-return
+;^e::
+	;msgbox ss
+	;pToken := Gdip_Startup()
+	;Screenshot()
+;return
