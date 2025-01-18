@@ -1723,33 +1723,41 @@ bboxAndPause(X1, Y1, X2, Y2, doPause := False) {
 
 ; Function to initialize ADB Shell
 initializeAdbShell() {
-	global adbShell, adbPath, adbPort
-	RetryCount := 0
-	MaxRetries := 10
-	Loop {
-		try {
-			if (!adbShell) {
-				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-				adbShell.StdIn.WriteLine("su")
-			}
-			else if (adbShell.Status != 0) {
-				Sleep, 1000
-			}
-			else {
-				break
-			}
-		}
-		catch {
-			RetryCount++
-			if(RetryCount > MaxRetries) {
-				CreateStatusMessage("Failed to connect to shell")
-				Pause
-			}
-		}
-		Sleep, 1000
-	}
-}
+    global adbShell, adbPath, adbPort
+    RetryCount := 0
+    MaxRetries := 10
+    BackoffTime := 1000  ; Initial backoff time in milliseconds
 
+    Loop {
+        try {
+            if (!adbShell) {
+                ; Validate adbPath and adbPort
+                if (!FileExist(adbPath)) {
+                    throw "ADB path is invalid."
+                }
+                if (adbPort < 1024 || adbPort > 65535)
+					throw "ADB port is invalid."
+				
+				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
+
+                adbShell.StdIn.WriteLine("su")
+            } else if (adbShell.Status != 0) {
+                Sleep, BackoffTime
+                BackoffTime += 1000 ; Increase the backoff time
+            } else {
+                break
+            }
+        } catch e {
+            RetryCount++
+            if (RetryCount > MaxRetries) {
+                CreateStatusMessage("Failed to connect to shell: " . e.message)
+				LogToFile("Failed to connect to shell: " . e.message)
+                Pause
+            }
+        }
+        Sleep, BackoffTime
+    }
+}
 ConnectAdb() {
 	global adbPath, adbPort, StatusText
 	MaxRetries := 5
