@@ -48,7 +48,8 @@ Step 2: Set-Up MuMu Player
 - The very first instance in the multi-instance window is incompatible. just name another one 1.
 
 Step 3: Install PTCGP
- - PTCGP Speed Mod[[Download]](https://modsfire.com/6OIgGK903XQXy6O) ** - *Thanks to nowhere_222 from the platinmods forum.*
+- PTCGP Speed Mod[[Download]](https://modsfire.com/6OIgGK903XQXy6O)
+  - *Thanks to nowhere_222 from the platinmods forum.*
 - Drag and drop into your MuMu instance
 - Do not move the app from where it is placed on the home screen.
 - Manually open the game.
