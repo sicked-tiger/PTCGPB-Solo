@@ -20,8 +20,8 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	scriptName := StrReplace(A_ScriptName, ".ahk")
 	winTitle := scriptName
 	pauseToggle := false
+	IniRead, EnteredName, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, player1
 	IniRead, adbPort, %A_ScriptDir%\..\Settings.ini, UserSettings, adbPort%scriptName%, -1
-    IniRead, Name, %A_ScriptDir%\..\Settings.ini, UserSettings, Name, player1
     IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
 	IniRead, folderPath, %A_ScriptDir%\..\Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
     IniRead, Variation, %A_ScriptDir%\..\Settings.ini, UserSettings, Variation, 40
@@ -409,7 +409,8 @@ KeepSync(230, 500, 270, 520, , "OK", 139, 257) ;wait for name input screen
 failSafe := A_TickCount
 failSafeTime := 0
 Loop {
-	adbName()
+	name := GetPlayerName()
+	adbName(name)
 	Sleep, %Delay%
 	if(KeepSync(121, 490, 161, 520, , "Return", 185, 372, , 5)) ;click through until return button on open pack
 		break
@@ -420,7 +421,7 @@ Loop {
 	Sleep, %Delay%
 	adbClick(139, 254)
 	Sleep, %Delay%
-	length := StrLen(Name) ; in case it lags and misses inputting name
+	length := StrLen(name) ; in case it lags and misses inputting name
 	Loop %length% {
 		adbShell.StdIn.WriteLine("input keyevent 67")	
 		Sleep, 10
@@ -1152,6 +1153,12 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 	return confirmed
 }
 
+GetPlayerName() {
+	if (EnteredName = "")
+		return RandomUsername()
+		
+	return EnteredName
+}
 
 resetWindows(){
 	global Columns, winTitle, SelectedMonitorIndex, scaleParam
@@ -1391,10 +1398,22 @@ ControlClick(X, Y) {
 	ControlClick, x%X% y%Y%, %winTitle%
 }
 
-adbName() {
-	global Name, adbShell, adbPath, adbPort
+RandomUsername() {
+    FileRead, content, %A_ScriptDir%\..\usernames.txt
+
+    values := StrSplit(content, "`r`n") ; Use `n if the file uses Unix line endings
+
+    ; Get a random index from the array
+    Random, randomIndex, 1, values.MaxIndex()
+
+    ; Return the random value
+    return values[randomIndex]
+}
+
+adbName(name) {
+	global adbShell, adbPath, adbPort
 	initializeAdbShell()
-	adbShell.StdIn.WriteLine("input text " Name )
+	adbShell.StdIn.WriteLine("input text " name )
 }
 
 adbSwipeUp() {
