@@ -33,7 +33,7 @@ InitializeJsonFile() ; Create or open the JSON file
 	IniRead, changeDate, Settings.ini, UserSettings, ChangeDate, 0100
 	IniRead, Columns, Settings.ini, UserSettings, Columns, 5
 	IniRead, openPack, Settings.ini, UserSettings, openPack, Mew
-	IniRead, godPack, Settings.ini, UserSettings, godPack, Close
+	IniRead, godPack, Settings.ini, UserSettings, godPack, Continue
 	IniRead, Instances, Settings.ini, UserSettings, Instances, 10
 	IniRead, setSpeed, Settings.ini, UserSettings, setSpeed, 2x
 	IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, Scale125
@@ -170,11 +170,7 @@ Gui Add, Button, x342 y77 w17 h19 gShowMsgInstances, ? ;Questionmark box for Ins
 Gui Add, Button, x415 y77 w17 h19 gShowMsgColumns, ? ;Questionmark box for Instance Per Row Field
 
 Gui Add, Button, x190 y145 w17 h19 gShowMsgPacks, ? ;Questionmark box for Pack to Open Field
-Gui Add, Button, x337 y145 w17 h19 gShowMsgGodPacks, ? ;Questionmark box for God Pack to Open Field
-
-
-
-Gui Add, Button, x423 y145 w17 h19 gShowMsgFP, ? ;Questionmark box for God Pack to Open Field
+Gui Add, Button, x423 y145 w17 h19 gShowMsgGodPacks, ? ;Questionmark box for God Pack to Open Field
 
 Gui Add, Button, x78 y219 w17 h19 gShowMsgLanguage, ? ;Questionmark box for God Pack to Open Field
 Gui Add, Button, x400 y219 w17 h19 gShowMsgMonitor, ? ;Questionmark box for God Pack to Open Field
@@ -214,10 +210,6 @@ return
 
 ShowMsgGodPacks:
 	MsgBox, Select the behavior you want when finding a god pack. `nClose will close the emulator and stop the script to save resources. `nPause will only pause the script on the opening screen. `nContinue will save the account data to a file and continue rolling with the instance. The xml account data can then be injected into an instance using the tools in the 'Accounts' folder to recover the god pack.
-return
-
-ShowMsgFP:
-	MsgBox, If you're getting frequent false positives change this option to Yes. If you aren't getting any false positives then leave it on No.
 return
 
 ShowMsgLanguage:
