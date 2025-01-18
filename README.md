@@ -75,7 +75,7 @@ Step 7: Input your script settings
 - Pack you want to open
 - Delay in between actions
 - Time Zone: The time the game "changes date." 1 AM EST so convert that to yours.
-- Name: What to name the account
+- Name: What to name the account. Leave blank for a random pokemon name.
 - Instances per row: How many instances per row
 - Netease Path: If you didn't change your path upon installation leave it. Otherwise input the path.
 - Speed: This is what game speed you want to run at if you have the new speed mod.
