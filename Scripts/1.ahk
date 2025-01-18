@@ -10,6 +10,10 @@ SetBatchLines, -1
 SetTitleMatchMode, 3
 CoordMode, Pixel, Screen
 
+; Allocate and hide the console window to reduce flashing
+DllCall("AllocConsole")
+WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
+
 global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, skipInvalidGP, deleteXML, packs
 
 	deleteAccount := false
@@ -1723,15 +1727,6 @@ initializeAdbShell() {
 		try {
 			if (!adbShell) {
 				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-				; Extract the Process ID
-				processID := adbShell.ProcessID
-
-				; Wait for the console window to open using the process ID
-				WinWait, ahk_pid %processID%
-
-				; Minimize the window using the process ID
-				WinMinimize, ahk_pid %processID%
-				
 				adbShell.StdIn.WriteLine("su")
 			}
 			else if (adbShell.Status != 0) {
