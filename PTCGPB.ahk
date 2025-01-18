@@ -25,7 +25,7 @@ if FileExist(packsFile) ; Check if the file exists
 InitializeJsonFile() ; Create or open the JSON file
 
 ; Create the main GUI for selecting number of instances
-	IniRead, Name, Settings.ini, UserSettings, Name, player1
+	IniRead, Name, Settings.ini, UserSettings, Name
 	IniRead, Delay, Settings.ini, UserSettings, Delay, 250
 	IniRead, folderPath, Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
 	IniRead, discordWebhookURL, Settings.ini, UserSettings, discordWebhookURL, ""
@@ -60,7 +60,10 @@ Gui, Font, s15 Bold , Segoe UI
 Gui, Add, Picture, x0 y0 w500 h640, %A_ScriptDir%\Scripts\GUI\GUI.png
 
 ; Add input controls
-Gui, Add, Edit, vName x80 y95 w145 Center, %Name%
+if(Name = "ERROR")
+	Gui, Add, Edit, vName x80 y95 w145 Center
+else
+	Gui, Add, Edit, vName x80 y95 w145 Center, %Name%
 Gui, Add, Edit, vInstances x275 y95 w72 Center, %Instances%
 Gui, Add, Edit, vColumns x348 y95 w72 Center, %Columns%
 
@@ -193,7 +196,7 @@ Gui, Show
 return
 
 ShowMsgName:
-	MsgBox, Input the name you want the accounts to have. `nIf it's getting stuck inputting the name then make sure your dpi is set to 220. ;'
+	MsgBox, Input the name you want the accounts to have. `nIf it's getting stuck inputting the name then make sure your dpi is set to 220.`nLeave blank for a random pokemon name ;'
 return
 
 ShowMsgInstances:
