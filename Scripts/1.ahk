@@ -1411,7 +1411,7 @@ saveAccount(file := "Valid") {
 		
 		if(count > 10) {
 			CreateStatusMessage("Attempted to save the account XML`n10 times, but was unsuccesful.`nPausing...")
-			LogToDiscord("Attempted to save account in " . scriptName . " but was unsuccessful. Pausing. You will need to manually extract.", , discordUserId)
+			LogToDiscord("Attempted to save account in " . scriptName . " but was unsuccessful. Pausing. You will need to manually extract.", Screenshot(), discordUserId)
 			Pause, On
 		}
 		count++
