@@ -15,23 +15,23 @@ IniRead, folderPath, InjectAccount.ini, UserSettings, folderPath, C:\Program Fil
 
 Gui, Add, Text,, This tool is to INJECT the account into the instance.`nIt will OVERWRITE any current account in that instance and you will LOSE it!
 Gui, Add, Text,, Instance Name:
-Gui, Add, Edit, vwinTitle, %winTitle%
+Gui, Add, Edit, vwinTitle w200, %winTitle%
 Gui, Add, Text,, File Name (without spaces and without .xml):
-Gui, Add, Edit, vfileName, %fileName%
+Gui, Add, Edit, vfileName w200, %fileName%
 Gui, Add, Text,, MuMu Folder same as main script (C:\Program Files\Netease)
-Gui, Add, Edit, vfolderPath, %folderPath%
+Gui, Add, Edit, vfolderPath w200, %folderPath%
 Gui, Add, Button, gSaveSettings, Submit
 Gui, Show, , Arturo's Account Injection Tool ;'
 Return
 
 SaveSettings:
-    Gui, Submit, NoHide
+	Gui, Submit, NoHide
 	Gui, Destroy
-    IniWrite, %winTitle%, InjectAccount.ini, UserSettings, winTitle
+	IniWrite, %winTitle%, InjectAccount.ini, UserSettings, winTitle
 	IniWrite, %fileName%, InjectAccount.ini, UserSettings, fileName
 	IniWrite, %folderPath%, InjectAccount.ini, UserSettings, folderPath
 	
-    MsgBox, Settings submitted!`nClosing the game and  injecting the account. `nIt takes a few seconds. `nYou'll get another message box telling you it's ready.
+	MsgBox, Settings submitted!`nClosing the game and  injecting the account. `nIt takes a few seconds. `nYou'll get another message box telling you it's ready.
 
 adbPath := folderPath . "\MuMuPlayerGlobal-12.0\shell\adb.exe"
 findAdbPorts(folderPath)
@@ -179,4 +179,5 @@ loadAccount() {
 	Sleep, 500
 	
 	adbShell.StdIn.WriteLine("rm /sdcard/deviceAccount.xml")
+	adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
 }

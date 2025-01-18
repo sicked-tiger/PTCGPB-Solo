@@ -15,23 +15,23 @@ IniRead, folderPath, ExtractAccount.ini, UserSettings, folderPath, C:\Program Fi
 
 Gui, Add, Text,, This tool is to EXTRACT the account from the instance.`nMake sure the file name does not match any current account!`nIt will OVERWRITE any file named the same!
 Gui, Add, Text,, Instance Name:
-Gui, Add, Edit, vwinTitle, %winTitle%
+Gui, Add, Edit, vwinTitle w200, %winTitle%
 Gui, Add, Text,, File Name (without spaces and without .xml):
-Gui, Add, Edit, vfileName, %fileName%
+Gui, Add, Edit, vfileName w200, %fileName%
 Gui, Add, Text,, MuMu Folder same as main script (C:\Program Files\Netease)
-Gui, Add, Edit, vfolderPath, %folderPath%
+Gui, Add, Edit, vfolderPath w200, %folderPath%
 Gui, Add, Button, gSaveSettings, Submit
 Gui, Show, , Arturo's Account Extraction Tool ;'
 Return
 
 SaveSettings:
-    Gui, Submit, NoHide
+	Gui, Submit, NoHide
 	Gui, Destroy
-    IniWrite, %winTitle%, ExtractAccount.ini, UserSettings, winTitle
+	IniWrite, %winTitle%, ExtractAccount.ini, UserSettings, winTitle
 	IniWrite, %fileName%, ExtractAccount.ini, UserSettings, fileName
 	IniWrite, %folderPath%, ExtractAccount.ini, UserSettings, folderPath
 	
-    MsgBox, Settings submitted! Extracting Account. `nIt takes a few seconds. You'll get another message box telling you it's ready.
+	MsgBox, Settings submitted! Extracting Account. `nIt takes a few seconds. You'll get another message box telling you it's ready.
 	
 adbPath := folderPath . "\MuMuPlayerGlobal-12.0\shell\adb.exe"
 findAdbPorts(folderPath)
