@@ -18,7 +18,7 @@ If you're having issues check the common issues section after the guide.
 **__What do I need?__**
 - [MuMu Player](https://www.mumuplayer.com/)
 - [AutoHotkey v1.X](https://www.autohotkey.com/download/ahk-install.exe)
-- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/releases): Download the latest .zip
+- [PTCGP Bot.zip](https://github.com/Arturo-1212/PTCGPB/releases): Download the latest source (zip)
 
 **__How can I get it working?__**
 
