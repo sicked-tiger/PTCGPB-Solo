@@ -175,41 +175,8 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 		deleteXML := false
 
 	rerollTime := A_TickCount	
-	
-	MaxRetries := 10
-	RetryCount := 0
-	Loop {
-		try {
-			if (!adbShell) {
-				adbShell := ComObjCreate("WScript.Shell").Exec(adbPath . " -s 127.0.0.1:" . adbPort . " shell")
-				; Extract the Process ID
-				processID := adbShell.ProcessID
 
-				; Wait for the console window to open using the process ID
-				WinWait, ahk_pid %processID%
-
-				; Minimize the window using the process ID
-				WinMinimize, ahk_pid %processID%
-				
-				adbShell.StdIn.WriteLine("su")
-			}
-			else if (adbShell.Status != 0) {
-				Sleep, 1000
-			}
-			else {
-				Sleep, 1000
-				break
-			}
-		}
-		catch {
-			RetryCount++
-			if(RetryCount > MaxRetries) {
-				CreateStatusMessage("Failed to connect to shell")
-				Pause
-			}
-		}
-		Sleep, 1000
-	}
+	initializeAdbShell()
 	
 	restartGameInstance("Initializing bot...", false)
 	
