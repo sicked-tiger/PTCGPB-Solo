@@ -30,7 +30,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	IniRead, SelectedMonitorIndex, %A_ScriptDir%\..\Settings.ini, UserSettings, SelectedMonitorIndex, 1:
 	IniRead, swipeSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, swipeSpeed, 600
 	IniRead, skipInvalidGP, %A_ScriptDir%\..\Settings.ini, UserSettings, skipInvalidGP, No
-	IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, 1
+	IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, Continue
 	IniRead, discordWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, discordWebhookURL, ""
 	IniRead, discordUserId, %A_ScriptDir%\..\Settings.ini, UserSettings, discordUserId, ""
 	IniRead, deleteMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, deleteMethod, Clicks
@@ -253,6 +253,7 @@ if(!packs) {
 }	
 KeepSync(105, 396, 121, 406, , "Country", 143, 370) ;select month and year and click
 
+Sleep, %Delay%
 adbClick(80, 400)
 Sleep, %Delay%
 adbClick(80, 375)
@@ -378,16 +379,6 @@ Sleep, %Delay%
 
 KeepSync(51, 335, 107, 359, , "Link") ;wait for link account screen%
 Sleep, %Delay%
-		
-	if(setSpeed = 3) {
-		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-		Sleep, %Delay%
-		adbClick(41, 296)
-		Sleep, %Delay%
-	}
-	
-	sleep, 1000
 failSafe := A_TickCount
 failSafeTime := 0	
 	Loop {
@@ -405,18 +396,7 @@ failSafeTime := 0
 			adbClick(203, 364)
 		} else if(CheckInstances(215, 371, 264, 418, , "Complete", 0, failSafeTime)) {
 			adbClick(140, 370)
-		} else if(CheckInstances(110, 230, 182, 257, , "Welcome", 1, failSafeTime)) {
-			adbClick(140, 380) ; click ok on the interrupted while opening pack prompt
-			Sleep, 100
-			adbClick(253, 506)
-			Sleep, 100
-			adbClick(253, 506)
-			Sleep, 100
-			adbClick(253, 506)
-			Sleep, 100
-			adbClick(253, 506)
-			Sleep, 100
-		} else if(CheckInstances(110, 230, 182, 257, , "Welcome", 0, failSafeTime)) {
+		} else if(CheckInstances(0, 46, 20, 70, , "Cinematic", 0, failSafeTime)) {
 			break
 		}
 		;CreateStatusMessage("Looking for Link/Welcome")
@@ -425,7 +405,15 @@ failSafeTime := 0
 		;CreateStatusMessage("In failsafe for Link/Welcome. It's been: " . failSafeTime "s ")
 	}
 	
-	;KeepSync(60, 206, 226, 248, , "Welcome", 253, 506, 110) ;click through cutscene until welcome page
+	if(setSpeed = 3) {
+		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
+		Sleep, %Delay%
+		adbClick(41, 296)
+		Sleep, %Delay%
+	}
+	
+	KeepSync(110, 230, 182, 257, , "Welcome", 253, 506, 110) ;click through cutscene until welcome page
 	
 	if(setSpeed = 3) {
 		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
@@ -689,27 +677,10 @@ Loop {
 		break
 	}
 	if(!deleteAccount) {
-		adbClick(143, 518)
-		Sleep, %Delay%
-		Sleep, %Delay%
-		adbClick(143, 518)
-		Sleep, %Delay%
-		Sleep, %Delay%
-		adbClick(143, 518)
-		Sleep, %Delay%
-		Sleep, %Delay%
-		adbClick(143, 518)
-		Sleep, %Delay%
-		Sleep, %Delay%
-		adbClick(143, 518)
-		Sleep, %Delay%
-		Sleep, %Delay%
-		adbClick(143, 518)
-		Sleep, %Delay%
-		Sleep, %Delay%
-		adbClick(143, 518)
-		Sleep, %Delay%
-		Sleep, %Delay%
+		KeepSync(120, 500, 155, 530, , "Social", 143, 518, 500)
+		KeepSync(226, 100, 270, 135, , "Add", 38, 460, 500)
+		KeepSync(205, 430, 255, 475, , "Search", 240, 120, 500)
+		KeepSync(0, 475, 25, 495, , "OK2", 138, 454)
 	}
 	deleteAccount := true
 	CreateStatusMessage("GP Test mode. Press button again to delete.")
@@ -1160,7 +1131,7 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 		} else {
 			ElapsedTime := (A_TickCount - StartSkipTime) // 1000
 			if(imageName = "Country")
-				FSTime := 90
+				FSTime := 180
 			else
 				FSTime := 45
 			if (ElapsedTime >= FSTime || safeTime >= FSTime) {
@@ -1307,100 +1278,106 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 	}
 }
 
-checkBorder(confirmed := false) {
+checkBorder() {
 	global winTitle, discordUserId, skipInvalidGP, Delay
 	gpFound := false
 	invalidGP := false
 	searchVariation := 5
-	;Sleep, 250 ; give time for cards to render
-	pBitmap := from_window(WinExist(winTitle))
-	Path = %A_ScriptDir%\%defaultLanguage%\Border.png
-	pNeedle := GetNeedle(Path)
-	; ImageSearch within the region
-	if (scaleParam = 277) { ; 125% scale
-		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, searchVariation)
-	} else {
-		vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284-6, 90, 286-6, searchVariation)
-		;bboxAndPause(20, 284-6, 90, 286-6)
-	}
-	Gdip_DisposeImage(pBitmap)
-	if (vRet = 1) {
-		CreateStatusMessage("Not a God Pack ")
-		packs += 1
-	}
-	else {
-		;pause (should pause if first card is not 1 or 2 diamonds)
+	confirm := false
+	Sleep, 250 ; give time for cards to render
+	Loop {
 		pBitmap := from_window(WinExist(winTitle))
 		Path = %A_ScriptDir%\%defaultLanguage%\Border.png
 		pNeedle := GetNeedle(Path)
 		; ImageSearch within the region
 		if (scaleParam = 277) { ; 125% scale
-			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, searchVariation)
+			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, searchVariation)
 		} else {
-			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-6, 173, 286-6, searchVariation)
-			;bboxAndPause(103, 284-6, 173, 286-6)
+			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284-6, 90, 286-6, searchVariation)
+			;bboxAndPause(20, 284-6, 90, 286-6)
 		}
 		Gdip_DisposeImage(pBitmap)
 		if (vRet = 1) {
 			CreateStatusMessage("Not a God Pack ")
-			LogToFile("Second card checked. Not a God Pack ")
 			packs += 1
-		}
-		else if (confirmed) {
-			packs += 1
-			if(skipInvalidGP = 2) {
-				Loop 8 {
-					pBitmap := from_window(WinExist(winTitle))
-					if (scaleParam = 277) { ; 125% scale
-						Path = %A_ScriptDir%\Skip\%A_Index%.png
-					} else {
-						Path = %A_ScriptDir%\Skip\100\%A_Index%.png
-					}
-					pNeedle := GetNeedle(Path)
-					vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, searchVariation)
-					;bboxAndPause(5, 165, 265, 405, True)
-					Gdip_DisposeImage(pBitmap)
-					if (vRet = 1) {
-						invalidGP := true
-					}
-				}
-			}
-			if(invalidGP) {
-				Condemn := ["Uh-oh!", "Oops!", "Not quite!", "Better luck next time!", "Yikes!", "That didn’t go as planned.", "Try again!", "Almost had it!", "Not your best effort.", "Keep practicing!", "Oh no!", "Close, but no cigar.", "You missed it!", "Needs work!", "Back to the drawing board!", "Whoops!", "That’s rough!", "Don’t give up!", "Ouch!", "Swing and a miss!", "Room for improvement!", "Could be better.", "Not this time.", "Try harder!", "Missed the mark.", "Keep at it!", "Bummer!", "That’s unfortunate.", "So close!", "Gotta do better!"]
-				Randmax := Condemn.Length()
-				Random, rand, 1, Randmax
-				Interjection := Condemn[rand]
-				logMessage := Interjection . " Invalid pack in instance: " . scriptName . " (" . packs . " packs) Backed up to the Accounts folder. Continuing..."
-				CreateStatusMessage(logMessage)
-				godPackLog = GPlog.txt
-				LogToFile(logMessage, godPackLog)
-				LogToDiscord(logMessage, Screenshot("Invalid"), discordUserId)
-				saveAccount("Invalid")
-				;killGodPackInstance()
-			}
-			else {
-				Praise := ["Congrats!", "Congratulations!", "GG!", "Whoa!", "Praise Helix! ༼ つ ◕_◕ ༽つ", "Way to go!", "You did it!", "Awesome!", "Nice!", "Cool!", "You deserve it!", "Keep going!", "This one has to be live!", "No duds, no duds, no duds!", "Fantastic!", "Bravo!", "Excellent work!", "Impressive!", "Youre amazing!", "Well done!", "Youre crushing it!", "Keep up the great work!", "Youre unstoppable!", "Exceptional!", "You nailed it!", "Hats off to you!", "Sweet!", "Kudos!", "Phenomenal!", "Boom! Nailed it!", "Marvelous!", "Outstanding!", "Legendary!", "Youre a rock star!", "Unbelievable!", "Keep shining!", "Way to crush it!", "Youre on fire!", "Killing it!", "Top-notch!", "Superb!", "Epic!", "Cheers to you!", "Thats the spirit!", "Magnificent!", "Youre a natural!", "Gold star for you!", "You crushed it!", "Incredible!", "Shazam!", "Youre a genius!", "Top-tier effort!", "This is your moment!", "Powerful stuff!", "Wicked awesome!", "Props to you!", "Big win!", "Yesss!", "Champion vibes!", "Spectacular!"]
-
-				Randmax := Praise.Length()
-				Random, rand, 1, Randmax
-				Interjection := Praise[rand]
-				
-				if(godPack < 3)
-					logMessage := Interjection . " God pack found in instance: " . scriptName . " (" . packs . " packs) Instance is stopping."
-				else if(godPack = 3)
-					logMessage := Interjection . " God Pack found in instance: " . scriptName . " (" . packs . " packs) Backed up to the Accounts folder. Continuing..."
-				CreateStatusMessage(logMessage)
-				godPackLog = GPlog.txt
-				LogToFile(logMessage, godPackLog)
-				LogToDiscord(logMessage, Screenshot(), discordUserId)
-				saveAccount()
-				gpFound := true
-			}
+			break
 		}
 		else {
-			fpSleep := Delay * 5
-			Sleep, %fpSleep% ; delay to make sure cards rendered after not detecting common borders to eliminate false positives
-			checkBorder(true) ; check borders again to ensure not a false positive
+			;pause (should pause if first card is not 1 or 2 diamonds)
+			pBitmap := from_window(WinExist(winTitle))
+			Path = %A_ScriptDir%\%defaultLanguage%\Border.png
+			pNeedle := GetNeedle(Path)
+			; ImageSearch within the region
+			if (scaleParam = 277) { ; 125% scale
+				vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, searchVariation)
+			} else {
+				vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-6, 173, 286-6, searchVariation)
+				;bboxAndPause(103, 284-6, 173, 286-6)
+			}
+			Gdip_DisposeImage(pBitmap)
+			if (vRet = 1) {
+				CreateStatusMessage("Not a God Pack ")
+				LogToFile("Second card checked. Not a God Pack ")
+				packs += 1
+				break
+			}
+			else if (confirm) {
+				packs += 1
+				if(skipInvalidGP = 2) {
+					Loop 8 {
+						pBitmap := from_window(WinExist(winTitle))
+						if (scaleParam = 277) { ; 125% scale
+							Path = %A_ScriptDir%\Skip\%A_Index%.png
+						} else {
+							Path = %A_ScriptDir%\Skip\100\%A_Index%.png
+						}
+						pNeedle := GetNeedle(Path)
+						vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, searchVariation)
+						;bboxAndPause(5, 165, 265, 405, True)
+						Gdip_DisposeImage(pBitmap)
+						if (vRet = 1) {
+							invalidGP := true
+						}
+					}
+				}
+				if(invalidGP) {
+					Condemn := ["Uh-oh!", "Oops!", "Not quite!", "Better luck next time!", "Yikes!", "That didn’t go as planned.", "Try again!", "Almost had it!", "Not your best effort.", "Keep practicing!", "Oh no!", "Close, but no cigar.", "You missed it!", "Needs work!", "Back to the drawing board!", "Whoops!", "That’s rough!", "Don’t give up!", "Ouch!", "Swing and a miss!", "Room for improvement!", "Could be better.", "Not this time.", "Try harder!", "Missed the mark.", "Keep at it!", "Bummer!", "That’s unfortunate.", "So close!", "Gotta do better!"]
+					Randmax := Condemn.Length()
+					Random, rand, 1, Randmax
+					Interjection := Condemn[rand]
+					logMessage := Interjection . " Invalid pack in instance: " . scriptName . " (" . packs . " packs) Backed up to the Accounts folder. Continuing..."
+					CreateStatusMessage(logMessage)
+					godPackLog = GPlog.txt
+					LogToFile(logMessage, godPackLog)
+					LogToDiscord(logMessage, Screenshot("Invalid"), discordUserId)
+					saveAccount("Invalid")
+					break
+				}
+				else {
+					Praise := ["Congrats!", "Congratulations!", "GG!", "Whoa!", "Praise Helix! ༼ つ ◕_◕ ༽つ", "Way to go!", "You did it!", "Awesome!", "Nice!", "Cool!", "You deserve it!", "Keep going!", "This one has to be live!", "No duds, no duds, no duds!", "Fantastic!", "Bravo!", "Excellent work!", "Impressive!", "Youre amazing!", "Well done!", "Youre crushing it!", "Keep up the great work!", "Youre unstoppable!", "Exceptional!", "You nailed it!", "Hats off to you!", "Sweet!", "Kudos!", "Phenomenal!", "Boom! Nailed it!", "Marvelous!", "Outstanding!", "Legendary!", "Youre a rock star!", "Unbelievable!", "Keep shining!", "Way to crush it!", "Youre on fire!", "Killing it!", "Top-notch!", "Superb!", "Epic!", "Cheers to you!", "Thats the spirit!", "Magnificent!", "Youre a natural!", "Gold star for you!", "You crushed it!", "Incredible!", "Shazam!", "Youre a genius!", "Top-tier effort!", "This is your moment!", "Powerful stuff!", "Wicked awesome!", "Props to you!", "Big win!", "Yesss!", "Champion vibes!", "Spectacular!"]
+
+					Randmax := Praise.Length()
+					Random, rand, 1, Randmax
+					Interjection := Praise[rand]
+					
+					if(godPack < 3)
+						logMessage := Interjection . " God pack found in instance: " . scriptName . " (" . packs . " packs) Instance is stopping."
+					else if(godPack = 3)
+						logMessage := Interjection . " God Pack found in instance: " . scriptName . " (" . packs . " packs) Backed up to the Accounts folder. Continuing..."
+					CreateStatusMessage(logMessage)
+					godPackLog = GPlog.txt
+					LogToFile(logMessage, godPackLog)
+					LogToDiscord(logMessage, Screenshot(), discordUserId)
+					saveAccount()
+					gpFound := true
+					break
+				}
+			}
+			else {
+				fpSleep := Delay * 5
+				Sleep, %fpSleep% ; delay to make sure cards rendered after not detecting common borders to eliminate false positives
+				confirm := true
+			}
 		}
 	}
 	return gpFound
@@ -1434,6 +1411,7 @@ saveAccount(file := "Valid") {
 		
 		if(count > 10) {
 			CreateStatusMessage("Attempted to save the account XML`n10 times, but was unsuccesful.`nPausing...")
+			LogToDiscord("Attempted to save account in " . scriptName . " but was unsuccessful. Pausing. You will need to manually extract.", , discordUserId)
 			Pause, On
 		}
 		count++
