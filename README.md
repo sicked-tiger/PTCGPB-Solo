@@ -87,6 +87,7 @@ Step 7: Input your script settings
 - God Pack: Whether you want it to pause, close the instance or continue. God pack account data is now saved as a XML, so it's possible to continue to keep using the instance and then inject it later when needed.
 - Discord ID: if you're going to use webhooks to send yourself messages add your discord id so you are pinged. Not your username, but your numerical discord ID.
 - Discord Webhook url: your discord's server webhook URL. Create a server in discord > create any channel > click the edit channel cog wheel > integrations > create a webhook > click on the webhook created > copy webhook url. That is what goes here.
+- Send XML via webhook: Send the account XML file through webhook. In order to enable this add sendXML=1 to the bottom of your .ini file
 - Account Deletion: Select the method to delete the account. File method deletes the XML file and then closes/reopens the game. This should be more efficient. Clicks method will simulate clicking and deleting the account through the Menu. Use this if for some reason your game takes a long time starting up.
 - Arrange windows button: Arranges the windows in rows/columns
 - Click Start in the center of the gui to start the bot!
