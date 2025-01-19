@@ -37,6 +37,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	IniRead, discordWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, discordWebhookURL, ""
 	IniRead, discordUserId, %A_ScriptDir%\..\Settings.ini, UserSettings, discordUserId, ""
 	IniRead, deleteMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, deleteMethod, Clicks
+	IniRead, sendXML, %A_ScriptDir%\..\Settings.ini, UserSettings, sendXML, 0
 	
 	adbPort := findAdbPorts(folderPath)
 	
@@ -1307,8 +1308,7 @@ checkBorder() {
 					CreateStatusMessage(logMessage)
 					godPackLog = GPlog.txt
 					LogToFile(logMessage, godPackLog)
-					LogToDiscord(logMessage, Screenshot("Invalid"), discordUserId)
-					saveAccount("Invalid")
+					LogToDiscord(logMessage, Screenshot("Invalid"), discordUserId, saveAccount("Invalid"))
 					break
 				}
 				else {
@@ -1325,8 +1325,7 @@ checkBorder() {
 					CreateStatusMessage(logMessage)
 					godPackLog = GPlog.txt
 					LogToFile(logMessage, godPackLog)
-					LogToDiscord(logMessage, Screenshot(), discordUserId)
-					saveAccount()
+					LogToDiscord(logMessage, Screenshot(), discordUserId, saveAccount())
 					gpFound := true
 					break
 				}
@@ -1374,6 +1373,8 @@ saveAccount(file := "Valid") {
 		}
 		count++
 	}
+	
+	return saveDir
 }
 
 adbClick(X, Y) {
@@ -1461,8 +1462,8 @@ Screenshot(filename := "Valid") {
 	return screenshotFile
 }
 
-LogToDiscord(message, screenshotFile := "", ping := false) {
-	global discordUserId, discordWebhookURL
+LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "") {
+	global discordUserId, discordWebhookURL, sendXML
 	if (discordWebhookURL != "") {
 		MaxRetries := 10
 		RetryCount := 0
@@ -1487,6 +1488,13 @@ LogToDiscord(message, screenshotFile := "", ping := false) {
 					if (FileExist(screenshotFile)) {
 						; Send the image using curl
 						RunWait, curl -k -F "file=@%screenshotFile%" %discordWebhookURL%,, Hide
+					}
+				}
+				if (xmlFile != "" && sendXML > 0) {
+					; Check if the file exists
+					if (FileExist(xmlFile)) {
+						; Send the image using curl
+						RunWait, curl -k -F "file=@%xmlFile%" %discordWebhookURL%,, Hide
 					}
 				}
 				break
