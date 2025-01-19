@@ -285,9 +285,6 @@ Instances := Instances  ; Directly reference the "Instances" variable
 ; Create the second page dynamically based on the number of instances
 Gui, Destroy ; Close the first page
 
-if(EnteredName = "ERROR")
-	EnteredName = ""
-
 IniWrite, %EnteredName%, Settings.ini, UserSettings, EnteredName
 IniWrite, %Delay%, Settings.ini, UserSettings, Delay
 IniWrite, %folderPath%, Settings.ini, UserSettings, folderPath
