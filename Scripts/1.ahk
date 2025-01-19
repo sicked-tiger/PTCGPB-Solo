@@ -21,7 +21,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	winTitle := scriptName
 	pauseToggle := false
 	jsonFileName := A_ScriptDir . "\..\json\Packs.json"
-	IniRead, EnteredName, %A_ScriptDir%\..\Settings.ini, UserSettings, Name
+	IniRead, EnteredName, %A_ScriptDir%\..\Settings.ini, UserSettings, EnteredName
 	IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
 	IniRead, folderPath, %A_ScriptDir%\..\Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
 	IniRead, Variation, %A_ScriptDir%\..\Settings.ini, UserSettings, Variation, 20
