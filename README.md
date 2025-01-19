@@ -5,7 +5,7 @@ https://buymeacoffee.com/aarturoo
 
 If you're having issues check the common issues section after the guide.
 
-# **__Arturo's Pokemon Trading Card Game Pocket Bot v5.0.0__**
+# **__Arturo's Pokemon Trading Card Game Pocket Bot v5.0.1__**
 -# *Special thanks all [contributors](https://github.com/Arturo-1212/PTCGPB/graphs/contributors)!* 
 -# *Thanks to everyone else who has helped test or has contributed their suggestions to make the bot better!*
 
