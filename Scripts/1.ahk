@@ -1858,6 +1858,7 @@ findAdbPorts(baseFolder := "C:\Program Files\Netease") {
 }
 
 GetPlayerName() {
+	global EnteredName
 	if (EnteredName = "")
 		return RandomUsername()
 
