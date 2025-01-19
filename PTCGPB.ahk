@@ -25,7 +25,7 @@ if FileExist(packsFile) ; Check if the file exists
 InitializeJsonFile() ; Create or open the JSON file
 
 ; Create the main GUI for selecting number of instances
-	IniRead, Name, Settings.ini, UserSettings, Name
+	IniRead, EnteredName, Settings.ini, UserSettings, EnteredName
 	IniRead, Delay, Settings.ini, UserSettings, Delay, 250
 	IniRead, folderPath, Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
 	IniRead, discordWebhookURL, Settings.ini, UserSettings, discordWebhookURL, ""
@@ -34,7 +34,7 @@ InitializeJsonFile() ; Create or open the JSON file
 	IniRead, Columns, Settings.ini, UserSettings, Columns, 5
 	IniRead, openPack, Settings.ini, UserSettings, openPack, Mew
 	IniRead, godPack, Settings.ini, UserSettings, godPack, Continue
-	IniRead, Instances, Settings.ini, UserSettings, Instances, 10
+	IniRead, Instances, Settings.ini, UserSettings, Instances, 1
 	IniRead, setSpeed, Settings.ini, UserSettings, setSpeed, 2x
 	IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, Scale125
 	IniRead, SelectedMonitorIndex, Settings.ini, UserSettings, SelectedMonitorIndex, 1
@@ -60,10 +60,14 @@ Gui, Font, s15 Bold , Segoe UI
 Gui, Add, Picture, x0 y0 w500 h640, %A_ScriptDir%\Scripts\GUI\GUI.png
 
 ; Add input controls
-if(Name = "ERROR")
-	Gui, Add, Edit, vName x80 y95 w145 Center
+if(EnteredName = "ERROR")
+	EnteredName = 
+
+if(EnteredName = )
+	Gui, Add, Edit, vEnteredName x80 y95 w145 Center
 else
-	Gui, Add, Edit, vName x80 y95 w145 Center, %Name%
+	Gui, Add, Edit, vEnteredName x80 y95 w145 Center, %EnteredName%
+	
 Gui, Add, Edit, vInstances x275 y95 w72 Center, %Instances%
 Gui, Add, Edit, vColumns x348 y95 w72 Center, %Columns%
 
@@ -281,7 +285,10 @@ Instances := Instances  ; Directly reference the "Instances" variable
 ; Create the second page dynamically based on the number of instances
 Gui, Destroy ; Close the first page
 
-IniWrite, %Name%, Settings.ini, UserSettings, Name
+if(EnteredName = "ERROR")
+	EnteredName = ""
+
+IniWrite, %EnteredName%, Settings.ini, UserSettings, EnteredName
 IniWrite, %Delay%, Settings.ini, UserSettings, Delay
 IniWrite, %folderPath%, Settings.ini, UserSettings, folderPath
 IniWrite, %discordWebhookURL%, Settings.ini, UserSettings, discordWebhookURL
