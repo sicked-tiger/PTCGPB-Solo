@@ -305,12 +305,14 @@ IniWrite, %deleteMethod%, Settings.ini, UserSettings, deleteMethod
 ; Loop to process each instance
 Loop, %Instances%
 {
-	SourceFile := "Scripts\1.ahk" ; Path to the source .ahk file
-	TargetFolder := "Scripts\" ; Path to the target folder
-	TargetFile := TargetFolder . "\" . A_Index . ".ahk" ; Generate target file path
-	FileCopy, %SourceFile%, %TargetFile%, 1 ; Copy source file to target
-	if (ErrorLevel)
-		MsgBox, Failed to create %TargetFile%. Ensure permissions and paths are correct.
+	if (A_Index != 1) {
+		SourceFile := "Scripts\1.ahk" ; Path to the source .ahk file
+		TargetFolder := "Scripts\" ; Path to the target folder
+		TargetFile := TargetFolder . "\" . A_Index . ".ahk" ; Generate target file path
+		FileCopy, %SourceFile%, %TargetFile%, 1 ; Copy source file to target
+		if (ErrorLevel)
+			MsgBox, Failed to create %TargetFile%. Ensure permissions and paths are correct.
+	}
 	
 	FileName := "Scripts\"A_Index ".ahk"
 	Command := FileName
