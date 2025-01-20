@@ -308,12 +308,9 @@ Loop, %Instances%
 	SourceFile := "Scripts\1.ahk" ; Path to the source .ahk file
 	TargetFolder := "Scripts\" ; Path to the target folder
 	TargetFile := TargetFolder . "\" . A_Index . ".ahk" ; Generate target file path
-	if !FileExist(TargetFile) ; Check if the file doesn't exist
-	{
-		FileCopy, %SourceFile%, %TargetFile%, 1 ; Copy source file to target
-		if (ErrorLevel)
-			MsgBox, Failed to create %TargetFile%. Ensure permissions and paths are correct.
-	}
+	FileCopy, %SourceFile%, %TargetFile%, 1 ; Copy source file to target
+	if (ErrorLevel)
+		MsgBox, Failed to create %TargetFile%. Ensure permissions and paths are correct.
 	
 	FileName := "Scripts\"A_Index ".ahk"
 	Command := FileName
