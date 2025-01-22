@@ -645,8 +645,11 @@ Loop {
 	CreateStatusMessage("GP Test mode. Press button again to delete.")
 	sleep, 1000
 }
-	
-if(deleteAccount = false) {	
+
+if(deleteAccount) {
+	restartGameInstance("GP test mode exited, restarting...") ; restarts to avoid clogging up the tested account friend list
+}
+else {
 	if(openPack = 4) { ; MEW
 		KeepSync(233, 400, 264, 428, , "Points", 80, 196) ;Mew	
 		KeepSync(233, 486, 272, 519, , "Skip2", 146, 439) ;click on next until skip button appears
