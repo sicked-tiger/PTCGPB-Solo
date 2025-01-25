@@ -1312,6 +1312,10 @@ checkBorder() {
 					godPackLog = GPlog.txt
 					LogToFile(logMessage, godPackLog)
 					LogToDiscord(logMessage, Screenshot("Invalid"), discordUserId, saveAccount("Invalid"))
+					if ((godPack = 3) && (!deleteXML)) {
+						; Avoid deleting this acc
+						gpFound := true
+					}
 					break
 				}
 				else {
