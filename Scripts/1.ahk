@@ -1375,7 +1375,7 @@ saveAccount(file := "Valid") {
 		saveDir := saveDir . "\" . A_Now . "_" . winTitle . ".xml"
 	}
 	else {
-		saveDir := A_ScriptDir "\..\Accounts\GodPacks" . A_Now . "_" . winTitle . "_" . file . "_" . packs . "_packs.xml"
+		saveDir := A_ScriptDir "\..\Accounts\GodPacks\" . A_Now . "_" . winTitle . "_" . file . "_" . packs . "_packs.xml"
 	}
 	count := 0
 	Loop {
