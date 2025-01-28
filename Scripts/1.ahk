@@ -36,7 +36,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, Continue
 	IniRead, discordWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, discordWebhookURL, ""
 	IniRead, discordUserId, %A_ScriptDir%\..\Settings.ini, UserSettings, discordUserId, ""
-	IniRead, deleteMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, deleteMethod, Clicks
+	IniRead, deleteMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, deleteMethod, Hoard
 	IniRead, sendXML, %A_ScriptDir%\..\Settings.ini, UserSettings, sendXML, 0
 	
 	adbPort := findAdbPorts(folderPath)
@@ -153,11 +153,13 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 		setSpeed := 3
 		
 	if (!deleteMethod)
-		deleteXML = True
+		deleteXML = 1
 	if (deleteMethod = "File")
-		deleteXML := True
+		deleteXML := 1
 	else if (deleteMethod = "Clicks")
-		deleteXML := false
+		deleteXML := 0
+	else if (deleteMethod = "Hoard")
+		deleteXML := 2
 
 	rerollTime := A_TickCount	
 	
@@ -646,7 +648,11 @@ Loop {
 	sleep, 1000
 }
 
-if(deleteAccount) {
+if(deleteXML = 2) {
+	KeepSync(120, 500, 155, 530, , "Social", 143, 518, 250)
+	saveAccount("All")
+}
+else if(deleteAccount) {
 	restartGameInstance("GP test mode exited, restarting...") ; restarts to avoid clogging up the tested account friend list
 }
 else {
@@ -891,7 +897,7 @@ else {
 			restartGameInstance("God Pack found. Continuing...") ; restarts to backup and delete xml file with account info.
 	}
 	
-	if(!deleteXML) {
+	if(deleteXML = 0) {
 		KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
 		sleep, %Delay%
 		
@@ -905,7 +911,7 @@ else {
 	
 }
 
-if(!deleteXML) {
+if(deleteXML = 0) {
 	sleep, %Delay%
 	failSafe := A_TickCount
 	failSafeTime := 0
@@ -948,8 +954,7 @@ if(deleteAccount = true) {
 }
 else {
 	rerolls++
-	AppendToJsonFile(4)
-	packs += 4
+	AppendToJsonFile(packs)
 	totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
 	avgtotalSeconds := Round(totalSeconds / rerolls) ; Total time in seconds
 	minutes := Floor(avgtotalSeconds / 60) ; Total minutes
@@ -1198,9 +1203,10 @@ restartGameInstance(reason, RL := true){
 	adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
 	adbShell.StdIn.WriteLine("rm /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml") ; delete account data
 	;adbShell.StdIn.WriteLine("rm -rf /data/data/jp.pokemon.pokemontcgp/cache/*") ; clear cache
+	Sleep, 3000
 	adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
 
-	Sleep, 6000
+	Sleep, 3000
 	if(RL) {
 		Reload
 		LogToFile("Restarted game for instance " scriptName " Reason: " reason, "Restart.txt")
@@ -1312,7 +1318,7 @@ checkBorder() {
 					godPackLog = GPlog.txt
 					LogToFile(logMessage, godPackLog)
 					LogToDiscord(logMessage, Screenshot("Invalid"), discordUserId, saveAccount("Invalid"))
-					if ((godPack = 3) && (!deleteXML)) {
+					if ((godPack = 3) && (deleteXML = 0)) {
 						; Avoid deleting this acc
 						gpFound := true
 					}
@@ -1350,11 +1356,30 @@ checkBorder() {
 saveAccount(file := "Valid") {
 	global adbShell, adbPath, adbPort
 	initializeAdbShell()
+	currentDate := A_Now  
+	year := SubStr(currentDate, 1, 4)  
+	month := SubStr(currentDate, 5, 2) 
+	day := SubStr(currentDate, 7, 2)   
+
+
+	daysSinceBase := (year - 1900) * 365 + Floor((year - 1900) / 4)
+	daysSinceBase += MonthToDays(year, month)                       
+	daysSinceBase += day                                            
+
+	remainder := Mod(daysSinceBase, 4)
 	
-	saveDir := A_ScriptDir "\..\Accounts\" . A_Now . "_" . winTitle . "_" . file . "_" . packs . "_packs.xml"
+	if (file = "All") {
+		saveDir := A_ScriptDir "\..\Accounts\Saved\" . remainder . "\" . winTitle
+		if !FileExist(saveDir) ; Check if the directory exists
+			FileCreateDir, %saveDir% ; Create the directory if it doesn't exist
+		saveDir := saveDir . "\" . A_Now . "_" . winTitle . ".xml"
+	}
+	else {
+		saveDir := A_ScriptDir "\..\Accounts\GodPacks" . A_Now . "_" . winTitle . "_" . file . "_" . packs . "_packs.xml"
+	}
 	count := 0
 	Loop {
-		CreateStatusMessage("Attempting to save account XML...")
+		CreateStatusMessage("Attempting to save account XML. " . count . "/10")
 	
 		adbShell.StdIn.WriteLine("cp /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml /sdcard/deviceAccount.xml")
 		
@@ -1373,10 +1398,13 @@ saveAccount(file := "Valid") {
 		if(OutputVar > 0)
 			break
 		
-		if(count > 10) {
+		if(count > 10 && file != "All") {
 			CreateStatusMessage("Attempted to save the account XML`n10 times, but was unsuccesful.`nPausing...")
 			LogToDiscord("Attempted to save account in " . scriptName . " but was unsuccessful. Pausing. You will need to manually extract.", Screenshot(), discordUserId)
 			Pause, On
+		} else if(count > 10) {
+			LogToDiscord("Couldnt save this regular account skipping it.")
+			break
 		}
 		count++
 	}
@@ -1878,6 +1906,22 @@ GetPlayerName() {
 		return RandomUsername()
 
 	return EnteredName
+}
+
+MonthToDays(year, month) {
+    static DaysInMonths := [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    days := 0
+    Loop, % month - 1 {
+        days += DaysInMonths[A_Index]
+    }
+    if (month > 2 && IsLeapYear(year))
+        days += 1
+    return days
+}
+
+
+IsLeapYear(year) {
+    return (Mod(year, 4) = 0 && Mod(year, 100) != 0) || Mod(year, 400) = 0
 }
 
 ; ^e::
