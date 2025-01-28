@@ -40,7 +40,7 @@ InitializeJsonFile() ; Create or open the JSON file
 	IniRead, SelectedMonitorIndex, Settings.ini, UserSettings, SelectedMonitorIndex, 1
 	IniRead, swipeSpeed, Settings.ini, UserSettings, swipeSpeed, 600
 	IniRead, skipInvalidGP, Settings.ini, UserSettings, skipInvalidGP, Yes
-	IniRead, deleteMethod, Settings.ini, UserSettings, deleteMethod, Clicks
+	IniRead, deleteMethod, Settings.ini, UserSettings, deleteMethod, Hoard
 
 ; Main GUI setup
 ; Add the link text at the bottom of the GUI
@@ -54,7 +54,8 @@ Gui, Font, s10 Bold , Segoe UI
 Gui, Add, Button, gArrangeWindows x215 y208 w70 h32, Arrange Windows
 Gui, Add, Button, gStart x227 y258 w46 h32 vArrangeWindows, Start
 
-Gui, Add, Text, x0 y604 w640 h30 vLinkText gOpenLink cBlue Center +BackgroundTrans
+Gui, Add, Text, x0 y604 w640 h30 gOpenLink cBlue Center +BackgroundTrans
+Gui, Add, Text, x265 y532 w167 h50 gOpenDiscord cBlue Center +BackgroundTrans
 Gui, Font, s15 Bold , Segoe UI
 ; Add the background image to the GUI
 Gui, Add, Picture, x0 y0 w500 h640, %A_ScriptDir%\Scripts\GUI\GUI.png
@@ -152,9 +153,11 @@ if (deleteMethod = "File") {
 	defaultDelete := 1
 } else if (deleteMethod = "Clicks") {
 	defaultDelete := 2
+} else if (deleteMethod = "Hoard") {
+	defaultDelete := 3
 }
 
-Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center, File|Clicks
+Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center, File|Clicks|Hoard
 
 Gui, Font, s10 Bold, Segoe UI 
 Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
@@ -276,6 +279,10 @@ return
 ; Handle the link click
 OpenLink:
 	Run, https://buymeacoffee.com/aarturoo
+return
+
+OpenDiscord:
+	Run, https://discord.gg/C9Nyf7P4sT
 return
 
 Start:
