@@ -25,15 +25,15 @@ if FileExist(packsFile) ; Check if the file exists
 InitializeJsonFile() ; Create or open the JSON file
 
 ; Create the main GUI for selecting number of instances
-	IniRead, EnteredName, Settings.ini, UserSettings, EnteredName
+	IniRead, FriendID, Settings.ini, UserSettings, FriendID
 	IniRead, Delay, Settings.ini, UserSettings, Delay, 250
 	IniRead, folderPath, Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
 	IniRead, discordWebhookURL, Settings.ini, UserSettings, discordWebhookURL, ""
 	IniRead, discordUserId, Settings.ini, UserSettings, discordUserId, ""
 	IniRead, changeDate, Settings.ini, UserSettings, ChangeDate, 0100
 	IniRead, Columns, Settings.ini, UserSettings, Columns, 5
-	IniRead, openPack, Settings.ini, UserSettings, openPack, Mew
-	IniRead, godPack, Settings.ini, UserSettings, godPack, Continue
+	IniRead, openPack, Settings.ini, UserSettings, openPack, Palkia
+	IniRead, godPack, Settings.ini, UserSettings, godPack, Pause
 	IniRead, Instances, Settings.ini, UserSettings, Instances, 1
 	IniRead, setSpeed, Settings.ini, UserSettings, setSpeed, 2x
 	IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, Scale125
@@ -61,31 +61,27 @@ Gui, Font, s15 Bold , Segoe UI
 Gui, Add, Picture, x0 y0 w500 h640, %A_ScriptDir%\Scripts\GUI\GUI.png
 
 ; Add input controls
-if(EnteredName = "ERROR")
-	EnteredName = 
+if(FriendID = "ERROR")
+	FriendID = 
 
-if(EnteredName = )
-	Gui, Add, Edit, vEnteredName x80 y95 w145 Center
+if(FriendID = )
+	Gui, Add, Edit, vFriendID x80 y95 w145 Center
 else
-	Gui, Add, Edit, vEnteredName x80 y95 w145 Center, %EnteredName%
+	Gui, Add, Edit, vFriendID x80 y95 w145 Center, %FriendID%
 	
 Gui, Add, Edit, vInstances x275 y95 w72 Center, %Instances%
 Gui, Add, Edit, vColumns x348 y95 w72 Center, %Columns%
 
 ; Pack selection logic
-if (openPack = "Mewtwo") {
+if (openPack = "Palkia") {
 	defaultPack := 1
-} else if (openPack = "Pikachu") {
+} else if (openPack = "Dialgia") {
 	defaultPack := 2
-} else if (openPack = "Charizard") {
-	defaultPack := 3
 } else if (openPack = "Mew") {
-	defaultPack := 4
-} else if (openPack = "Random") {
-	defaultPack := 5
-}
+	defaultPack := 3
+} 
 
-Gui, Add, DropDownList, x80 y166 w145 vopenPack choose%defaultPack% Center, Mewtwo|Pikachu|Charizard|Mew|Random
+Gui, Add, DropDownList, x80 y166 w145 vopenPack choose%defaultPack% Center, Palkia|Dialgia|Mew
 global scaleParam
 
 if (defaultLanguage = "Scale125") {
@@ -96,7 +92,7 @@ if (defaultLanguage = "Scale125") {
 	scaleParam := 287
 } 
 
-Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, Scale125|Scale100
+Gui, Add, DropDownList, x80 y245 w145 vdefaultLanguage choose%defaultLang%, Scale125
 
 ; Initialize monitor dropdown options
 SysGet, MonitorCount, MonitorCount
@@ -129,15 +125,15 @@ Gui, Add, Edit, vswipeSpeed x348 y404 w72 Center, %swipeSpeed%
 
 
 ; Pack selection logic
-if (godPack = "Close") {
-	defaultgodPack := 1
-} else if (godPack = "Pause") {
-	defaultgodPack := 2
-} else if (godPack = "Continue") {
-	defaultgodPack := 3
-}
+; if (godPack = "Close") {
+	; defaultgodPack := 1
+; } else if (godPack = "Pause") {
+	; defaultgodPack := 2
+; } else if (godPack = "Continue") {
+	; defaultgodPack := 3
+; }
 
-Gui, Add, DropDownList, x275 y166 w145 vgodPack choose%defaultgodPack% Center, Close|Pause|Continue
+; Gui, Add, DropDownList, x275 y166 w145 vgodPack choose%defaultgodPack% Center, Close|Pause|Continue
 
 ; Pack selection logic
 if (skipInvalidGP = "No") {
@@ -149,15 +145,17 @@ if (skipInvalidGP = "No") {
 Gui, Add, DropDownList, x80 y476 w145 vskipInvalidGP choose%defaultskipGP% Center, No|Yes
 
 ; Pack selection logic
-if (deleteMethod = "File") {
+if (deleteMethod = "Speed") {
 	defaultDelete := 1
-} else if (deleteMethod = "Clicks") {
+} else if (deleteMethod = "4Pack") {
 	defaultDelete := 2
-} else if (deleteMethod = "Hoard") {
+} else if (deleteMethod = "Inject(Not available yet)") {
 	defaultDelete := 3
+} else if (deleteMethod = "Safe(not available yet)") {
+	defaultDelete := 4
 }
 
-Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center, File|Clicks|Hoard
+Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center, Speed|4Pack|Inject(Not available yet)|Safe(not available yet)
 
 Gui, Font, s10 Bold, Segoe UI 
 Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
@@ -292,7 +290,7 @@ Instances := Instances  ; Directly reference the "Instances" variable
 ; Create the second page dynamically based on the number of instances
 Gui, Destroy ; Close the first page
 
-IniWrite, %EnteredName%, Settings.ini, UserSettings, EnteredName
+IniWrite, %FriendID%, Settings.ini, UserSettings, FriendID
 IniWrite, %Delay%, Settings.ini, UserSettings, Delay
 IniWrite, %folderPath%, Settings.ini, UserSettings, folderPath
 IniWrite, %discordWebhookURL%, Settings.ini, UserSettings, discordWebhookURL
@@ -321,11 +319,13 @@ Loop, %Instances%
 			MsgBox, Failed to create %TargetFile%. Ensure permissions and paths are correct.
 	}
 	
-	FileName := "Scripts\"A_Index ".ahk"
+	FileName := "Scripts\" . A_Index . ".ahk"
 	Command := FileName
 	
 	Run, %Command%
 }
+FileName := "Scripts\Main.ahk"
+Run, %FileName%
 SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 rerollTime := A_TickCount
