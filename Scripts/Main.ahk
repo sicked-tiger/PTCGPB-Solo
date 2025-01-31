@@ -14,7 +14,7 @@ CoordMode, Pixel, Screen
 DllCall("AllocConsole")
 WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
 
-global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, skipInvalidGP, deleteMethod, packs, FriendID
+global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipTime, Columns, failSafe, adbPort, scriptName, adbShell, adbPath, GPTest, StatusText, defaultLanguage, setSpeed, jsonFileName, pauseToggle, SelectedMonitorIndex, swipeSpeed, godPack, scaleParam, discordUserId, discordWebhookURL, skipInvalidGP, deleteXML, packs, FriendID, AddFriend, Instances
 
 	deleteAccount := false
 	scriptName := StrReplace(A_ScriptName, ".ahk")
@@ -22,6 +22,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	pauseToggle := false
 	jsonFileName := A_ScriptDir . "\..\json\Packs.json"
 	IniRead, FriendID, %A_ScriptDir%\..\Settings.ini, UserSettings, FriendID
+	IniRead, Instances, %A_ScriptDir%\..\Settings.ini, UserSettings, Instances
 	IniRead, Delay, %A_ScriptDir%\..\Settings.ini, UserSettings, Delay, 250
 	IniRead, folderPath, %A_ScriptDir%\..\Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
 	IniRead, Variation, %A_ScriptDir%\..\Settings.ini, UserSettings, Variation, 20
@@ -33,7 +34,7 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	IniRead, SelectedMonitorIndex, %A_ScriptDir%\..\Settings.ini, UserSettings, SelectedMonitorIndex, 1:
 	IniRead, swipeSpeed, %A_ScriptDir%\..\Settings.ini, UserSettings, swipeSpeed, 600
 	IniRead, skipInvalidGP, %A_ScriptDir%\..\Settings.ini, UserSettings, skipInvalidGP, No
-	IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, Pause
+	IniRead, godPack, %A_ScriptDir%\..\Settings.ini, UserSettings, godPack, Continue
 	IniRead, discordWebhookURL, %A_ScriptDir%\..\Settings.ini, UserSettings, discordWebhookURL, ""
 	IniRead, discordUserId, %A_ScriptDir%\..\Settings.ini, UserSettings, discordUserId, ""
 	IniRead, deleteMethod, %A_ScriptDir%\..\Settings.ini, UserSettings, deleteMethod, Hoard
@@ -89,7 +90,6 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 			Gui, Add, Button, x30 y0 w30 h25 gPauseScript, Pause (F6)
 			Gui, Add, Button, x60 y0 w40 h25 gResumeScript, Resume (F6)
 			Gui, Add, Button, x100 y0 w30 h25 gStopScript, Stop (F7)
-			Gui, Add, Button, x130 y0 w40 h25 gTestScript, GP Test  (F8)
 			Gui, Show, NoActivate x%x4% y%y4% AutoSize
 			break
 		}
@@ -104,38 +104,6 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 		Sleep, %Delay%
 		CreateStatusMessage("Trying to create button gui...")
 	}
-	
-	if (!godPack)
-		godPack = 1
-	else if (godPack = "Close")
-		godPack = 1
-	else if (godPack = "Pause")
-		godPack = 2
-	if (godPack = "Continue")
-		godPack = 3
-	
-	if (!falsePositive)
-		falsePositive = 1
-	else if (falsePositive = "No")
-		falsePositive = 1
-	else if (falsePositive = "Yes")
-		falsePositive = 2
-	
-	if (!skipInvalidGP)
-		skipInvalidGP = 1
-	else if (skipInvalidGP = "No")
-		skipInvalidGP = 1
-	else if (skipInvalidGP = "Yes")
-		skipInvalidGP = 2
-		
-	if (!setSpeed)
-		setSpeed = 1
-	if (setSpeed = "2x")
-		setSpeed := 1
-	else if (setSpeed = "1x/2x")
-		setSpeed := 2
-	else if (setSpeed = "1x/3x")
-		setSpeed := 3
 
 	rerollTime := A_TickCount	
 	
@@ -145,21 +113,13 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	
 	pToken := Gdip_Startup()
 	
-	; imagePath := A_ScriptDir . "\" . defaultLanguage . "\"
-	; Path = %imagePath%App.png
-	; pBitmap := from_window(WinExist(winTitle))
-	; pNeedle := GetNeedle(Path)
 	
-	; vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 15, 155, 270, 420, 40)
-	; Gdip_DisposeImage(pBitmap)
-	; if (vRet = 1) {
-		; CreateStatusMessage("Started on home page opening app..." )
-		; restartGameInstance("Started on home page", false)
-		; Sleep, 2000
-	; }
+	; KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
+	; KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
+	; Sleep, %Delay%
+	; adbClick(41, 296)
 	
 Loop {
-	packs := 0
 	FormatTime, CurrentTime,, HHmm
 
 	StartTime := changeDate - 45 ; 12:55 AM2355
@@ -177,711 +137,20 @@ Loop {
 		FormatTime, CurrentTime,, HHmm ; Update the current time after sleep
 		Sleep, 5000
 	}
-if(!packs) {
-	KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-	if(setSpeed = 3)
-		KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-	else
-		KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
 	Sleep, %Delay%
-	adbClick(41, 296)
-	Sleep, %Delay%
-}	
-KeepSync(105, 396, 121, 406, , "Country", 143, 370) ;select month and year and click
-
-Sleep, %Delay%
-adbClick(80, 400)
-Sleep, %Delay%
-adbClick(80, 375)
-Sleep, %Delay%
-failSafe := A_TickCount
-failSafeTime := 0
-
-Loop
-{
-	Sleep, %Delay%
-	if(KeepSync(100, 386, 138, 416, , "Month", , , , 1, failSafeTime))
-		break
-	Sleep, %Delay%
-adbClick(142, 159)
-	Sleep, %Delay%
-adbClick(80, 400)
-	Sleep, %Delay%
-adbClick(80, 375)
-	Sleep, %Delay%
-adbClick(82, 422)
-	failSafeTime := (A_TickCount - failSafe) // 1000
-	CreateStatusMessage("In failsafe for Month. It's been: " . failSafeTime "s ")
-	LogToFile("In failsafe for Month. It's been: " . failSafeTime "s ")
-} ;select month and year and click
-
-adbClick(200, 400)
-Sleep, %Delay%
-adbClick(200, 375)
-Sleep, %Delay%
-failSafe := A_TickCount
-failSafeTime := 0
-Loop ;select month and year and click
-{
-	Sleep, %Delay%
-	if(KeepSync(148, 384, 256, 419, , "Year", , , , 1, failSafeTime))
-		break
-	Sleep, %Delay%
-	adbClick(142, 159)
-	Sleep, %Delay%
-	adbClick(142, 159)
-	Sleep, %Delay%
-	adbClick(200, 400)
-	Sleep, %Delay%
-	adbClick(200, 375)
-	Sleep, %Delay%
-	adbClick(142, 159)
-	Sleep, %Delay%
-	failSafeTime := (A_TickCount - failSafe) // 1000
-	CreateStatusMessage("In failsafe for Year. It's been: " . failSafeTime "s ")
-	LogToFile("In failsafe for Year. It's been: " . failSafeTime "s ")
-} ;select month and year and click
-
-Sleep, %Delay%
-if(CheckInstances(93, 471, 122, 485, , "CountrySelect", 0)) {
-	failSafe := A_TickCount
-	failSafeTime := 0
-	Loop {
-		if(KeepSync(93, 471, 122, 485, , "CountrySelect", 140, 474, 1000, 1, failSafeTime)) {
-			sleep, %Delay%
-			sleep, %Delay%
-			sleep, %Delay%
-			sleep, %Delay%
-			adbClick(124, 250)
-			sleep, %Delay%
-			sleep, %Delay%
-			sleep, %Delay%
-			sleep, %Delay%
-			adbClick(124, 250)
-			if(KeepSync(116, 352, 138, 389, , "Birth", 140, 474, 1000))
-				break
-		}
-		sleep, 10
-		failSafeTime := (A_TickCount - failSafe) // 1000
-		CreateStatusMessage("In failsafe for country select. It's been: " . failSafeTime "s ")
-		LogToFile("In failsafe for country select. It's been: " . failSafeTime "s ")
-	}
-} else {
-	KeepSync(116, 352, 138, 389, , "Birth", 140, 474, 1000)
-}
-
- ;wait date confirmation screen while clicking ok
-
-KeepSync(210, 285, 250, 315, , "TosScreen", 203, 371, 1000) ;wait to be at the tos screen while confirming birth
-
-KeepSync(129, 477, 156, 494, , "Tos", 139, 299, 1000) ;wait for tos while clicking it
-
-KeepSync(210, 285, 250, 315, , "TosScreen", 142, 486, 1000) ;wait to be at the tos screen and click x
-
-KeepSync(129, 477, 156, 494, , "Privacy", 142, 339, 1000) ;wait to be at the tos screen
-
-KeepSync(210, 285, 250, 315, , "TosScreen", 142, 486, 1000) ;wait to be at the tos screen, click X
-
-Sleep, %Delay%
-adbClick(261, 374)
-
-Sleep, %Delay%
-adbClick(261, 406)
-
-Sleep, %Delay%
-adbClick(145, 484)
-
-failSafe := A_TickCount
-failSafeTime := 0
-Loop {
-	if(KeepSync(30, 336, 53, 370, , "Save", 145, 484, , 2, failSafeTime)) ;wait to be at create save data screen while clicking
-		break
-	Sleep, %Delay%
-	adbClick(261, 406)
-	if(KeepSync(30, 336, 53, 370, , "Save", 145, 484, , 2, failSafeTime)) ;wait to be at create save data screen while clicking
-		break
-	Sleep, %Delay%
-	adbClick(261, 374)
-	failSafeTime := (A_TickCount - failSafe) // 1000
-	CreateStatusMessage("In failsafe for Save. It's been: " . failSafeTime "s ")
-	LogToFile("In failsafe for Save. It's been: " . failSafeTime "s ")
-}
-
-Sleep, %Delay%
-
-adbClick(143, 348)
-
-Sleep, %Delay%
-
-KeepSync(51, 335, 107, 359, , "Link") ;wait for link account screen%
-Sleep, %Delay%
-failSafe := A_TickCount
-failSafeTime := 0	
-	Loop {
-		if(CheckInstances(51, 335, 107, 359, , "Link", 0, failSafeTime)) {
-			adbClick(140, 460)
-			Loop {
-				Sleep, %Delay%
-				if(CheckInstances(51, 335, 107, 359, , "Link", 1, failSafeTime)) {
-					adbClick(140, 380) ; click ok on the interrupted while opening pack prompt
-					break
-				}
-				failSafeTime := (A_TickCount - failSafe) // 1000
-			}
-		} else if(CheckInstances(110, 350, 150, 404, , "Confirm", 0, failSafeTime)) {
-			adbClick(203, 364)
-		} else if(CheckInstances(215, 371, 264, 418, , "Complete", 0, failSafeTime)) {
-			adbClick(140, 370)
-		} else if(CheckInstances(0, 46, 20, 70, , "Cinematic", 0, failSafeTime)) {
-			break
-		}
-		;CreateStatusMessage("Looking for Link/Welcome")
-		Sleep, %Delay%
-		failSafeTime := (A_TickCount - failSafe) // 1000
-		;CreateStatusMessage("In failsafe for Link/Welcome. It's been: " . failSafeTime "s ")
-	}
-	
-	if(setSpeed = 3) {
-		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-		Sleep, %Delay%
-		adbClick(41, 296)
-		Sleep, %Delay%
-	}
-	
-	KeepSync(110, 230, 182, 257, , "Welcome", 253, 506, 110) ;click through cutscene until welcome page
-	
-	if(setSpeed = 3) {
-		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-	
-		KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-		Sleep, %Delay%
-		adbClick(41, 296)
-	}
-KeepSync(190, 241, 225, 270, , "Name", 189, 438) ;wait for name input screen
-
-KeepSync(0, 476, 40, 502, , "OK", 139, 257) ;wait for name input screen
-
-failSafe := A_TickCount
-failSafeTime := 0
-Loop {
-	name := RandomUsername()
-	adbInput(name)
-	Sleep, %Delay%
-	if(KeepSync(121, 490, 161, 520, , "Return", 185, 372, , 5)) ;click through until return button on open pack
-		break
-		
-	adbClick(90, 370)
-	Sleep, %Delay%
-	adbClick(139, 254) ; 139 254 194 372
-	Sleep, %Delay%
-	adbClick(139, 254)
-	Sleep, %Delay%
-	length := StrLen(name) ; in case it lags and misses inputting name
-	Loop %length% {
-		adbShell.StdIn.WriteLine("input keyevent 67")	
-		Sleep, 10
-	}
-	failSafeTime := (A_TickCount - failSafe) // 1000
-	CreateStatusMessage("In failsafe for Trace. It's been: " . failSafeTime "s ")
-	if(failSafeTime > 45)
-		restartGameInstance("Stuck at name")
-}
-
-Sleep, %Delay%
-
-adbClick(140, 424)
-
-KeepSync(203, 273, 228, 290, , "Pack", 140, 424) ;wait for pack to be ready  to trace
-	if(setSpeed > 1) {
-		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-		Sleep, %Delay%
-	}
-failSafe := A_TickCount
-failSafeTime := 0
-Loop {
-	adbSwipe()
-	Sleep, 10
-	if (CheckInstances(203, 273, 228, 290, , "Pack", 1, failSafeTime)){
-		if(setSpeed > 1) {
-			if(setSpeed = 3)
-					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click 3x
-			else
-					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click 2x
-		}
-		adbClick(41, 296)
-			break
-	}
-	failSafeTime := (A_TickCount - failSafe) // 1000
-	CreateStatusMessage("In failsafe for Pack. It's been: " . failSafeTime "s ")
-}
-
-KeepSync(34, 99, 74, 131, , "Swipe", 140, 375) ;click through cards until needing to swipe up
-	if(setSpeed > 1) {
-		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-		Sleep, %Delay%
-	}
-failSafe := A_TickCount
-failSafeTime := 0
-Loop {
-	adbSwipeUp()
-	Sleep, 10
-	if (CheckInstances(120, 70, 150, 95, , "SwipeUp", 0, failSafeTime)){
-	if(setSpeed > 1) {
-		if(setSpeed = 3)
-				KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-		else
-				KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-	}
-		adbClick(41, 296)
-			break
-		}
-	failSafeTime := (A_TickCount - failSafe) // 1000
-	CreateStatusMessage("In failsafe for swipe up. It's been: " . failSafeTime "s ")
-	Sleep, %Delay%
-}
-
-Sleep, %Delay%
-if(setSpeed > 2) {
-	KeepSync(136, 420, 151, 436, , "Move", 134, 375, 500) ; click through until move
-	KeepSync(50, 394, 86, 412, , "Proceed", 141, 483, 500) ;wait for menu to proceed then click ok. increased delay in between clicks to fix freezing on 3x speed
-}
-else {
-	KeepSync(136, 420, 151, 436, , "Move", 134, 375) ; click through until move
-	KeepSync(50, 394, 86, 412, , "Proceed", 141, 483) ;wait for menu to proceed then click ok
-}
-	
-Sleep, %Delay%
-adbClick(204, 371)
-
-KeepSync(46, 368, 103, 411, , "Gray") ;wait for for missions to be clickable
-
-Sleep, %Delay%
-adbClick(247, 472)
-
-KeepSync(115, 97, 174, 150, , "Pokeball", 247, 472, 5000) ; click through missions until missions is open
-
-Sleep, %Delay%
-adbClick(141, 294)
-Sleep, %Delay%
-adbClick(141, 294)
-Sleep, %Delay%
-KeepSync(124, 168, 162, 207, , "Register", 141, 294, 1000) ; wait for register screen
-Sleep, %Delay%
-Sleep, %Delay%
-Sleep, %Delay%
-Sleep, %Delay%
-Sleep, %Delay%
-Sleep, %Delay%
-adbClick(140, 500)
-
-KeepSync(115, 255, 176, 308, , "Mission") ; wait for mission complete screen
-
-KeepSync(46, 368, 103, 411, , "Gray", 143, 360) ;wait for for missions to be clickable
-
-KeepSync(170, 160, 220, 200, , "Notifications", 145, 194) ;click on packs. stop at booster pack tutorial
-
-Sleep, %Delay%
-Sleep, %Delay%
-Sleep, %Delay%
-adbClick(142, 436)
-Sleep, %Delay%
-Sleep, %Delay%
-Sleep, %Delay%
-adbClick(142, 436)
-Sleep, %Delay%
-Sleep, %Delay%
-Sleep, %Delay%
-adbClick(142, 436)
-Sleep, %Delay%
-Sleep, %Delay%
-Sleep, %Delay%
-adbClick(142, 436)
-
-KeepSync(203, 273, 228, 290, , "Pack", 239, 497) ;wait for pack to be ready  to Trace
-	if(setSpeed > 1) {
-		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-		Sleep, %Delay%
-	}
-failSafe := A_TickCount
-failSafeTime := 0
-Loop {
-	adbSwipe()
-	Sleep, 10
-	if (CheckInstances(203, 273, 228, 290, , "Pack", 1, failSafeTime)){	
-	if(setSpeed > 1) {
-		if(setSpeed = 3)
-					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-		else
-					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-	}
-			adbClick(41, 296)
-			break
-		}
-	failSafeTime := (A_TickCount - failSafe) // 1000
-	CreateStatusMessage("In failsafe for Pack. It's been: " . failSafeTime "s ")
-	Sleep, %Delay%
-}
-
-KeepSync(0, 98, 116, 125, 5, "Opening", 239, 497) ;skip through cards until results opening screen
-
-KeepSync(233, 486, 272, 519, , "Skip", 146, 496) ;click on next until skip button appears
-
-Loop {
-		if(KeepSync(53, 281, 86, 310, , "Wonder", 239, 497, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
-			break
-		adbClick(146, 494) ;146 494
-		Sleep, %Delay%
-	}
-
-Sleep, %Delay%
-Sleep, %Delay%
-Sleep, %Delay%
-
-adbClick(140, 358)
-
-KeepSync(191, 393, 211, 411, , "Shop", 146, 444) ;click until at main menu
-
-KeepSync(87, 232, 131, 266, , "Wonder2", 79, 411) ; click until wonder pick tutorial screen
-
-KeepSync(114, 430, 155, 441, , "Wonder3", 190, 437) ; click through tutorial
-
-Sleep, %Delay%
-Sleep, %Delay%
-
-
-KeepSync(155, 281, 192, 315, , "Wonder4", 202, 347, 500) ; confirm wonder pick selection 
-
-Sleep, %Delay%
-Sleep, %Delay%
-
-adbClick(208, 461)
-
-if(setSpeed = 3) ;time the animation
-	Sleep, 1500
-else
-	Sleep, 2500
-
-KeepSync(60, 130, 202, 142, 10, "Pick", 208, 461, 350) ;stop at pick a card
-
-sleep, %Delay%
-
-adbClick(187, 345)
-
-failSafe := A_TickCount
-failSafeTime := 0
-Loop {
-	if(setSpeed = 3)
-		continueTime := 1
-	else
-		continueTime := 6
-	if(KeepSync(110, 230, 182, 257, , "Welcome", 239, 497, , continueTime, failSafeTime)) ;click through to end of tut screen
-		break
-	sleep, %Delay%
-adbClick(143, 492)
-	sleep, %Delay%
-adbClick(143, 492)
-	sleep, %Delay%
-adbClick(66, 446)
-	sleep, %Delay%
-adbClick(66, 446)
-	sleep, %Delay%
-adbClick(66, 446)
-	sleep, %Delay%
-adbClick(187, 345)
-	failSafeTime := (A_TickCount - failSafe) // 1000
-	CreateStatusMessage("In failsafe for End. It's been: " . failSafeTime "s ")
-	LogToFile("In failsafe for End. It's been: " . failSafeTime "s ")
-}
-
-
-KeepSync(120, 316, 143, 335, , "Main", 192, 449) ;click until at main menu
-
-GPTest := true
-
-Loop {
-	if(!GPTest) {
-		break
-	}
-	if(!deleteAccount) {
-		KeepSync(120, 500, 155, 530, , "Social", 143, 518, 500)
-		KeepSync(226, 100, 270, 135, , "Add", 38, 460, 500)
-		KeepSync(205, 430, 255, 475, , "Search", 240, 120, 500)
-		KeepSync(0, 475, 25, 495, , "OK2", 138, 454)
-		Sleep, %Delay%
-		Sleep, %Delay%
-		adbInput(FriendID)
-		Sleep, %Delay%
-		Sleep, %Delay%
-		KeepSync(165, 250, 190, 275, , "Send", 232, 453)
-		KeepSync(165, 240, 255, 270, , "Withdraw", 193, 258, 1000)
-		KeepSync(120, 500, 155, 530, , "Social", 143, 518, 500)
-		Sleep, %Delay%
-		KeepSync(20, 500, 55, 530, , "Home", 40, 516, 500)
-		Sendlevel 1
-		Send, {F9}
-	}
-	deleteAccount := true
-	CreateStatusMessage("GP Test mode. Press button again to delete.")
-	sleep, 1000
-}
-
-	if(openPack = "Mew") { ; MEW
-		KeepSync(233, 400, 264, 428, , "Points", 80, 196) ;Mew	
-		KeepSync(233, 486, 272, 519, , "Skip2", 146, 439) ;click on next until skip button appears
-	}
-	else if(openPack = "Palkia") { ;Palkia
-		KeepSync(233, 400, 264, 428, , "Points", 200, 196) ;Genetic apex
-		KeepSync(233, 486, 272, 519, , "Skip2", 146, 439) ;click on next until skip button appears
-	}
-	else if(openPack = "Dialgia") { ;Dialgia
-		KeepSync(233, 400, 264, 428, , "Points", 145, 196) ;Genetic apex
-		KeepSync(233, 486, 272, 519, , "Skip2", 146, 439) ;click on next until skip button appears
-	}
-	failSafe := A_TickCount
-	failSafeTime := 0
-	Loop {
-		if(KeepSync(225, 273, 235, 290, , "Pack", 239, 497, , 2))
-			break ;wait for pack to be ready to Trace and click skip
-		sleep, %Delay%
-		adbClick(146, 439)
-		
-		failSafeTime := (A_TickCount - failSafe) // 1000
-		CreateStatusMessage("In failsafe for Trace2. It's been: " . failSafeTime "s ")
-		if(failSafeTime > 45)
-			restartGameInstance("Stuck at Trace2")
-	}
-
-	if(setSpeed > 1) {
-	KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-	KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-		Sleep, %Delay%
-	}
-	failSafe := A_TickCount
-	failSafeTime := 0
-	Loop {
-		adbSwipe()	
-		Sleep, 10
-		if (CheckInstances(203, 273, 228, 290, , "Pack", 1, failSafeTime)){
-		if(setSpeed > 1) {
-			if(setSpeed = 3)
-					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-			else
-					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-		}
-			adbClick(41, 296)
-			break
-		}
-		failSafeTime := (A_TickCount - failSafe) // 1000
-		CreateStatusMessage("In failsafe for Trace. It's been: " . failSafeTime "s ")
-		Sleep, %Delay%
-	}
-
-		
-	KeepSync(0, 98, 116, 125, 5, "Opening", 239, 497) ;skip through cards until results opening screen
-
-	foundGP := checkBorder() ;check card border to find godpacks	
-	if(foundGP) {
-		if(godPack < 3)
-			killGodPackInstance()
-		else if(godPack = 3)
-			restartGameInstance("God Pack found. Continuing...") ; restarts to backup and delete xml file with account info.
-	}
-	
-	KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
-	
-	Loop {
-		if(KeepSync(20, 500, 55, 530, , "Home", 244, 496, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
-			break
-		adbClick(146, 494) ;146 494
-		Sleep, %Delay%
-	}
-	
-	Sleep, %Delay%
-	Sleep, %Delay%
-	Sleep, %Delay%
-	adbClick(142, 429)
-	
-	failSafe := A_TickCount
-	failSafeTime := 0
-	Loop {
-		if(KeepSync(203, 273, 228, 290, , "Pack", 239, 497, , 2))
-			break ;wait for pack to be ready to Trace and click skip
-		sleep, %Delay%
-		adbClick(142, 429)
-				
-		
-		failSafeTime := (A_TickCount - failSafe) // 1000
-		CreateStatusMessage("In failsafe for Trace3. It's been: " . failSafeTime "s ")
-		LogToFile("In failsafe for Trace3. It's been: " . failSafeTime "s ")
-		if(failSafeTime > 45)
-			restartGameInstance("Stuck at Trace3")
-	}
-	
-		if(setSpeed > 1) {
-		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-			Sleep, %Delay%
-		}
-	failSafe := A_TickCount
-	failSafeTime := 0
-	Loop {
-		adbSwipe()
-		Sleep, 10
-		if (CheckInstances(203, 273, 228, 290, , "Pack", 1, failSafeTime)){
-		if(setSpeed > 1) {
-			if(setSpeed = 3)
-					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-			else
-					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-		}
-			adbClick(41, 296)
-			break
-		}
-		failSafeTime := (A_TickCount - failSafe) // 1000
-		CreateStatusMessage("In failsafe for Pack. It's been: " . failSafeTime "s ")
-		Sleep, %Delay%
-	}
-	KeepSync(0, 98, 116, 125, 5, "Opening", 239, 497) ;skip through cards until results opening screen
-
-	foundGP := checkBorder() ;check card border to find godpacks	
-	if(foundGP) {
-		if(godPack < 3)
-			killGodPackInstance()
-		else if(godPack = 3)
-			restartGameInstance("God Pack found. Continuing...") ; restarts to backup and delete xml file with account info.
-	}
-			
-	KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
-
-	failSafe := A_TickCount
-	failSafeTime := 0
-	Loop {
-		if(KeepSync(178, 193, 251, 282, , "Hourglass", 239, 497, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
-			break
-		adbClick(146, 494) ;146 494
-		Sleep, %Delay%
-		failSafeTime := (A_TickCount - failSafe) // 1000
-		CreateStatusMessage("In failsafe for Hourglass. It's been: " . failSafeTime "s ")
-		LogToFile("In failsafe for Hourglass. It's been: " . failSafeTime "s ")
-		if(failSafeTime > 45)
-			restartGameInstance("Stuck at Hourglass")
-	}
-	
-	Sleep, %Delay%
-	Sleep, %Delay%
-	Sleep, %Delay%
-	adbClick(146, 441) ; 146 440
-	Sleep, %Delay%
-	Sleep, %Delay%
-	Sleep, %Delay%
-	adbClick(146, 441)
-	Sleep, %Delay%
-	Sleep, %Delay%
-	Sleep, %Delay%
-	adbClick(146, 441)
-	Sleep, %Delay%
-	Sleep, %Delay%
-	Sleep, %Delay%
-	
-	KeepSync(98, 184, 151, 224, , "Hourglass1", 168, 438, 500, 5) ;stop at hourglasses tutorial 2
-	Sleep, %Delay%
-
-	adbClick(203, 436) ; 203 436
-
-	KeepSync(236, 198, 266, 226, , "Hourglass2", 180, 436, 500) ;stop at hourglasses tutorial 2 180 to 203?
-
-	Sleep, %Delay%
-	adbClick(210, 464) ; 210 464
-	Sleep, %Delay%
-	adbClick(210, 464) ; 210 464
-	
-	failSafe := A_TickCount
-	failSafeTime := 0
-	Loop {
-		if(KeepSync(203, 273, 228, 290, , "Pack", 239, 497, , 2)) ;wait for pack to be ready to Trace and click skip
-			break 
-		Sleep, %Delay%
-		adbClick(210, 464) ; 210 464
-		failSafeTime := (A_TickCount - failSafe) // 1000
-		CreateStatusMessage("In failsafe for Trace4. It's been: " . failSafeTime "s ")
-		LogToFile("In failsafe for Trace4. It's been: " . failSafeTime "s ")
-		if(failSafeTime > 45)
-			restartGameInstance("Stuck at Trace4")
-	}
-	
-	failSafe := A_TickCount
-	failSafeTime := 0
-		if(setSpeed > 1) {
-		KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-		KeepSync(9, 170, 25, 190, , "One", 26, 180) ; click mod settings
-			Sleep, %Delay%
-		}
-	Loop {
-		adbSwipe()
-		Sleep, 10
-		if (CheckInstances(203, 273, 228, 290, , "Pack", 1, failSafeTime)){
-		if(setSpeed > 1) {
-			if(setSpeed = 3)
-					KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-			else
-					KeepSync(100, 170, 113, 190, , "Two", 107, 180) ; click mod settings
-		}
-			adbClick(41, 296)
-			break
-		}
-		failSafeTime := (A_TickCount - failSafe) // 1000
-		CreateStatusMessage("In failsafe for Pack. It's been: " . failSafeTime "s ")
-		Sleep, %Delay%
-	}
-
-	
-	KeepSync(0, 98, 116, 125, 5, "Opening", 239, 497) ;skip through cards until results opening screen
-
-	foundGP := checkBorder() ;check card border to find godpacks	
-	if(foundGP) {
-		if(godPack < 3)
-			killGodPackInstance()
-		else if(godPack = 3)
-			restartGameInstance("God Pack found. Continuing...") ; restarts to backup and delete xml file with account info.
-	}
-	
-	KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
-	
-	Loop {
-		if(KeepSync(20, 500, 55, 530, , "Home", 244, 496, , 1)) ;click on next until skip button appearsstop at hourglasses tutorial
-			break
-		adbClick(146, 494) ;146 494
-		Sleep, %Delay%
-	}
-
 	KeepSync(120, 500, 155, 530, , "Social", 143, 518, 500)
-	KeepSync(226, 100, 270, 135, , "Add", 38, 460, 500)
-	KeepSync(75, 400, 105, 420, , "Friend", 138, 174, 500)
-	KeepSync(135, 355, 160, 385, , "Remove", 145, 407, 500)
-	KeepSync(70, 395, 100, 420, , "Send2", 200, 372, 500)
-	saveAccount("All")
-
-
-	restartGameInstance("New Run", false)
-
-	if(deleteAccount = true) {
-		CreateStatusMessage("Exiting GP Test Mode")
-		deleteAccount := false
-		rerolls++
-		AppendToJsonFile(packs)
-		totalSeconds := Round((A_TickCount - rerollTime) / 1000) ; Total time in seconds
-		avgtotalSeconds := Round(totalSeconds / rerolls) ; Total time in seconds
-		minutes := Floor(avgtotalSeconds / 60) ; Total minutes
-		seconds := Mod(avgtotalSeconds, 60) ; Remaining seconds within the minute
-		mminutes := Floor(totalSeconds / 60) ; Total minutes
-		sseconds := Mod(totalSeconds, 60) ; Remaining seconds within the minute
-		CreateStatusMessage("Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls, 25, 0, 510)
-		LogToFile("Packs: " . packs . " Total time: " . mminutes . "m " . sseconds . "s Avg: " . minutes . "m " . seconds . "s Runs: " . rerolls)
+	Loop {
+		Sleep, %Delay%
+		if(AddFriend = Instances)
+			break
 	}
+	Sendlevel 1
+	Send, {F8}
+	KeepSync(226, 100, 270, 135, , "Add", 38, 460, 500)
+	KeepSync(170, 450, 195, 480, , "Approve", 228, 464)
+	Sleep, 1000
+	KeepSync(175, 265, 225, 285, , "Accept", 242, 208, 500)
+	AddFriend := 0
 }
 return
 
@@ -1082,9 +351,9 @@ resetWindows(){
 			SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 			Title := winTitle
 			rowHeight := 533  ; Adjust the height of each row
-			currentRow := Floor((winTitle) / (Columns-1))
+			currentRow := Floor((1 - 1) / Columns)
 			y := currentRow * rowHeight	
-			x := Mod((winTitle), Columns) * scaleParam
+			x := Mod((1 - 1), Columns) * scaleParam
 	
 			WinMove, %Title%, , % (MonitorLeft + x), % (MonitorTop + y), scaleParam, 537
 			break
@@ -1104,8 +373,6 @@ killGodPackInstance(){
 	if(godPack = 2) {
 		CreateStatusMessage("Pausing script. Found GP.")
 		LogToFile("Paused God Pack instance.")
-		Sendlevel 1
-		Send, {F10}
 		Pause, On 
 	} else if(godPack = 1) {
 		CreateStatusMessage("Closing script. Found GP.")
@@ -1121,7 +388,6 @@ restartGameInstance(reason, RL := true){
 	CreateStatusMessage("Restarting game reason: " reason)
 	
 	adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
-	adbShell.StdIn.WriteLine("rm /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml") ; delete account data
 	;adbShell.StdIn.WriteLine("rm -rf /data/data/jp.pokemon.pokemontcgp/cache/*") ; clear cache
 	Sleep, 3000
 	adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
@@ -1238,6 +504,10 @@ checkBorder() {
 					godPackLog = GPlog.txt
 					LogToFile(logMessage, godPackLog)
 					LogToDiscord(logMessage, Screenshot("Invalid"), discordUserId, saveAccount("Invalid"))
+					if ((godPack = 3) && (deleteXML = 0)) {
+						; Avoid deleting this acc
+						gpFound := true
+					}
 					break
 				}
 				else {
@@ -1487,7 +757,7 @@ LogToDiscord(message, screenshotFile := "", ping := false, xmlFile := "") {
 	return
 	
 	TestScript:
-	ToggleTestScript()
+		ToggleTestScript()
 	return
 
 ToggleTestScript()
@@ -1502,6 +772,18 @@ ToggleTestScript()
 		;Winset, Alwaysontop, On, %winTitle%
 		GPTest := false
 	}
+}
+
+FriendAdded()
+{
+	global AddFriend
+	AddFriend++
+}
+
+RemoveInstance()
+{
+	global Instances
+	Instances--
 }
 
 ; Function to create or select the JSON file
@@ -1621,8 +903,8 @@ from_window(ByRef image) {
 ~F5::Reload
 ~F6::Pause
 ~F7::ExitApp
-~F8::ToggleTestScript()
-;~F9::restartGameInstance("F9")
+~F9::FriendAdded()
+~F10::RemoveInstance()
 
 bboxAndPause(X1, Y1, X2, Y2, doPause := False) {
 	BoxWidth := X2-X1
@@ -1832,8 +1114,8 @@ IsLeapYear(year) {
     return (Mod(year, 4) = 0 && Mod(year, 100) != 0) || Mod(year, 400) = 0
 }
 
-^e::
-	msgbox ss
-	pToken := Gdip_Startup()
-	Screenshot()
-return
+; ^e::
+	; msgbox ss
+	; pToken := Gdip_Startup()
+	; Screenshot()
+; return
