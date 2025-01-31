@@ -144,12 +144,12 @@ Loop {
 		if(AddFriend = Instances)
 			break
 	}
-	Sendlevel 1
-	Send, {F8}
 	KeepSync(226, 100, 270, 135, , "Add", 38, 460, 500)
 	KeepSync(170, 450, 195, 480, , "Approve", 228, 464)
 	Sleep, 1000
 	KeepSync(175, 265, 225, 285, , "Accept", 242, 208, 500)
+	Sendlevel 1
+	Send, {F8}
 	AddFriend := 0
 }
 return
