@@ -145,17 +145,15 @@ if (skipInvalidGP = "No") {
 Gui, Add, DropDownList, x80 y476 w145 vskipInvalidGP choose%defaultskipGP% Center, No|Yes
 
 ; Pack selection logic
-if (deleteMethod = "Speed") {
+if (deleteMethod = "3Pack") {
 	defaultDelete := 1
-} else if (deleteMethod = "4Pack") {
-	defaultDelete := 2
 } else if (deleteMethod = "Inject(Not available yet)") {
-	defaultDelete := 3
+	defaultDelete := 2
 } else if (deleteMethod = "Safer(not available yet)") {
-	defaultDelete := 4
+	defaultDelete := 3
 }
 
-Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center, Speed|4Pack|Inject(Not available yet)|Safer(not available yet)
+Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center, 3Pack|Inject(Not available yet)|Safer(not available yet)
 
 Gui, Font, s10 Bold, Segoe UI 
 Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
