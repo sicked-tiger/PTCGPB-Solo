@@ -151,11 +151,11 @@ if (deleteMethod = "Speed") {
 	defaultDelete := 2
 } else if (deleteMethod = "Inject(Not available yet)") {
 	defaultDelete := 3
-} else if (deleteMethod = "Safe(not available yet)") {
+} else if (deleteMethod = "Safer(not available yet)") {
 	defaultDelete := 4
 }
 
-Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center, Speed|4Pack|Inject(Not available yet)|Safe(not available yet)
+Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center, Speed|4Pack|Inject(Not available yet)|Safer(not available yet)
 
 Gui, Font, s10 Bold, Segoe UI 
 Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
