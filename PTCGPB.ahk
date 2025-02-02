@@ -3,6 +3,15 @@ version = Arturos PTCGP Bot
 CoordMode, Mouse, Screen
 SetTitleMatchMode, 3
 
+if not A_IsAdmin
+{
+    ; Relaunch script with admin rights
+    Run *RunAs "%A_ScriptFullPath%"
+    ExitApp
+}
+
+KillADBProcesses()
+
 global Instances, jsonFileName, PacksText
 
 totalFile := A_ScriptDir . "\json\total.json"
@@ -26,6 +35,7 @@ InitializeJsonFile() ; Create or open the JSON file
 
 ; Create the main GUI for selecting number of instances
 	IniRead, FriendID, Settings.ini, UserSettings, FriendID
+	IniRead, waitTime, Settings.ini, UserSettings, waitTime, 5
 	IniRead, Delay, Settings.ini, UserSettings, Delay, 250
 	IniRead, folderPath, Settings.ini, UserSettings, folderPath, C:\Program Files\Netease
 	IniRead, discordWebhookURL, Settings.ini, UserSettings, discordWebhookURL, ""
@@ -33,14 +43,14 @@ InitializeJsonFile() ; Create or open the JSON file
 	IniRead, changeDate, Settings.ini, UserSettings, ChangeDate, 0100
 	IniRead, Columns, Settings.ini, UserSettings, Columns, 5
 	IniRead, openPack, Settings.ini, UserSettings, openPack, Palkia
-	IniRead, godPack, Settings.ini, UserSettings, godPack, Pause
+	IniRead, godPack, Settings.ini, UserSettings, godPack, Continue
 	IniRead, Instances, Settings.ini, UserSettings, Instances, 1
-	IniRead, setSpeed, Settings.ini, UserSettings, setSpeed, 2x
+	IniRead, setSpeed, Settings.ini, UserSettings, setSpeed, 1x/3x
 	IniRead, defaultLanguage, Settings.ini, UserSettings, defaultLanguage, Scale125
 	IniRead, SelectedMonitorIndex, Settings.ini, UserSettings, SelectedMonitorIndex, 1
 	IniRead, swipeSpeed, Settings.ini, UserSettings, swipeSpeed, 600
 	IniRead, skipInvalidGP, Settings.ini, UserSettings, skipInvalidGP, Yes
-	IniRead, deleteMethod, Settings.ini, UserSettings, deleteMethod, Hoard
+	IniRead, deleteMethod, Settings.ini, UserSettings, deleteMethod, 3Pack
 
 ; Main GUI setup
 ; Add the link text at the bottom of the GUI
@@ -65,9 +75,9 @@ if(FriendID = "ERROR")
 	FriendID = 
 
 if(FriendID = )
-	Gui, Add, Edit, vFriendID x80 y95 w145 Center
+	Gui, Add, Edit, vFriendID x80 y95 w145 h30 Center
 else
-	Gui, Add, Edit, vFriendID x80 y95 w145 Center, %FriendID%
+	Gui, Add, Edit, vFriendID x80 y95 w145 h30 Center, %FriendID%
 	
 Gui, Add, Edit, vInstances x275 y95 w72 Center, %Instances%
 Gui, Add, Edit, vColumns x348 y95 w72 Center, %Columns%
@@ -135,6 +145,8 @@ Gui, Add, Edit, vswipeSpeed x348 y404 w72 Center, %swipeSpeed%
 
 ; Gui, Add, DropDownList, x275 y166 w145 vgodPack choose%defaultgodPack% Center, Close|Pause|Continue
 
+Gui, Add, Edit, vwaitTime x275 y166 w145 Center, %waitTime%
+
 ; Pack selection logic
 if (skipInvalidGP = "No") {
 	defaultskipGP := 1
@@ -147,13 +159,15 @@ Gui, Add, DropDownList, x80 y476 w145 vskipInvalidGP choose%defaultskipGP% Cente
 ; Pack selection logic
 if (deleteMethod = "3Pack") {
 	defaultDelete := 1
-} else if (deleteMethod = "Inject(Not available yet)") {
+} else if (deleteMethod = "1Pack") {
 	defaultDelete := 2
-} else if (deleteMethod = "Safer(not available yet)") {
+} else if (deleteMethod = "Inject(Not available yet)") {
 	defaultDelete := 3
+} else if (deleteMethod = "Safer(not available yet)") {
+	defaultDelete := 4
 }
 
-Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center, 3Pack|Inject(Not available yet)|Safer(not available yet)
+Gui, Add, DropDownList, x80 y546 w145 vdeleteMethod choose%defaultDelete% Center, 3Pack|1Pack|Inject(Not available yet)|Safer(not available yet)
 
 Gui, Font, s10 Bold, Segoe UI 
 Gui, Add, Edit, vfolderPath x80 y404 w145 h35 Center, %folderPath%
@@ -289,6 +303,7 @@ Instances := Instances  ; Directly reference the "Instances" variable
 Gui, Destroy ; Close the first page
 
 IniWrite, %FriendID%, Settings.ini, UserSettings, FriendID
+IniWrite, %waitTime%, Settings.ini, UserSettings, waitTime
 IniWrite, %Delay%, Settings.ini, UserSettings, Delay
 IniWrite, %folderPath%, Settings.ini, UserSettings, folderPath
 IniWrite, %discordWebhookURL%, Settings.ini, UserSettings, discordWebhookURL
@@ -311,7 +326,7 @@ Loop, %Instances%
 	if (A_Index != 1) {
 		SourceFile := "Scripts\1.ahk" ; Path to the source .ahk file
 		TargetFolder := "Scripts\" ; Path to the target folder
-		TargetFile := TargetFolder . "\" . A_Index . ".ahk" ; Generate target file path
+		TargetFile := TargetFolder . A_Index . ".ahk" ; Generate target file path
 		FileCopy, %SourceFile%, %TargetFile%, 1 ; Copy source file to target
 		if (ErrorLevel)
 			MsgBox, Failed to create %TargetFile%. Ensure permissions and paths are correct.
@@ -322,8 +337,10 @@ Loop, %Instances%
 	
 	Run, %Command%
 }
-FileName := "Scripts\Main.ahk"
-Run, %FileName%
+if(FriendID) {
+	FileName := "Scripts\Main.ahk"
+	Run, %FileName%
+}
 SelectedMonitorIndex := RegExReplace(SelectedMonitorIndex, ":.*$")
 SysGet, Monitor, Monitor, %SelectedMonitorIndex%
 rerollTime := A_TickCount
@@ -335,7 +352,7 @@ Loop {
 	mminutes := Floor(totalSeconds / 60)
 	if(total = 0)
 	total := "0                             "
-	CreateStatusMessage("Time: " . mminutes . "m Packs: " . total, 5, 490)
+	CreateStatusMessage("Time: " . mminutes . "m Packs: " . total, 287, 490)
 	Sleep, 10000
 }
 Return
@@ -475,6 +492,13 @@ SumVariablesInJsonFile() {
 	}
 
 	return sum
+}
+
+KillADBProcesses() {
+    ; Use AHK's Process command to close adb.exe
+    Process, Close, adb.exe
+    ; Fallback to taskkill for robustness
+    RunWait, %ComSpec% /c taskkill /IM adb.exe /F /T,, Hide
 }
 
 ~F7::ExitApp
