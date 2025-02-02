@@ -637,7 +637,7 @@ KeepSync(120, 316, 143, 335, , "Main", 192, 449) ;click until at main menu
 		if(godPack < 3)
 			killGodPackInstance()
 		else if(godPack = 3)
-			restartGameInstance("God Pack found. Continuing...") ; restarts to backup and delete xml file with account info.
+			restartGameInstance("God Pack found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
 	}
 	
 	KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
@@ -719,7 +719,7 @@ KeepSync(120, 316, 143, 335, , "Main", 192, 449) ;click until at main menu
 		if(godPack < 3)
 			killGodPackInstance()
 		else if(godPack = 3)
-			restartGameInstance("God Pack found. Continuing...") ; restarts to backup and delete xml file with account info.
+			restartGameInstance("God Pack found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
 	}
 			
 	KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
@@ -829,7 +829,7 @@ KeepSync(120, 316, 143, 335, , "Main", 192, 449) ;click until at main menu
 		if(godPack < 3)
 			killGodPackInstance()
 		else if(godPack = 3)
-			restartGameInstance("God Pack found. Continuing...") ; restarts to backup and delete xml file with account info.
+			restartGameInstance("God Pack found. Continuing...", "GodPack") ; restarts to backup and delete xml file with account info.
 	}
 	
 	KeepSync(233, 486, 272, 519, , "Skip", 146, 494) ;click on next until skip button appears
@@ -1246,15 +1246,21 @@ restartGameInstance(reason, RL := true){
 	initializeAdbShell()
 	CreateStatusMessage("Restarting game reason: " reason)
 	
-	adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
-	if(!RL)
-		adbShell.StdIn.WriteLine("rm /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml") ; delete account data
-	;adbShell.StdIn.WriteLine("rm -rf /data/data/jp.pokemon.pokemontcgp/cache/*") ; clear cache
-	Sleep, 1500
-	adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
+	if(!RL || RL != "GodPack") {
+		adbShell.StdIn.WriteLine("am force-stop jp.pokemon.pokemontcgp")
+		if(!RL)
+			adbShell.StdIn.WriteLine("rm /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml") ; delete account data
+		;adbShell.StdIn.WriteLine("rm -rf /data/data/jp.pokemon.pokemontcgp/cache/*") ; clear cache
+		Sleep, 1500
+		adbShell.StdIn.WriteLine("am start -n jp.pokemon.pokemontcgp/com.unity3d.player.UnityPlayerActivity")
+	}
 
 	Sleep, 4500
-	if(RL) {
+	
+	if(RL = "GodPack") {
+		LogToFile("Restarted game for instance " scriptName " Reason: " reason, "Restart.txt")
+		Reload
+	} else if(RL) {
 		if(!packs) {
 			KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
 			if(setSpeed = 3)
