@@ -114,11 +114,6 @@ global winTitle, changeDate, failSafe, openPack, Delay, failSafeTime, StartSkipT
 	pToken := Gdip_Startup()
 	
 	
-	; KeepSync(73, 204, 137, 219, , "Platin", 18, 109, 2000) ; click mod settings
-	; KeepSync(182, 170, 194, 190, , "Three", 187, 180) ; click mod settings
-	; Sleep, %Delay%
-	; adbClick(41, 296)
-	
 Loop {
 	FormatTime, CurrentTime,, HHmm
 
@@ -138,19 +133,26 @@ Loop {
 		Sleep, 5000
 	}
 	Sleep, %Delay%
-	KeepSync(120, 500, 155, 530, , "Social", 143, 518, 500)
-	Loop {
-		Sleep, %Delay%
-		if(AddFriend = Instances)
-			break
-	}
+	KeepSync(120, 500, 155, 530, , "Social", 143, 518, 1000, 30)
 	KeepSync(226, 100, 270, 135, , "Add", 38, 460, 500)
 	KeepSync(170, 450, 195, 480, , "Approve", 228, 464)
-	Sleep, 1000
-	KeepSync(175, 265, 225, 285, , "Accept", 242, 208, 500)
-	Sendlevel 1
-	Send, {F8}
-	AddFriend := 0
+	done := false
+	Loop 3 {
+		Sleep, 250
+		if(CheckInstances(225, 195, 250, 215, , "Pending", 0)) {
+			Loop {
+				Sleep, %Delay%
+				if(CheckInstances(225, 195, 250, 215, , "Pending", 0))
+					adbClick(245, 210)
+				if(CheckInstances(186, 496, 206, 518, , "Accept", 0)) {
+					done := true
+					break
+				}
+			}
+		}
+		if(done)
+			break
+	}
 }
 return
 
@@ -337,7 +339,6 @@ KeepSync(X1, Y1, X2, Y2, searchVariation := "", imageName := "DEFAULT", clickx :
 	return confirmed
 }
 
-
 resetWindows(){
 	global Columns, winTitle, SelectedMonitorIndex, scaleParam
 	CreateStatusMessage("Arranging window positions and sizes")
@@ -368,20 +369,6 @@ resetWindows(){
 	return true
 }
 
-killGodPackInstance(){
-	global winTitle, godPack
-	if(godPack = 2) {
-		CreateStatusMessage("Pausing script. Found GP.")
-		LogToFile("Paused God Pack instance.")
-		Pause, On 
-	} else if(godPack = 1) {
-		CreateStatusMessage("Closing script. Found GP.")
-		LogToFile("Closing God Pack instance.")
-		WinClose, %winTitle%
-		ExitApp
-	}
-}
-
 restartGameInstance(reason, RL := true){
 	global Delay, scriptName, adbShell, adbPath, adbPort
 	initializeAdbShell()
@@ -394,8 +381,9 @@ restartGameInstance(reason, RL := true){
 
 	Sleep, 3000
 	if(RL) {
-		Reload
 		LogToFile("Restarted game for instance " scriptName " Reason: " reason, "Restart.txt")
+		LogToDiscord("Restarted game for instance " scriptName " Reason: " reason, , discordUserId)
+		Reload
 	}
 }
 
@@ -414,7 +402,7 @@ LogToFile(message, logFile := "") {
 CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 	global scriptName, winTitle, StatusText
 	try {
-		GuiName := GuiName+scriptName
+		GuiName := GuiName
 		WinGetPos, xpos, ypos, Width, Height, %winTitle%
 		X := X + xpos + 5
 		Y := Y + ypos
@@ -430,172 +418,6 @@ CreateStatusMessage(Message, GuiName := 50, X := 0, Y := 80) {
 		Gui, %GuiName%:Add, Text, vStatusText, %Message%
 		Gui, %GuiName%:Show, NoActivate x%X% y%Y% AutoSize, NoActivate %GuiName%
 	}
-}
-
-checkBorder() {
-	global winTitle, discordUserId, skipInvalidGP, Delay
-	gpFound := false
-	invalidGP := false
-	searchVariation := 5
-	confirm := false
-	Sleep, 250 ; give time for cards to render
-	Loop {
-		pBitmap := from_window(WinExist(winTitle))
-		Path = %A_ScriptDir%\%defaultLanguage%\Border.png
-		pNeedle := GetNeedle(Path)
-		; ImageSearch within the region
-		if (scaleParam = 277) { ; 125% scale
-			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284, 90, 286, searchVariation)
-		} else {
-			vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 20, 284-6, 90, 286-6, searchVariation)
-			;bboxAndPause(20, 284-6, 90, 286-6)
-		}
-		Gdip_DisposeImage(pBitmap)
-		if (vRet = 1) {
-			CreateStatusMessage("Not a God Pack ")
-			packs += 1
-			break
-		}
-		else {
-			;pause (should pause if first card is not 1 or 2 diamonds)
-			pBitmap := from_window(WinExist(winTitle))
-			Path = %A_ScriptDir%\%defaultLanguage%\Border.png
-			pNeedle := GetNeedle(Path)
-			; ImageSearch within the region
-			if (scaleParam = 277) { ; 125% scale
-				vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284, 173, 286, searchVariation)
-			} else {
-				vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 103, 284-6, 173, 286-6, searchVariation)
-				;bboxAndPause(103, 284-6, 173, 286-6)
-			}
-			Gdip_DisposeImage(pBitmap)
-			if (vRet = 1) {
-				CreateStatusMessage("Not a God Pack ")
-				LogToFile("Second card checked. Not a God Pack ")
-				packs += 1
-				break
-			}
-			else if (confirm) {
-				packs += 1
-				if(skipInvalidGP = 2) {
-					Loop 8 {
-						pBitmap := from_window(WinExist(winTitle))
-						if (scaleParam = 277) { ; 125% scale
-							Path = %A_ScriptDir%\Skip\%A_Index%.png
-						} else {
-							Path = %A_ScriptDir%\Skip\100\%A_Index%.png
-						}
-						pNeedle := GetNeedle(Path)
-						vRet := Gdip_ImageSearch(pBitmap, pNeedle, vPosXY, 5, 165, 265, 405, searchVariation)
-						;bboxAndPause(5, 165, 265, 405, True)
-						Gdip_DisposeImage(pBitmap)
-						if (vRet = 1) {
-							invalidGP := true
-						}
-					}
-				}
-				if(invalidGP) {
-					Condemn := ["Uh-oh!", "Oops!", "Not quite!", "Better luck next time!", "Yikes!", "That didn’t go as planned.", "Try again!", "Almost had it!", "Not your best effort.", "Keep practicing!", "Oh no!", "Close, but no cigar.", "You missed it!", "Needs work!", "Back to the drawing board!", "Whoops!", "That’s rough!", "Don’t give up!", "Ouch!", "Swing and a miss!", "Room for improvement!", "Could be better.", "Not this time.", "Try harder!", "Missed the mark.", "Keep at it!", "Bummer!", "That’s unfortunate.", "So close!", "Gotta do better!"]
-					Randmax := Condemn.Length()
-					Random, rand, 1, Randmax
-					Interjection := Condemn[rand]
-					logMessage := Interjection . " Invalid pack in instance: " . scriptName . " (" . packs . " packs) Backed up to the Accounts folder. Continuing..."
-					CreateStatusMessage(logMessage)
-					godPackLog = GPlog.txt
-					LogToFile(logMessage, godPackLog)
-					LogToDiscord(logMessage, Screenshot("Invalid"), discordUserId, saveAccount("Invalid"))
-					if ((godPack = 3) && (deleteXML = 0)) {
-						; Avoid deleting this acc
-						gpFound := true
-					}
-					break
-				}
-				else {
-					Praise := ["Congrats!", "Congratulations!", "GG!", "Whoa!", "Praise Helix! ༼ つ ◕_◕ ༽つ", "Way to go!", "You did it!", "Awesome!", "Nice!", "Cool!", "You deserve it!", "Keep going!", "This one has to be live!", "No duds, no duds, no duds!", "Fantastic!", "Bravo!", "Excellent work!", "Impressive!", "Youre amazing!", "Well done!", "Youre crushing it!", "Keep up the great work!", "Youre unstoppable!", "Exceptional!", "You nailed it!", "Hats off to you!", "Sweet!", "Kudos!", "Phenomenal!", "Boom! Nailed it!", "Marvelous!", "Outstanding!", "Legendary!", "Youre a rock star!", "Unbelievable!", "Keep shining!", "Way to crush it!", "Youre on fire!", "Killing it!", "Top-notch!", "Superb!", "Epic!", "Cheers to you!", "Thats the spirit!", "Magnificent!", "Youre a natural!", "Gold star for you!", "You crushed it!", "Incredible!", "Shazam!", "Youre a genius!", "Top-tier effort!", "This is your moment!", "Powerful stuff!", "Wicked awesome!", "Props to you!", "Big win!", "Yesss!", "Champion vibes!", "Spectacular!"]
-
-					Randmax := Praise.Length()
-					Random, rand, 1, Randmax
-					Interjection := Praise[rand]
-					
-					if(godPack < 3)
-						logMessage := Interjection . " God pack found in instance: " . scriptName . " (" . packs . " packs) Instance is stopping."
-					else if(godPack = 3)
-						logMessage := Interjection . " God Pack found in instance: " . scriptName . " (" . packs . " packs) Backed up to the Accounts folder. Continuing..."
-					CreateStatusMessage(logMessage)
-					godPackLog = GPlog.txt
-					LogToFile(logMessage, godPackLog)
-					LogToDiscord(logMessage, Screenshot(), discordUserId, saveAccount())
-					gpFound := true
-					break
-				}
-			}
-			else {
-				fpSleep := Delay * 5
-				Sleep, %fpSleep% ; delay to make sure cards rendered after not detecting common borders to eliminate false positives
-				confirm := true
-			}
-		}
-	}
-	return gpFound
-}
-
-saveAccount(file := "Valid") {
-	global adbShell, adbPath, adbPort
-	initializeAdbShell()
-	currentDate := A_Now  
-	year := SubStr(currentDate, 1, 4)  
-	month := SubStr(currentDate, 5, 2) 
-	day := SubStr(currentDate, 7, 2)   
-
-
-	daysSinceBase := (year - 1900) * 365 + Floor((year - 1900) / 4)
-	daysSinceBase += MonthToDays(year, month)                       
-	daysSinceBase += day                                            
-
-	remainder := Mod(daysSinceBase, 4)
-	
-	if (file = "All") {
-		saveDir := A_ScriptDir "\..\Accounts\Saved\" . remainder . "\" . winTitle
-		if !FileExist(saveDir) ; Check if the directory exists
-			FileCreateDir, %saveDir% ; Create the directory if it doesn't exist
-		saveDir := saveDir . "\" . A_Now . "_" . winTitle . ".xml"
-	}
-	else {
-		saveDir := A_ScriptDir "\..\Accounts\GodPacks" . A_Now . "_" . winTitle . "_" . file . "_" . packs . "_packs.xml"
-	}
-	count := 0
-	Loop {
-		CreateStatusMessage("Attempting to save account XML. " . count . "/10")
-	
-		adbShell.StdIn.WriteLine("cp /data/data/jp.pokemon.pokemontcgp/shared_prefs/deviceAccount:.xml /sdcard/deviceAccount.xml")
-		
-		Sleep, 500
-		
-		RunWait, % adbPath . " -s 127.0.0.1:" . adbPort . " pull /sdcard/deviceAccount.xml """ . saveDir,, Hide
-		
-		Sleep, 500
-		
-		adbShell.StdIn.WriteLine("rm /sdcard/deviceAccount.xml")
-		
-		Sleep, 500
-		
-		FileGetSize, OutputVar, %saveDir%
-		
-		if(OutputVar > 0)
-			break
-		
-		if(count > 10 && file != "All") {
-			CreateStatusMessage("Attempted to save the account XML`n10 times, but was unsuccesful.`nPausing...")
-			LogToDiscord("Attempted to save account in " . scriptName . " but was unsuccessful. Pausing. You will need to manually extract.", Screenshot(), discordUserId)
-			Pause, On
-		} else if(count > 10) {
-			LogToDiscord("Couldnt save this regular account skipping it.")
-			break
-		}
-		count++
-	}
-	
-	return saveDir
 }
 
 adbClick(X, Y) {
@@ -780,12 +602,6 @@ FriendAdded()
 	AddFriend++
 }
 
-RemoveInstance()
-{
-	global Instances
-	Instances--
-}
-
 ; Function to create or select the JSON file
 InitializeJsonFile() {
 	global jsonFileName
@@ -903,8 +719,6 @@ from_window(ByRef image) {
 ~F5::Reload
 ~F6::Pause
 ~F7::ExitApp
-~F9::FriendAdded()
-~F10::RemoveInstance()
 
 bboxAndPause(X1, Y1, X2, Y2, doPause := False) {
 	BoxWidth := X2-X1
@@ -1114,8 +928,8 @@ IsLeapYear(year) {
     return (Mod(year, 4) = 0 && Mod(year, 100) != 0) || Mod(year, 400) = 0
 }
 
-; ^e::
-	; msgbox ss
-	; pToken := Gdip_Startup()
-	; Screenshot()
-; return
+^e::
+	msgbox ss
+	pToken := Gdip_Startup()
+	Screenshot()
+return
